@@ -110,12 +110,12 @@ export default function LandingPage() {
             >
               Sign In
             </button>
-            <a
-              href="https://elhardtfamilywellness.mykajabi.com/offers/nHp3qkqL"
+            <button
+              onClick={() => navigate('/dashboard')}
               className="bg-slate-blue text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors"
             >
-              Get Access
-            </a>
+              Open App
+            </button>
           </div>
         </div>
       </nav>
@@ -137,12 +137,12 @@ export default function LandingPage() {
             complex journey of caring for children who have experienced adversity.
           </p>
           <div className="flex flex-wrap gap-4 mb-8">
-            <a
-              href="https://elhardtfamilywellness.mykajabi.com/offers/nHp3qkqL"
+            <button
+              onClick={() => navigate('/dashboard')}
               className="inline-flex items-center gap-2 bg-slate-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors"
             >
-              Get Access Now <ArrowRight className="w-4 h-4" />
-            </a>
+              Open App <ArrowRight className="w-4 h-4" />
+            </button>
             <button
               onClick={() => navigate('/disclaimer')}
               className="inline-flex items-center gap-2 border border-gray-300 text-charcoal px-6 py-3 rounded-lg font-semibold hover:border-slate-blue hover:text-slate-blue transition-colors"
@@ -264,12 +264,12 @@ export default function LandingPage() {
             scripts, and knowledge to show up with confidence and compassion, even on the hardest days.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
-            <a
-              href="https://elhardtfamilywellness.mykajabi.com/offers/nHp3qkqL"
+            <button
+              onClick={() => navigate('/dashboard')}
               className="inline-flex items-center gap-2 bg-slate-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors"
             >
-              Get Access Now <ArrowRight className="w-4 h-4" />
-            </a>
+              Open App <ArrowRight className="w-4 h-4" />
+            </button>
             <button
               onClick={() => navigate('/disclaimer')}
               className="inline-flex items-center gap-2 border border-gray-300 text-charcoal px-6 py-3 rounded-lg font-semibold hover:border-slate-blue hover:text-slate-blue transition-colors"

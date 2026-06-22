@@ -48,12 +48,12 @@ export default function Navbar() {
               >
                 Sign In
               </button>
-              <a
-                href="https://elhardtfamilywellness.mykajabi.com/offers/nHp3qkqL"
+              <Link
+                to="/dashboard"
                 className="bg-slate-blue text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors"
               >
-                Get Access
-              </a>
+                Open App
+              </Link>
             </>
           )}
         </div>
@@ -86,9 +86,9 @@ export default function Navbar() {
               <button onClick={() => { navigate('/disclaimer'); setMenuOpen(false); }} className="block text-sm font-medium text-charcoal">
                 Sign In
               </button>
-              <a href="https://elhardtfamilywellness.mykajabi.com/offers/nHp3qkqL" className="block text-sm font-semibold text-slate-blue">
-                Get Access
-              </a>
+              <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="block text-sm font-semibold text-slate-blue">
+                Open App
+              </Link>
             </>
           )}
         </div>

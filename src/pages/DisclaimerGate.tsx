@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Shield, AlertTriangle, Phone, CheckCircle } from 'lucide-react'
 
@@ -61,9 +61,9 @@ export default function DisclaimerGate() {
           </form>
           <p className="text-center text-sm text-charcoal-70 mt-4">
             Don't have access?{' '}
-            <a href="https://elhardtfamilywellness.mykajabi.com/offers/nHp3qkqL" className="text-slate-blue font-medium hover:underline">
-              Get Access
-            </a>
+            <Link to="/dashboard" className="text-slate-blue font-medium hover:underline">
+              Open App
+            </Link>
           </p>
         </div>
       </div>

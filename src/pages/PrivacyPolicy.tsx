@@ -50,7 +50,7 @@ export default function PrivacyPolicy() {
 
             <section>
               <h2 className="text-xl font-bold font-heading text-charcoal mb-3">6. Third-Party Services</h2>
-              <p>We may use third-party services for authentication (Kajabi), analytics, and hosting. These services have their own privacy policies governing the use of your information.</p>
+              <p>We may use third-party services for authentication, payment processing, analytics, and hosting. These services have their own privacy policies governing the use of your information.</p>
             </section>
 
             <section>
