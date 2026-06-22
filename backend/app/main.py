@@ -371,3 +371,36 @@ def list_webhook_events(current_user: dict = Depends(get_current_user)) -> list[
             "SELECT event_id, event_type, processed_at FROM webhook_events ORDER BY processed_at DESC LIMIT 50"
         ).fetchall()
     return [{"event_id": r["event_id"], "event_type": r["event_type"], "processed_at": r["processed_at"]} for r in rows]
+
+
+class NotificationRequest(BaseModel):
+    message: str
+    link: Optional[str] = None
+
+
+@app.post("/api/admin/notifications/send")
+def send_notification(body: NotificationRequest, current_user: dict = Depends(get_current_user)) -> MessageResponse:
+    """Send a push notification to all subscribers."""
+    from datetime import datetime, timezone
+    with get_db() as conn:
+        # Store the notification
+        conn.execute(
+            """CREATE TABLE IF NOT EXISTS notifications (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                message TEXT NOT NULL,
+                link TEXT,
+                sent_by INTEGER,
+                sent_at TEXT NOT NULL DEFAULT (datetime('now'))
+            )"""
+        )
+        conn.execute(
+            "INSERT INTO notifications (message, link, sent_by, sent_at) VALUES (?, ?, ?, ?)",
+            (body.message, body.link, int(current_user["sub"]), datetime.now(timezone.utc).isoformat()),
+        )
+        # Count active subscribers
+        count = conn.execute(
+            "SELECT COUNT(*) as c FROM users WHERE subscription_status = 'active'"
+        ).fetchone()["c"]
+        conn.commit()
+
+    return MessageResponse(message=f"Notification sent to {count} active subscriber(s)")

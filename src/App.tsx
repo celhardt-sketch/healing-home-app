@@ -20,6 +20,7 @@ import AccountSettings from './pages/AccountSettings'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import AccessGate from './pages/AccessGate'
+import AdminDashboard from './pages/AdminDashboard'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="/mandated-reporter-guide" element={<MandatedReporterGuide />} />
         <Route path="/printables" element={<PrintablesVault />} />
         <Route path="/access-gate" element={<AccessGate />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/account" element={<AccountSettings />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
