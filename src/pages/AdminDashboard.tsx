@@ -75,10 +75,33 @@ export default function AdminDashboard() {
   const { isAuthenticated } = useAuth()
   const navigate = useNavigate()
   const [activeTab, setActiveTab] = useState<Tab>('first-aid')
+  const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
 
   useEffect(() => {
-    if (!isAuthenticated) navigate('/disclaimer')
+    if (!isAuthenticated) {
+      navigate('/disclaimer')
+      return
+    }
+    apiGet('/api/me/admin-status')
+      .then((data) => setIsAdmin(data.is_admin))
+      .catch(() => setIsAdmin(false))
   }, [isAuthenticated, navigate])
+
+  if (isAdmin === null) {
+    return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-sm text-charcoal-70">Loading...</p></div>
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm text-center max-w-md">
+          <h2 className="text-xl font-bold font-heading text-charcoal mb-2">Access Denied</h2>
+          <p className="text-sm text-charcoal-70 mb-4">This page is restricted to administrators only.</p>
+          <Link to="/dashboard" className="text-slate-blue hover:underline text-sm font-medium">Back to Dashboard</Link>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">

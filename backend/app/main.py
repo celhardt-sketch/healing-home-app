@@ -98,6 +98,16 @@ def get_current_user(authorization: str = Header(...)) -> dict:
     return payload
 
 
+def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
+    """Require admin role. Returns user payload or raises 403."""
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        row = conn.execute("SELECT is_admin FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not row or not row["is_admin"]:
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+
 # --- Public endpoints (no auth required) ---
 
 
@@ -197,11 +207,50 @@ def get_profile(current_user: dict = Depends(get_current_user)) -> UserResponse:
     return UserResponse(id=user["id"], name=user["name"], email=user["email"])
 
 
+@app.get("/api/me/admin-status")
+def admin_status(current_user: dict = Depends(get_current_user)) -> dict:
+    """Check if the current user is an admin."""
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        row = conn.execute("SELECT is_admin FROM users WHERE id = ?", (user_id,)).fetchone()
+    return {"is_admin": bool(row and row["is_admin"])}
+
+
+@app.post("/api/admin/promote")
+def promote_to_admin(email: str, current_user: dict = Depends(require_admin)) -> MessageResponse:
+    """Promote a user to admin by email. Requires existing admin."""
+    with get_db() as conn:
+        result = conn.execute("UPDATE users SET is_admin = 1 WHERE email = ?", (email,))
+        conn.commit()
+    if result.rowcount == 0:
+        raise HTTPException(404, "User not found")
+    return MessageResponse(message=f"{email} is now an admin")
+
+
+ADMIN_SETUP_KEY = os.environ.get("ADMIN_SETUP_KEY", "")
+
+
+@app.post("/api/setup/make-admin")
+def setup_make_admin(email: str, setup_key: str) -> MessageResponse:
+    """One-time setup: make a user admin using the ADMIN_SETUP_KEY env variable.
+    This allows initial admin creation without needing an existing admin."""
+    if not ADMIN_SETUP_KEY:
+        raise HTTPException(403, "Admin setup not configured. Set ADMIN_SETUP_KEY env variable.")
+    if setup_key != ADMIN_SETUP_KEY:
+        raise HTTPException(403, "Invalid setup key")
+    with get_db() as conn:
+        result = conn.execute("UPDATE users SET is_admin = 1 WHERE email = ?", (email,))
+        conn.commit()
+    if result.rowcount == 0:
+        raise HTTPException(404, "User not found. Register first, then call this endpoint.")
+    return MessageResponse(message=f"{email} is now an admin")
+
+
 # --- Admin/backup endpoints ---
 
 
 @app.post("/api/admin/backup", response_model=MessageResponse)
-def trigger_backup(current_user: dict = Depends(get_current_user)) -> MessageResponse:
+def trigger_backup(current_user: dict = Depends(require_admin)) -> MessageResponse:
     """Trigger a manual database backup."""
     backup_path = create_backup()
     is_valid = verify_backup(backup_path)
@@ -215,7 +264,7 @@ def trigger_backup(current_user: dict = Depends(get_current_user)) -> MessageRes
 
 
 @app.get("/api/admin/backups")
-def get_backups(current_user: dict = Depends(get_current_user)) -> list[dict]:
+def get_backups(current_user: dict = Depends(require_admin)) -> list[dict]:
     """List all available backups."""
     return list_backups()
 
@@ -304,7 +353,7 @@ async def stripe_webhook(request: Request) -> dict:
 
 
 @app.post("/api/admin/grant-access")
-def grant_access(email: str, current_user: dict = Depends(get_current_user)) -> MessageResponse:
+def grant_access(email: str, current_user: dict = Depends(require_admin)) -> MessageResponse:
     """Manually grant access to a user by email (admin only)."""
     from datetime import datetime, timezone
     with get_db() as conn:
@@ -318,7 +367,7 @@ def grant_access(email: str, current_user: dict = Depends(get_current_user)) -> 
 
 
 @app.post("/api/admin/revoke-access")
-def revoke_access(email: str, current_user: dict = Depends(get_current_user)) -> MessageResponse:
+def revoke_access(email: str, current_user: dict = Depends(require_admin)) -> MessageResponse:
     """Revoke access from a user by email (admin only)."""
     from datetime import datetime, timezone
     with get_db() as conn:
@@ -332,7 +381,7 @@ def revoke_access(email: str, current_user: dict = Depends(get_current_user)) ->
 
 
 @app.post("/api/admin/pre-authorize")
-def pre_authorize_email(email: str, current_user: dict = Depends(get_current_user)) -> MessageResponse:
+def pre_authorize_email(email: str, current_user: dict = Depends(require_admin)) -> MessageResponse:
     """Pre-authorize an email for access before they sign up."""
     with get_db() as conn:
         conn.execute(
@@ -344,7 +393,7 @@ def pre_authorize_email(email: str, current_user: dict = Depends(get_current_use
 
 
 @app.get("/api/admin/pre-authorized")
-def list_pre_authorized(current_user: dict = Depends(get_current_user)) -> list[dict]:
+def list_pre_authorized(current_user: dict = Depends(require_admin)) -> list[dict]:
     """List all pre-authorized emails."""
     with get_db() as conn:
         rows = conn.execute(
@@ -354,7 +403,7 @@ def list_pre_authorized(current_user: dict = Depends(get_current_user)) -> list[
 
 
 @app.get("/api/admin/users")
-def list_users(current_user: dict = Depends(get_current_user)) -> list[dict]:
+def list_users(current_user: dict = Depends(require_admin)) -> list[dict]:
     """List all users with their subscription status."""
     with get_db() as conn:
         rows = conn.execute(
@@ -373,7 +422,7 @@ def list_users(current_user: dict = Depends(get_current_user)) -> list[dict]:
 
 
 @app.get("/api/admin/webhook-events")
-def list_webhook_events(current_user: dict = Depends(get_current_user)) -> list[dict]:
+def list_webhook_events(current_user: dict = Depends(require_admin)) -> list[dict]:
     """List recent webhook events."""
     with get_db() as conn:
         rows = conn.execute(
@@ -388,7 +437,7 @@ class NotificationRequest(BaseModel):
 
 
 @app.post("/api/admin/notifications/send")
-def send_notification(body: NotificationRequest, current_user: dict = Depends(get_current_user)) -> MessageResponse:
+def send_notification(body: NotificationRequest, current_user: dict = Depends(require_admin)) -> MessageResponse:
     """Send a push notification to all subscribers."""
     from datetime import datetime, timezone
     with get_db() as conn:
@@ -427,7 +476,7 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 @app.post("/api/admin/upload")
 async def upload_file(
     file: UploadFile = File(...),
-    current_user: dict = Depends(get_current_user),
+    current_user: dict = Depends(require_admin),
 ) -> dict:
     """Upload a file (PDF, image, MP4). Returns the file URL."""
     allowed_types = {
@@ -486,7 +535,7 @@ def get_content(table: str, item_id: int) -> dict:
 
 
 @app.post("/api/admin/content/{table}")
-def create_content(table: str, body: dict, current_user: dict = Depends(get_current_user)) -> dict:
+def create_content(table: str, body: dict, current_user: dict = Depends(require_admin)) -> dict:
     """Create a content item (admin only)."""
     if table not in CONTENT_TABLES:
         raise HTTPException(404, f"Unknown content type: {table}")
@@ -494,7 +543,7 @@ def create_content(table: str, body: dict, current_user: dict = Depends(get_curr
 
 
 @app.put("/api/admin/content/{table}/{item_id}")
-def update_content(table: str, item_id: int, body: dict, current_user: dict = Depends(get_current_user)) -> dict:
+def update_content(table: str, item_id: int, body: dict, current_user: dict = Depends(require_admin)) -> dict:
     """Update a content item (admin only)."""
     if table not in CONTENT_TABLES:
         raise HTTPException(404, f"Unknown content type: {table}")
@@ -505,7 +554,7 @@ def update_content(table: str, item_id: int, body: dict, current_user: dict = De
 
 
 @app.delete("/api/admin/content/{table}/{item_id}")
-def delete_content(table: str, item_id: int, current_user: dict = Depends(get_current_user)) -> MessageResponse:
+def delete_content(table: str, item_id: int, current_user: dict = Depends(require_admin)) -> MessageResponse:
     """Delete a content item (admin only)."""
     if table not in CONTENT_TABLES:
         raise HTTPException(404, f"Unknown content type: {table}")
