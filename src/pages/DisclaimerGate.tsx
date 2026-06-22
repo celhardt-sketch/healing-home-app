@@ -4,22 +4,55 @@ import { useAuth } from '../contexts/AuthContext'
 import { Shield, AlertTriangle, Phone, CheckCircle } from 'lucide-react'
 
 export default function DisclaimerGate() {
-  const { acceptDisclaimer, disclaimerAccepted, signIn } = useAuth()
+  const { acceptDisclaimer, disclaimerAccepted, signIn, register } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [name, setName] = useState('')
   const [agreed, setAgreed] = useState(false)
   const [showLogin, setShowLogin] = useState(disclaimerAccepted)
+  const [isRegister, setIsRegister] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
 
   const handleAccept = () => {
     acceptDisclaimer()
     setShowLogin(true)
   }
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    signIn(email, password)
-    navigate('/dashboard')
+    setError('')
+    setLoading(true)
+
+    const result = await signIn(email, password)
+    setLoading(false)
+
+    if (result.ok) {
+      navigate('/dashboard')
+    } else {
+      setError(result.error || 'Login failed')
+    }
+  }
+
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError('')
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
+      return
+    }
+
+    setLoading(true)
+    const result = await register(name, email, password)
+    setLoading(false)
+
+    if (result.ok) {
+      navigate('/dashboard')
+    } else {
+      setError(result.error || 'Registration failed')
+    }
   }
 
   if (showLogin) {
@@ -28,10 +61,33 @@ export default function DisclaimerGate() {
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <div className="text-center mb-6">
             <img src="/logo.png" alt="The Healing Home Approach" className="h-16 w-auto mx-auto mb-4" />
-            <h2 className="text-2xl font-bold font-heading text-slate-blue">Welcome Back</h2>
-            <p className="text-sm text-charcoal-70 mt-1">Sign in to access your tools</p>
+            <h2 className="text-2xl font-bold font-heading text-slate-blue">
+              {isRegister ? 'Create Account' : 'Welcome Back'}
+            </h2>
+            <p className="text-sm text-charcoal-70 mt-1">
+              {isRegister ? 'Sign up to save your progress' : 'Sign in to access your tools'}
+            </p>
           </div>
-          <form onSubmit={handleSignIn} className="space-y-4">
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={isRegister ? handleRegister : handleSignIn} className="space-y-4">
+            {isRegister && (
+              <div>
+                <label className="block text-sm font-medium text-charcoal mb-1">Name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                  required
+                />
+              </div>
+            )}
             <div>
               <label className="block text-sm font-medium text-charcoal mb-1">Email</label>
               <input
@@ -50,21 +106,44 @@ export default function DisclaimerGate() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
                 required
+                minLength={8}
               />
+              {isRegister && (
+                <p className="text-xs text-charcoal-70 mt-1">Minimum 8 characters</p>
+              )}
             </div>
             <button
               type="submit"
-              className="w-full bg-slate-blue text-white py-2.5 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors"
+              disabled={loading}
+              className="w-full bg-slate-blue text-white py-2.5 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50"
             >
-              Sign In
+              {loading ? 'Please wait...' : isRegister ? 'Create Account' : 'Sign In'}
             </button>
           </form>
+
           <p className="text-center text-sm text-charcoal-70 mt-4">
-            Don't have access?{' '}
-            <Link to="/dashboard" className="text-slate-blue font-medium hover:underline">
-              Open App
-            </Link>
+            {isRegister ? (
+              <>
+                Already have an account?{' '}
+                <button onClick={() => { setIsRegister(false); setError('') }} className="text-slate-blue font-medium hover:underline">
+                  Sign In
+                </button>
+              </>
+            ) : (
+              <>
+                Don't have an account?{' '}
+                <button onClick={() => { setIsRegister(true); setError('') }} className="text-slate-blue font-medium hover:underline">
+                  Create Account
+                </button>
+              </>
+            )}
           </p>
+
+          <div className="mt-4 pt-4 border-t border-gray-100 text-center">
+            <Link to="/dashboard" className="text-sm text-charcoal-70 hover:text-slate-blue">
+              Continue without account →
+            </Link>
+          </div>
         </div>
       </div>
     )
