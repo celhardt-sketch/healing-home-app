@@ -1,3 +1,6 @@
+import os
+import traceback
+
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
@@ -84,7 +87,14 @@ def get_current_user(authorization: str = Header(...)) -> dict:
 
 @app.get("/api/health")
 def health_check() -> dict:
-    return {"status": "healthy", "service": "healing-home-backend"}
+    jwt_set = bool(os.environ.get("JWT_SECRET"))
+    data_dir = os.environ.get("DATA_DIR", "/data")
+    return {
+        "status": "healthy",
+        "service": "healing-home-backend",
+        "jwt_configured": jwt_set,
+        "data_dir": data_dir,
+    }
 
 
 # --- Auth endpoints ---
@@ -101,45 +111,55 @@ def register(body: RegisterRequest) -> TokenResponse:
             status_code=400, detail="Password must be at least 8 characters"
         )
 
-    salt = generate_salt()
-    password_hash = hash_password(body.password, salt)
+    try:
+        salt = generate_salt()
+        password_hash = hash_password(body.password, salt)
 
-    with get_db() as conn:
-        # Check if email already exists
-        existing = conn.execute(
-            "SELECT id FROM users WHERE email = ?", (body.email,)
-        ).fetchone()
-        if existing:
-            raise HTTPException(status_code=409, detail="Email already registered")
+        with get_db() as conn:
+            # Check if email already exists
+            existing = conn.execute(
+                "SELECT id FROM users WHERE email = ?", (body.email,)
+            ).fetchone()
+            if existing:
+                raise HTTPException(status_code=409, detail="Email already registered")
 
-        cursor = conn.execute(
-            "INSERT INTO users (name, email, password_hash, salt) VALUES (?, ?, ?, ?)",
-            (body.name, body.email, password_hash, salt),
-        )
-        conn.commit()
-        user_id = cursor.lastrowid
+            cursor = conn.execute(
+                "INSERT INTO users (name, email, password_hash, salt) VALUES (?, ?, ?, ?)",
+                (body.name, body.email, password_hash, salt),
+            )
+            conn.commit()
+            user_id = cursor.lastrowid
 
-    token = create_token(user_id, body.email)
-    return TokenResponse(access_token=token)
+        token = create_token(user_id, body.email)
+        return TokenResponse(access_token=token)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Registration error: {str(e)}")
 
 
 @app.post("/api/auth/login", response_model=TokenResponse)
 def login(body: LoginRequest) -> TokenResponse:
     """Authenticate with email and password."""
-    with get_db() as conn:
-        user = conn.execute(
-            "SELECT id, email, password_hash, salt FROM users WHERE email = ?",
-            (body.email,),
-        ).fetchone()
+    try:
+        with get_db() as conn:
+            user = conn.execute(
+                "SELECT id, email, password_hash, salt FROM users WHERE email = ?",
+                (body.email,),
+            ).fetchone()
 
-    if not user:
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        if not user:
+            raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    if not verify_password(body.password, user["salt"], user["password_hash"]):
-        raise HTTPException(status_code=401, detail="Invalid email or password")
+        if not verify_password(body.password, user["salt"], user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Invalid email or password")
 
-    token = create_token(user["id"], user["email"])
-    return TokenResponse(access_token=token)
+        token = create_token(user["id"], user["email"])
+        return TokenResponse(access_token=token)
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Login error: {str(e)}")
 
 
 # --- Protected endpoints (require auth) ---
