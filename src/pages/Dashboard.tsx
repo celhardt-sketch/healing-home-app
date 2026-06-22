@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
-  Shield, BookOpen, Heart, Users, Phone,
+  Shield, BookOpen, Heart, Users,
   AlertTriangle, Sparkles, TrendingUp,
   Settings, RefreshCw, Wrench
 } from 'lucide-react'
@@ -9,7 +9,7 @@ import SafetyFooter from '../components/SafetyFooter'
 
 const dashboardCards = [
   {
-    title: 'First Aid for Big Behaviors',
+    title: 'First Aid for Big Feelings',
     description: 'Immediate support for challenging moments with age-appropriate guidance',
     icon: AlertTriangle,
     href: '/crisis',

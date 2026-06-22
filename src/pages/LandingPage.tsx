@@ -8,7 +8,7 @@ import SafetyFooter from '../components/SafetyFooter'
 const features = [
   {
     icon: Shield,
-    title: 'First Aid for Big Behaviors',
+    title: 'First Aid for Big Feelings',
     description: 'Immediate, step by step support during challenging moments with age appropriate guidance tailored to your child\'s needs.',
     color: 'bg-red-50 text-red-600',
   },

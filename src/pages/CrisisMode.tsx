@@ -79,7 +79,7 @@ export default function CrisisMode() {
               </Link>
               <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
                 <AlertTriangle className="w-6 h-6 text-red-500" />
-                First Aid for Big Behaviors
+                First Aid for Big Feelings
               </h1>
             </div>
           </div>
