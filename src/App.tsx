@@ -19,6 +19,7 @@ import PrintablesVault from './pages/PrintablesVault'
 import AccountSettings from './pages/AccountSettings'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
+import AccessGate from './pages/AccessGate'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -41,6 +42,7 @@ export default function App() {
         <Route path="/safety-resources" element={<SafetyResources />} />
         <Route path="/mandated-reporter-guide" element={<MandatedReporterGuide />} />
         <Route path="/printables" element={<PrintablesVault />} />
+        <Route path="/access-gate" element={<AccessGate />} />
         <Route path="/account" element={<AccountSettings />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />

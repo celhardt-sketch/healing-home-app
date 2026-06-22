@@ -8,8 +8,8 @@ import SafetyFooter from '../components/SafetyFooter'
 const features = [
   {
     icon: Shield,
-    title: 'First Aid for Big Feelings',
-    description: 'Immediate, step by step support during challenging moments with age appropriate guidance tailored to your child\'s needs.',
+    title: 'First Aid for Big Feelings & Behaviors',
+    description: 'Immediate, step by step support during challenging moments, with age appropriate guidance tailored to your child\'s needs.',
     color: 'bg-red-50 text-red-600',
   },
   {
@@ -60,7 +60,7 @@ const audiences = [
   {
     icon: Users,
     title: 'Foster & Adoptive Parents',
-    description: 'Navigating the complexities of caring for children with trauma histories, attachment challenges, and behavioral needs that traditional parenting advice doesn\'t address.',
+    description: 'Navigating the complexities of caring for children with trauma histories, attachment challenges, and behavioral needs that traditional parenting advice does not address.',
     color: 'bg-slate-blue',
   },
   {
@@ -190,7 +190,7 @@ export default function LandingPage() {
               Everything You Need, Right When You Need It
             </h3>
             <p className="text-charcoal-80 max-w-2xl mx-auto">
-              From crisis moments to quiet learning, this app walks alongside you through every part of the caregiving journey.
+              From hard moments to quiet learning, this app walks alongside you through every part of the caregiving journey.
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
@@ -216,7 +216,7 @@ export default function LandingPage() {
                 Why The Healing Home Approach?
               </h3>
               <p className="text-charcoal-80 mb-8 leading-relaxed">
-                This isn't another generic parenting app. Every tool, script, and resource was created
+                This is not another generic parenting app. Every tool, script, and resource was created
                 from the intersection of clinical expertise and lived experience as a foster and adoptive parent.
                 We understand the weight you carry, and we built this to lighten it.
               </p>
@@ -238,10 +238,10 @@ export default function LandingPage() {
                 <p className="text-sm text-charcoal-70">M.S., M.A.</p>
               </div>
               <blockquote className="text-charcoal-80 text-sm italic leading-relaxed border-l-2 border-growth-green pl-4">
-                "I created this app because I know what it's like to be in the thick of it &mdash; holding
-                a dysregulated child, wondering if you're doing enough, searching for answers at 2 AM.
+                "I created this app because I know what it is like to be in the thick of it, holding
+                a dysregulated child, wondering if you are doing enough, searching for answers at 2 AM.
                 You deserve tools that meet you where you are, with compassion and clinical depth.
-                This is the resource I wish I'd had from day one."
+                This is the resource I wish I had from day one."
               </blockquote>
               <div className="flex flex-wrap gap-2 mt-4 justify-center">
                 {['Child Development Specialist', 'Therapist', 'Psychoeducator', 'Foster/Adoptive Parent'].map((t) => (

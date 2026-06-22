@@ -5,39 +5,124 @@ import SafetyFooter from '../components/SafetyFooter'
 
 const sections = [
   {
-    id: 'what',
-    title: 'What is a Mandated Reporter?',
+    id: 'what-this-is',
+    title: 'First: What This Is (And Is Not)',
     icon: Shield,
-    content: `A mandated reporter is a person required by law to report suspected child abuse or neglect to the appropriate authorities. In most states, this includes teachers, medical professionals, social workers, counselors, and childcare providers. Many states have expanded this to include coaches, clergy, and other community members.\n\nAs a caregiver of children who have experienced trauma, you may witness disclosures or behaviors that indicate past or ongoing abuse. Understanding your responsibilities protects both you and the children in your care.`,
+    content: `This guide is psychoeducational. It is based primarily on Virginia mandated reporting laws, which vary significantly by state.
+
+This guide does NOT:
+• Help you determine whether abuse occurred
+• Teach you how to investigate or question a child
+• Replace professional or legal guidance
+
+You must know and follow the mandated reporting laws in your specific state. Complete any state-required mandated reporter training. Consult with your caseworker, agency, or legal counsel for state-specific guidance.
+
+This guide does not constitute legal advice. Elhardt Family Wellness LLC is not responsible for actions taken based on this general guidance in jurisdictions where different laws apply.
+
+Your role is not to decide. Your role is to report and protect.`,
   },
   {
-    id: 'when',
-    title: 'When to Report',
+    id: 'reportable',
+    title: 'What Counts as a Reportable Disclosure',
     icon: AlertTriangle,
-    content: `You should make a report when you have reasonable suspicion (not certainty) that a child has been abused or neglected. This includes:\n\n\u2022 A child directly tells you about abuse or neglect\n\u2022 You observe physical signs (bruises, burns, unexplained injuries)\n\u2022 You notice behavioral indicators (sudden changes, age-inappropriate sexual behavior, extreme withdrawal)\n\u2022 A third party tells you about abuse to a child\n\u2022 A child's behavior during visits or interactions raises concern\n\nYou do not need proof. You need reasonable suspicion. The investigation is not your job. The report is.`,
+    content: `You must report when a child discloses or you reasonably suspect:
+
+• Physical abuse
+• Sexual abuse or exploitation
+• Neglect
+• Unsafe supervision
+• Exposure to sexual activity
+• Coercive or harmful sexual behavior
+• Ongoing or imminent risk of harm
+
+You do NOT need:
+• Proof
+• Certainty
+• Multiple disclosures
+
+Reasonable suspicion is enough.`,
   },
   {
-    id: 'how',
-    title: 'How to Respond to a Disclosure',
+    id: 'your-role',
+    title: 'Your Role in the Moment',
     icon: Heart,
-    content: `When a child discloses abuse, your response matters enormously. Follow these steps:\n\n1. Stay calm. Your reaction sets the tone for whether the child feels safe to continue.\n2. Listen without interrupting. Let them share at their own pace.\n3. Believe them. "I believe you. Thank you for telling me."\n4. Reassure them. "This is not your fault. You are not in trouble."\n5. Do not ask leading questions. Do not investigate.\n6. Do not promise confidentiality. Instead say: "I need to tell someone who can help keep you safe."\n7. Document what the child said using their exact words as soon as possible.\n8. Report immediately.\n\nNo one can do this work alone.`,
+    content: `Your job IS to:
+• Stay calm
+• Listen without reacting
+• Protect the child
+• Follow reporting obligations
+
+Your job is NOT to:
+• Investigate
+• Interview
+• Verify details
+• Decide credibility
+• Promise secrecy
+• Confront anyone involved
+
+What to Say to the Child (Simple & Safe):
+Say only what is needed to maintain safety and trust.
+
+"Thank you for telling me."
+"My job is to help keep kids safe."
+
+What NOT to Say:
+• Ask leading questions
+• Ask for timelines or details
+• Express shock, anger, or disbelief
+• Make promises about outcomes
+• Say you will keep it a secret`,
   },
   {
-    id: 'report',
-    title: 'How to Make a Report',
-    icon: Phone,
-    content: `Contact your state's child protective services agency or call the Childhelp National Child Abuse Hotline at 1-800-422-4453.\n\nWhen making a report, be prepared to provide:\n\u2022 The child's name, age, and address (if known)\n\u2022 The parent or caregiver's name and address\n\u2022 The nature of the concern or disclosure\n\u2022 Any evidence of harm or risk\n\u2022 Your name and relationship to the child (confidentiality is protected in most states)\n\nMake the report as soon as possible. In most states, you must report within 24-48 hours. Delays can put children at risk and may have legal consequences.`,
+    id: 'steps',
+    title: 'Step-by-Step: What to Do Next',
+    icon: FileText,
+    content: `1. Document only what the child said, using quotation marks when possible
+2. Make the mandated report immediately to Child Protective Services (CPS) or your state hotline
+3. Notify required parties: caseworker, supervisor (if applicable), child's therapist
+4. Return to regulation and routine. Let professionals handle next steps`,
+  },
+  {
+    id: 'documentation',
+    title: 'Documentation Rules (VERY IMPORTANT)',
+    icon: FileText,
+    content: `• Write only what was said, using quotation marks when possible
+• Do not include opinions, theories, or conclusions
+• Do not share notes beyond required reporting channels
+• Be cautious with written records that could be requested by courts or DSS`,
   },
   {
     id: 'after',
-    title: 'After Making a Report',
-    icon: FileText,
-    content: `After making a report:\n\n\u2022 Document everything: date, time, who you spoke with, what you reported, and the reference number\n\u2022 Do not inform the alleged abuser about the report\n\u2022 Continue to provide the child with normal, supportive care\n\u2022 Follow up with CPS if you have additional information\n\u2022 Take care of yourself. Making a report is emotionally heavy work.\n\nRemember: Making a report in good faith protects you legally. Failing to report when mandated can result in criminal penalties in many states. Your obligation is to the child's safety above all else.`,
+    title: 'After the Report',
+    icon: Heart,
+    content: `You may notice:
+• Increased anxiety
+• Anger toward you
+• Withdrawal or clinginess
+• Fear of consequences
+
+These are normal trauma responses, not signs you did the wrong thing.
+
+Your role after reporting is to:
+• Maintain safety
+• Keep routines predictable
+• Stay emotionally available
+• Avoid discussing details`,
+  },
+  {
+    id: 'seek-support',
+    title: 'When to Seek Immediate Support',
+    icon: Phone,
+    content: `Stop using this app and seek professional or emergency support if:
+
+• The child expresses fear of going home now
+• The child reports ongoing access to the alleged person
+• You feel unsure how to maintain safety`,
   },
 ]
 
 export default function MandatedReporterGuide() {
-  const [expandedSection, setExpandedSection] = useState<string | null>('what')
+  const [expandedSection, setExpandedSection] = useState<string | null>('what-this-is')
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50 flex flex-col">
@@ -49,22 +134,27 @@ export default function MandatedReporterGuide() {
             </Link>
             <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
               <Shield className="w-5 h-5 text-amber-600" />
-              Mandated Reporter Guide
+              Mandated Reporter Quick Guide
             </h1>
           </div>
         </div>
       </div>
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-3xl">
-        <div className="bg-amber-100 rounded-xl p-6 mb-8">
-          <h2 className="text-lg font-bold font-heading text-amber-800 mb-2">
-            Essential Guidance for Caregivers
-          </h2>
-          <p className="text-sm text-amber-800">
-            Understanding your responsibilities as a mandated reporter is essential for protecting the
-            children in your care. This guide provides clear, compassionate guidance for responding to
-            disclosures legally and safely.
-          </p>
+        <p className="text-charcoal-80 mb-6">For Foster &amp; Kinship Caregivers</p>
+
+        <div className="bg-red-100 rounded-xl p-6 mb-8">
+          <div className="flex items-start gap-3">
+            <Phone className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-bold text-red-800">
+                Call <a href="tel:911" className="underline">911</a> for immediate danger
+              </p>
+              <p className="text-sm text-red-800 mt-1">
+                For suspected abuse or neglect, contact your state-specific reporting line.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">
@@ -95,12 +185,11 @@ export default function MandatedReporterGuide() {
           ))}
         </div>
 
-        <div className="mt-8 bg-red-50 rounded-xl p-6 text-center">
-          <h3 className="font-bold text-red-800 mb-2">Childhelp National Child Abuse Hotline</h3>
-          <a href="tel:18004224453" className="text-2xl font-bold text-red-600 hover:text-red-700">
-            1-800-422-4453
-          </a>
-          <p className="text-sm text-red-800 mt-2">Available 24/7. Professional crisis counselors.</p>
+        <div className="mt-8 bg-growth-green/10 rounded-xl p-6 text-center">
+          <h3 className="font-bold text-charcoal mb-2">One Core Principle to Remember</h3>
+          <p className="text-charcoal-80 italic">
+            Protecting a child is never betrayal. Reporting is an act of care, not punishment. You do not have to carry this alone.
+          </p>
         </div>
       </main>
 

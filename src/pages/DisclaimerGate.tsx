@@ -9,11 +9,21 @@ export default function DisclaimerGate() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
-  const [agreed, setAgreed] = useState(false)
   const [showLogin, setShowLogin] = useState(disclaimerAccepted)
   const [isRegister, setIsRegister] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const [checks, setChecks] = useState({
+    psychoeducational: false,
+    notReplacement: false,
+    professionalApproval: false,
+    ageConfirm: false,
+    hierarchy: false,
+    termsAgree: false,
+  })
+
+  const allChecked = Object.values(checks).every(Boolean)
 
   const handleAccept = () => {
     acceptDisclaimer()
@@ -141,7 +151,7 @@ export default function DisclaimerGate() {
 
           <div className="mt-4 pt-4 border-t border-gray-100 text-center">
             <Link to="/dashboard" className="text-sm text-charcoal-70 hover:text-slate-blue">
-              Continue without account →
+              Continue without account &rarr;
             </Link>
           </div>
         </div>
@@ -166,34 +176,41 @@ export default function DisclaimerGate() {
         <div className="px-8 pb-8 space-y-6">
           <div className="bg-sky-blue-bg rounded-xl p-6">
             <h3 className="font-heading font-bold text-slate-blue flex items-center gap-2 mb-3">
-              <Shield className="w-5 h-5" /> Important Disclaimer
+              <Shield className="w-5 h-5" /> Important: Psychoeducation Notice
             </h3>
             <p className="text-sm text-charcoal-80 leading-relaxed mb-4">
-              This content is designed to inform, support, and empower individuals by offering
-              evidence-based education on mental health, trauma, parenting strategies, and emotional
-              regulation techniques. It does not constitute professional advice, diagnosis, or treatment.
+              The Healing Home Approach by Elhardt Family Wellness LLC is provided solely for general
+              psychoeducational purposes. This content is designed to inform, support, and empower
+              individuals by offering evidence-based education on mental health, trauma, parenting
+              strategies, and emotional regulation techniques. It does not constitute professional
+              advice, diagnosis, or treatment.
             </p>
             <div className="space-y-2">
               <p className="text-sm text-charcoal-80">
-                <strong>This app is NOT:</strong>
+                <strong>This App Is NOT:</strong>
               </p>
               <ul className="text-sm text-charcoal-80 space-y-1 ml-4 list-disc">
+                <li>A substitute for professional mental health treatment or therapy</li>
+                <li>A diagnostic tool or assessment service</li>
                 <li>A replacement for crisis intervention or emergency services</li>
-                <li>A substitute for therapy or clinical treatment</li>
-                <li>A diagnostic tool</li>
+                <li>A source of treatment plans or clinical recommendations</li>
               </ul>
             </div>
           </div>
 
           <div className="bg-amber-50 rounded-xl p-6">
             <h3 className="font-heading font-bold text-amber-800 flex items-center gap-2 mb-3">
-              <AlertTriangle className="w-5 h-5" /> Before Using This App
+              <AlertTriangle className="w-5 h-5" /> Hierarchy of Authority
             </h3>
-            <p className="text-sm text-charcoal-80 leading-relaxed">
-              We strongly recommend obtaining written or verbal authorization from your child's treating
-              mental health professional to use psychoeducational regulation and connection tools at home.
-              This app provides guidance that complements, but never replaces, professional therapeutic support.
+            <p className="text-sm text-charcoal-80 leading-relaxed mb-3">
+              This app explicitly defers to the following authorities in order:
             </p>
+            <ol className="text-sm text-charcoal-80 space-y-1 ml-4 list-decimal">
+              <li>Your child's treatment team</li>
+              <li>Court or Department of Social Services directives</li>
+              <li>Your judgment as the caregiver</li>
+              <li>App guidance</li>
+            </ol>
           </div>
 
           <div className="bg-red-50 rounded-xl p-6">
@@ -205,11 +222,14 @@ export default function DisclaimerGate() {
               immediately. This app is not a crisis intervention tool.
             </p>
             <p className="text-sm font-semibold text-red-800 mt-2">
-              Suicide &amp; Crisis Lifeline: <a href="tel:988" className="underline">988</a>
+              Suicide &amp; Crisis Lifeline: Call or text <a href="tel:988" className="underline">988</a>
+              {' '}&bull;{' '}
+              Emergency Services: <a href="tel:911" className="underline">911</a>
             </p>
           </div>
 
           <div className="bg-gray-50 rounded-xl p-6 text-sm text-charcoal-80">
+            <p className="font-semibold mb-2">Age Restriction:</p>
             <p>
               This application is intended for use by adults (18 years of age or older) who are
               caregivers, foster parents, adoptive parents, or professionals working with children.
@@ -217,24 +237,31 @@ export default function DisclaimerGate() {
             </p>
           </div>
 
-          <label className="flex items-start gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={agreed}
-              onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-1 w-4 h-4 rounded border-gray-300 text-slate-blue focus:ring-slate-blue"
-            />
-            <span className="text-sm text-charcoal-80">
-              I confirm that I am 18 years of age or older, that my child's mental health professional
-              has approved the use of psychoeducational regulation tools, and I am a caregiver, foster parent,
-              adoptive parent, or professional working with children. I have read and understand the disclaimer
-              listed above and agree that app guidance is always subordinate to professional, legal, and caregiver judgment.
-            </span>
-          </label>
+          <div className="space-y-3">
+            <p className="text-sm font-medium text-charcoal">Please acknowledge each statement:</p>
+            {[
+              { key: 'psychoeducational', label: 'I understand that this app provides general psychoeducational content only' },
+              { key: 'notReplacement', label: 'I understand that this app is not a replacement for therapy, crisis intervention, or emergency services' },
+              { key: 'professionalApproval', label: 'I confirm that, if a child in my care is currently in treatment, their treatment team has approved the use of psychoeducational regulation tools, or that I am a professional using these tools within my role' },
+              { key: 'ageConfirm', label: 'I confirm that I am 18 years of age or older' },
+              { key: 'hierarchy', label: 'I understand the hierarchy of authority' },
+              { key: 'termsAgree', label: 'I have read and agree to the Terms of Service and Privacy Policy' },
+            ].map((item) => (
+              <label key={item.key} className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={checks[item.key as keyof typeof checks]}
+                  onChange={(e) => setChecks({ ...checks, [item.key]: e.target.checked })}
+                  className="mt-1 w-4 h-4 rounded border-gray-300 text-slate-blue focus:ring-slate-blue"
+                />
+                <span className="text-sm text-charcoal-80">{item.label}</span>
+              </label>
+            ))}
+          </div>
 
           <button
             onClick={handleAccept}
-            disabled={!agreed}
+            disabled={!allChecked}
             className="w-full bg-slate-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-5 h-5" />
@@ -243,7 +270,6 @@ export default function DisclaimerGate() {
 
           <p className="text-xs text-charcoal-70 text-center">
             Your acceptance will be timestamped and recorded for safety and compliance purposes.
-            Future updates to this disclaimer or legal documents may require re-acceptance.
           </p>
         </div>
       </div>
