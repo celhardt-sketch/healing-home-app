@@ -79,7 +79,7 @@ export default function CrisisMode() {
               </Link>
               <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
                 <AlertTriangle className="w-6 h-6 text-red-500" />
-                First Aid for Big Feelings
+                First Aid for Big Feelings &amp; Behaviors
               </h1>
             </div>
           </div>
@@ -91,21 +91,21 @@ export default function CrisisMode() {
               <Shield className="w-8 h-8 text-red-600" />
             </div>
             <h2 className="text-2xl font-bold font-heading text-charcoal mb-4">
-              Take a breath. You're in the right place.
+              Immediate support for challenging moments
             </h2>
             <p className="text-charcoal-80 mb-8 leading-relaxed">
-              This tool will walk you through de-escalation step by step. Your calm is the most powerful tool you have right now.
+              Before we go further, we need to make sure everyone is safe right now. If someone is at risk of hurting themselves or others, or if there is a medical emergency, please contact emergency services first. Everything else can wait.
             </p>
 
             <div className="space-y-4 mb-8">
               <div>
-                <label className="block text-sm font-semibold text-charcoal mb-2">Child's age group (optional)</label>
+                <label className="block text-sm font-semibold text-charcoal mb-2">Select the age range that best fits your child:</label>
                 <div className="flex flex-wrap gap-2 justify-center">
                   {[
-                    { value: 'toddler' as AgeGroup, label: 'Toddler (1-3)' },
-                    { value: 'preschool' as AgeGroup, label: 'Preschool (3-5)' },
-                    { value: 'school-age' as AgeGroup, label: 'School Age (6-11)' },
-                    { value: 'preteen-teen' as AgeGroup, label: 'Preteen/Teen (12+)' },
+                    { value: 'toddler' as AgeGroup, label: 'Early Childhood' },
+                    { value: 'preschool' as AgeGroup, label: 'Middle Childhood' },
+                    { value: 'school-age' as AgeGroup, label: 'Early Adolescence' },
+                    { value: 'preteen-teen' as AgeGroup, label: 'Adolescence' },
                   ].map((ag) => (
                     <button
                       key={ag.value}

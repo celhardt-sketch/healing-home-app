@@ -71,22 +71,19 @@ export default function CaregiverSupport() {
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold font-heading text-charcoal mb-2">
-            Your Well-Being Matters
+            You matter too
           </h2>
           <p className="text-charcoal-80">
-            Caregiver nervous systems matter too. You cannot pour from an empty cup.
-            These tools are designed to help you regulate, reflect, and recharge.
+            You cannot pour from an empty cup. Caring for yourself is not selfish; it is essential to caring for your children. Foster and kinship caregiving involves chronic stress, secondary trauma, and emotional labor that most people cannot imagine. When you feel overwhelmed, dysregulated, or close to your limit, that is your nervous system telling you it needs support.
           </p>
         </div>
 
         <div className="bg-growth-green/10 rounded-xl p-6 mb-8 flex items-start gap-4">
           <Shield className="w-6 h-6 text-growth-green shrink-0 mt-1" />
           <div>
-            <h3 className="font-bold text-charcoal mb-1">A Reminder</h3>
+            <h3 className="font-bold text-charcoal mb-1">Your Regulation Matters</h3>
             <p className="text-sm text-charcoal-80 leading-relaxed">
-              Seeking support is a growth skill. Taking care of yourself is not selfish.
-              It is the foundation that everything else rests on. Children borrow regulation
-              from regulated adults.
+              Regulation is contagious. When you co-regulate by staying calm, you help your child's nervous system settle too.
             </p>
           </div>
         </div>
