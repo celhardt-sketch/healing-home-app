@@ -1,0 +1,17 @@
+{
+  "name": "The Healing Home Approach",
+  "short_name": "Healing Home",
+  "description": "A trauma-informed psychoeducational support tool for foster and adoptive caregivers. By Elhardt Family Wellness.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#2A4B84",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
