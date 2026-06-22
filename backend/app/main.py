@@ -22,6 +22,14 @@ from .stripe_billing import (
     handle_webhook_event,
     get_user_subscription_status,
 )
+from .content import (
+    init_content_tables,
+    list_items,
+    get_item,
+    create_item,
+    update_item,
+    delete_item,
+)
 
 app = FastAPI(
     title="The Healing Home Approach API",
@@ -41,6 +49,7 @@ app.add_middleware(
 @app.on_event("startup")
 def startup() -> None:
     init_db()
+    init_content_tables()
 
 
 # --- Request/Response models ---
@@ -404,3 +413,102 @@ def send_notification(body: NotificationRequest, current_user: dict = Depends(ge
         conn.commit()
 
     return MessageResponse(message=f"Notification sent to {count} active subscriber(s)")
+
+
+# --- File Upload ---
+
+from fastapi import UploadFile, File
+import uuid
+
+UPLOAD_DIR = os.path.join(os.environ.get("DATA_DIR", "."), "uploads")
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
+
+@app.post("/api/admin/upload")
+async def upload_file(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+) -> dict:
+    """Upload a file (PDF, image, MP4). Returns the file URL."""
+    allowed_types = {
+        "application/pdf", "image/png", "image/jpeg", "image/gif", "image/webp",
+        "video/mp4", "video/webm", "audio/mpeg", "audio/mp4",
+    }
+    if file.content_type and file.content_type not in allowed_types:
+        raise HTTPException(400, f"File type '{file.content_type}' not allowed")
+
+    ext = os.path.splitext(file.filename or "file")[1] or ".bin"
+    filename = f"{uuid.uuid4().hex}{ext}"
+    filepath = os.path.join(UPLOAD_DIR, filename)
+
+    contents = await file.read()
+    with open(filepath, "wb") as f:
+        f.write(contents)
+
+    file_url = f"/api/uploads/{filename}"
+    return {"file_url": file_url, "filename": filename, "size": len(contents)}
+
+
+from fastapi.responses import FileResponse
+
+
+@app.get("/api/uploads/{filename}")
+def serve_upload(filename: str) -> FileResponse:
+    """Serve an uploaded file."""
+    filepath = os.path.join(UPLOAD_DIR, filename)
+    if not os.path.exists(filepath):
+        raise HTTPException(404, "File not found")
+    return FileResponse(filepath)
+
+
+# --- Content CRUD Endpoints ---
+
+CONTENT_TABLES = ["printables", "videos", "articles", "scripts", "first_aid_cards"]
+
+
+@app.get("/api/content/{table}")
+def list_content(table: str, active_only: bool = False) -> list[dict]:
+    """List content items. Public for subscribers, shows all for admin."""
+    if table not in CONTENT_TABLES:
+        raise HTTPException(404, f"Unknown content type: {table}")
+    return list_items(table, active_only=active_only)
+
+
+@app.get("/api/content/{table}/{item_id}")
+def get_content(table: str, item_id: int) -> dict:
+    """Get a single content item."""
+    if table not in CONTENT_TABLES:
+        raise HTTPException(404, f"Unknown content type: {table}")
+    item = get_item(table, item_id)
+    if not item:
+        raise HTTPException(404, "Item not found")
+    return item
+
+
+@app.post("/api/admin/content/{table}")
+def create_content(table: str, body: dict, current_user: dict = Depends(get_current_user)) -> dict:
+    """Create a content item (admin only)."""
+    if table not in CONTENT_TABLES:
+        raise HTTPException(404, f"Unknown content type: {table}")
+    return create_item(table, body)
+
+
+@app.put("/api/admin/content/{table}/{item_id}")
+def update_content(table: str, item_id: int, body: dict, current_user: dict = Depends(get_current_user)) -> dict:
+    """Update a content item (admin only)."""
+    if table not in CONTENT_TABLES:
+        raise HTTPException(404, f"Unknown content type: {table}")
+    result = update_item(table, item_id, body)
+    if not result:
+        raise HTTPException(404, "Item not found")
+    return result
+
+
+@app.delete("/api/admin/content/{table}/{item_id}")
+def delete_content(table: str, item_id: int, current_user: dict = Depends(get_current_user)) -> MessageResponse:
+    """Delete a content item (admin only)."""
+    if table not in CONTENT_TABLES:
+        raise HTTPException(404, f"Unknown content type: {table}")
+    if not delete_item(table, item_id):
+        raise HTTPException(404, "Item not found")
+    return MessageResponse(message="Deleted")
