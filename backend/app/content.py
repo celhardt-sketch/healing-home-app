@@ -65,6 +65,7 @@ def init_content_tables() -> None:
                 category TEXT,
                 age_group TEXT,
                 author TEXT,
+                video_url TEXT,
                 sort_order INTEGER DEFAULT 0,
                 active INTEGER DEFAULT 1,
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -80,6 +81,7 @@ def init_content_tables() -> None:
                 category TEXT,
                 age_group TEXT,
                 situation TEXT,
+                video_url TEXT,
                 sort_order INTEGER DEFAULT 0,
                 active INTEGER DEFAULT 1,
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -94,6 +96,7 @@ def init_content_tables() -> None:
                 content TEXT NOT NULL,
                 age_group TEXT,
                 category TEXT,
+                video_url TEXT,
                 sort_order INTEGER DEFAULT 0,
                 active INTEGER DEFAULT 1,
                 created_at TEXT NOT NULL DEFAULT (datetime('now')),
@@ -101,7 +104,73 @@ def init_content_tables() -> None:
             )
         """)
 
+        # Page content table for editable static page sections
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS page_content (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                page TEXT NOT NULL,
+                section TEXT NOT NULL,
+                content TEXT NOT NULL DEFAULT '',
+                content_type TEXT NOT NULL DEFAULT 'text',
+                sort_order INTEGER DEFAULT 0,
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                UNIQUE(page, section)
+            )
+        """)
+
         conn.commit()
+
+
+def _migrate_content_tables() -> None:
+    """Add video_url column to existing content tables if missing."""
+    tables_needing_video = ["articles", "scripts", "first_aid_cards"]
+    with get_db() as conn:
+        for table in tables_needing_video:
+            cursor = conn.execute(f"PRAGMA table_info({table})")
+            existing_cols = {row[1] for row in cursor.fetchall()}
+            if "video_url" not in existing_cols:
+                conn.execute(f"ALTER TABLE {table} ADD COLUMN video_url TEXT")
+        conn.commit()
+
+
+def get_page_content(page: str) -> list[dict]:
+    """Get all content sections for a page."""
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM page_content WHERE page = ? ORDER BY sort_order ASC",
+            (page,),
+        ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def get_all_page_content() -> dict[str, list[dict]]:
+    """Get all page content grouped by page."""
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT * FROM page_content ORDER BY page, sort_order ASC"
+        ).fetchall()
+    result: dict[str, list[dict]] = {}
+    for r in rows:
+        d = dict(r)
+        result.setdefault(d["page"], []).append(d)
+    return result
+
+
+def upsert_page_content(page: str, section: str, content: str, content_type: str = "text") -> dict:
+    """Create or update a page content section."""
+    with get_db() as conn:
+        conn.execute(
+            """INSERT INTO page_content (page, section, content, content_type, updated_at)
+               VALUES (?, ?, ?, ?, ?)
+               ON CONFLICT(page, section) DO UPDATE SET
+               content = excluded.content, content_type = excluded.content_type, updated_at = excluded.updated_at""",
+            (page, section, content, content_type, _now()),
+        )
+        conn.commit()
+        row = conn.execute(
+            "SELECT * FROM page_content WHERE page = ? AND section = ?", (page, section)
+        ).fetchone()
+    return dict(row) if row else {}
 
 
 # --- Generic CRUD helpers ---
