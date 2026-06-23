@@ -78,7 +78,8 @@ export default function AdminDashboard() {
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    const token = localStorage.getItem('auth_token')
+    if (!token) {
       navigate('/disclaimer')
       return
     }
