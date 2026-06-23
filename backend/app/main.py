@@ -24,11 +24,15 @@ from .stripe_billing import (
 )
 from .content import (
     init_content_tables,
+    _migrate_content_tables,
     list_items,
     get_item,
     create_item,
     update_item,
     delete_item,
+    get_page_content,
+    get_all_page_content,
+    upsert_page_content,
 )
 
 app = FastAPI(
@@ -50,6 +54,7 @@ app.add_middleware(
 def startup() -> None:
     init_db()
     init_content_tables()
+    _migrate_content_tables()
 
 
 # --- Request/Response models ---
@@ -561,3 +566,30 @@ def delete_content(table: str, item_id: int, current_user: dict = Depends(requir
     if not delete_item(table, item_id):
         raise HTTPException(404, "Item not found")
     return MessageResponse(message="Deleted")
+
+
+# --- Page Content Endpoints ---
+
+
+@app.get("/api/page-content/{page}")
+def get_page_content_endpoint(page: str) -> list[dict]:
+    """Get editable page content sections (public for rendering)."""
+    return get_page_content(page)
+
+
+@app.get("/api/admin/page-content")
+def get_all_pages_content(current_user: dict = Depends(require_admin)) -> dict:
+    """Get all page content for admin editor."""
+    return get_all_page_content()
+
+
+@app.post("/api/admin/page-content")
+def save_page_content(body: dict, current_user: dict = Depends(require_admin)) -> dict:
+    """Create or update a page content section."""
+    page = body.get("page", "")
+    section = body.get("section", "")
+    content = body.get("content", "")
+    content_type = body.get("content_type", "text")
+    if not page or not section:
+        raise HTTPException(400, "page and section are required")
+    return upsert_page_content(page, section, content, content_type)

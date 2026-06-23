@@ -1,7 +1,19 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, AlertTriangle, Shield, Heart, Brain, Phone, RotateCcw } from 'lucide-react'
+import { ArrowLeft, ArrowRight, AlertTriangle, Shield, Heart, Brain, Phone, RotateCcw, Video, ChevronDown, ChevronUp } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+
+const API_URL = import.meta.env.VITE_API_URL || ''
+
+interface FirstAidCard {
+  id: number
+  title: string
+  content: string
+  age_group: string
+  category: string
+  video_url: string | null
+  active: number
+}
 
 type AgeGroup = 'toddler' | 'preschool' | 'school-age' | 'preteen-teen' | null
 type BehaviorType = 'aggression' | 'meltdown' | 'shutting-down' | 'defiance' | 'overwhelmed' | null
@@ -57,6 +69,15 @@ export default function CrisisMode() {
   const [ageGroup, setAgeGroup] = useState<AgeGroup>(null)
   const [behaviorType, setBehaviorType] = useState<BehaviorType>(null)
   const [started, setStarted] = useState(false)
+  const [cards, setCards] = useState<FirstAidCard[]>([])
+  const [expandedCard, setExpandedCard] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/content/first_aid_cards`)
+      .then(r => r.ok ? r.json() : [])
+      .then((data: FirstAidCard[]) => setCards(data.filter(c => c.active)))
+      .catch(() => {})
+  }, [])
 
   const currentSteps = steps.default
   const step = currentSteps[currentStep]
@@ -162,6 +183,44 @@ export default function CrisisMode() {
               If someone is in immediate danger, call <a href="tel:911" className="font-bold underline">911</a>
             </p>
           </div>
+
+          {cards.length > 0 && (
+            <div className="mt-8">
+              <h3 className="text-lg font-bold font-heading text-charcoal mb-4 text-center">Behavior-Specific Cards</h3>
+              <div className="space-y-3">
+                {cards.map((card) => (
+                  <div key={card.id} className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                    <button
+                      onClick={() => setExpandedCard(expandedCard === card.id ? null : card.id)}
+                      className="w-full flex items-center justify-between p-4 text-left"
+                    >
+                      <div className="flex items-center gap-3">
+                        <Heart className="w-5 h-5 text-healing-purple flex-shrink-0" />
+                        <div>
+                          <h4 className="font-semibold text-charcoal text-sm">{card.title}</h4>
+                          <div className="flex gap-2 mt-0.5">
+                            {card.category && <span className="text-xs bg-healing-purple/10 text-healing-purple px-2 py-0.5 rounded-full">{card.category}</span>}
+                            {card.age_group && <span className="text-xs bg-sky-blue-bg text-slate-blue px-2 py-0.5 rounded-full">{card.age_group}</span>}
+                          </div>
+                        </div>
+                      </div>
+                      {expandedCard === card.id ? <ChevronUp className="w-4 h-4 text-charcoal-70" /> : <ChevronDown className="w-4 h-4 text-charcoal-70" />}
+                    </button>
+                    {expandedCard === card.id && (
+                      <div className="px-4 pb-4 border-t border-gray-100 pt-3">
+                        <p className="text-sm text-charcoal-80 whitespace-pre-wrap">{card.content}</p>
+                        {card.video_url && (
+                          <a href={card.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-3 text-sm text-slate-blue hover:underline font-medium">
+                            <Video className="w-4 h-4" /> Watch Video
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </main>
 
         <SafetyFooter />

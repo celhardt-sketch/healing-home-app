@@ -1,6 +1,20 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Brain, Play, Star } from 'lucide-react'
+import { ArrowLeft, Brain, Play, Star, Video, ChevronDown, ChevronUp } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+
+const API_URL = import.meta.env.VITE_API_URL || ''
+
+interface Script {
+  id: number
+  title: string
+  content: string
+  category: string
+  age_group: string
+  situation: string
+  video_url: string | null
+  active: number
+}
 
 const tools = [
   {
@@ -48,6 +62,16 @@ const tools = [
 ]
 
 export default function KidsRegulationTools() {
+  const [scripts, setScripts] = useState<Script[]>([])
+  const [expandedScript, setExpandedScript] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/content/scripts`)
+      .then(r => r.ok ? r.json() : [])
+      .then((data: Script[]) => setScripts(data.filter(s => s.active)))
+      .catch(() => {})
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-sky-blue-bg to-healing-purple/5 flex flex-col">
       <div className="bg-white border-b shadow-sm">
@@ -106,6 +130,45 @@ export default function KidsRegulationTools() {
             The more they practice when calm, the more accessible these tools become during hard moments.
           </p>
         </div>
+
+        {scripts.length > 0 && (
+          <div className="mt-8">
+            <h2 className="text-xl font-bold font-heading text-charcoal mb-4">De-escalation Scripts</h2>
+            <div className="space-y-3">
+              {scripts.map((script) => (
+                <div key={script.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                  <button
+                    onClick={() => setExpandedScript(expandedScript === script.id ? null : script.id)}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <div>
+                      <h4 className="font-bold text-charcoal">{script.title}</h4>
+                      <div className="flex gap-2 mt-1">
+                        {script.situation && <span className="text-xs text-charcoal-70 italic">{script.situation}</span>}
+                        {script.category && <span className="text-xs bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded-full">{script.category}</span>}
+                        {script.age_group && <span className="text-xs bg-sky-blue-bg text-slate-blue px-2 py-0.5 rounded-full">{script.age_group}</span>}
+                        {script.video_url && <span className="text-xs text-slate-blue flex items-center gap-0.5"><Video className="w-3 h-3" /> Video</span>}
+                      </div>
+                    </div>
+                    {expandedScript === script.id ? <ChevronUp className="w-5 h-5 text-charcoal-70" /> : <ChevronDown className="w-5 h-5 text-charcoal-70" />}
+                  </button>
+                  {expandedScript === script.id && (
+                    <div className="border-t border-gray-100 px-5 pb-5 pt-3">
+                      <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-slate-blue">
+                        <p className="text-sm text-charcoal whitespace-pre-wrap">{script.content}</p>
+                      </div>
+                      {script.video_url && (
+                        <a href={script.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-3 text-sm text-slate-blue hover:underline font-medium">
+                          <Video className="w-4 h-4" /> Watch Video
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       <SafetyFooter />

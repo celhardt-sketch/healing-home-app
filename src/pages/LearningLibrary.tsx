@@ -1,7 +1,21 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, BookOpen, Search, ChevronDown, ChevronUp, Brain, Heart, Shield, Users } from 'lucide-react'
+import { ArrowLeft, BookOpen, Search, ChevronDown, ChevronUp, Brain, Heart, Shield, Users, Video } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+
+const API_URL = import.meta.env.VITE_API_URL || ''
+
+interface Article {
+  id: number
+  title: string
+  content: string
+  summary: string
+  category: string
+  age_group: string
+  author: string
+  video_url: string | null
+  active: number
+}
 
 const topics = [
   {
@@ -82,6 +96,15 @@ export default function LearningLibrary() {
   const [search, setSearch] = useState('')
   const [expandedTopic, setExpandedTopic] = useState<string | null>('trauma-basics')
   const [expandedArticle, setExpandedArticle] = useState<string | null>(null)
+  const [dynamicArticles, setDynamicArticles] = useState<Article[]>([])
+  const [expandedDynamic, setExpandedDynamic] = useState<number | null>(null)
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/content/articles`)
+      .then(r => r.ok ? r.json() : [])
+      .then((data: Article[]) => setDynamicArticles(data.filter(a => a.active)))
+      .catch(() => {})
+  }, [])
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-healing-purple/5 via-white to-sky-blue-bg flex flex-col">
@@ -175,6 +198,44 @@ export default function LearningLibrary() {
             </div>
           ))}
         </div>
+
+        {dynamicArticles.length > 0 && (
+          <div className="mt-10">
+            <h2 className="text-xl font-bold font-heading text-charcoal mb-4">More Articles</h2>
+            <div className="space-y-3">
+              {dynamicArticles.map((article) => (
+                <div key={article.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                  <button
+                    onClick={() => setExpandedDynamic(expandedDynamic === article.id ? null : article.id)}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <div>
+                      <h4 className="font-bold text-slate-blue">{article.title}</h4>
+                      <div className="flex gap-2 mt-1">
+                        {article.author && <span className="text-xs text-charcoal-70">by {article.author}</span>}
+                        {article.category && <span className="text-xs bg-healing-purple/10 text-healing-purple px-2 py-0.5 rounded-full">{article.category}</span>}
+                        {article.age_group && <span className="text-xs bg-sky-blue-bg text-slate-blue px-2 py-0.5 rounded-full">{article.age_group}</span>}
+                        {article.video_url && <span className="text-xs text-slate-blue flex items-center gap-0.5"><Video className="w-3 h-3" /> Video</span>}
+                      </div>
+                    </div>
+                    {expandedDynamic === article.id ? <ChevronUp className="w-5 h-5 text-charcoal-70" /> : <ChevronDown className="w-5 h-5 text-charcoal-70" />}
+                  </button>
+                  {expandedDynamic === article.id && (
+                    <div className="border-t border-gray-100 px-5 pb-5 pt-3 space-y-3">
+                      {article.summary && <p className="text-sm text-charcoal-80 italic">{article.summary}</p>}
+                      <p className="text-sm text-charcoal-80 leading-relaxed whitespace-pre-wrap">{article.content}</p>
+                      {article.video_url && (
+                        <a href={article.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm text-slate-blue hover:underline font-medium">
+                          <Video className="w-4 h-4" /> Watch Video
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
 
       <SafetyFooter />

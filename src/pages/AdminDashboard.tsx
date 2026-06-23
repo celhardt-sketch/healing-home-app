@@ -5,16 +5,17 @@ import { useAuth } from '../contexts/AuthContext'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
-type Tab = 'first-aid' | 'scripts' | 'learning' | 'printables' | 'users' | 'webhooks' | 'videos' | 'pre-auth' | 'notifications'
+type Tab = 'first-aid' | 'scripts' | 'learning' | 'printables' | 'users' | 'webhooks' | 'videos' | 'pre-auth' | 'notifications' | 'pages'
 
 const tabs: { id: Tab; label: string; icon: typeof Heart }[] = [
   { id: 'first-aid', label: 'First Aid Cards', icon: Heart },
   { id: 'scripts', label: 'Scripts', icon: FileText },
   { id: 'learning', label: 'Learning', icon: BookOpen },
   { id: 'printables', label: 'Printables', icon: Printer },
+  { id: 'videos', label: 'Videos', icon: Video },
+  { id: 'pages', label: 'Pages', icon: FileText },
   { id: 'users', label: 'Users', icon: Users },
   { id: 'webhooks', label: 'Webhooks', icon: Webhook },
-  { id: 'videos', label: 'Videos', icon: Video },
   { id: 'pre-auth', label: 'Pre-Auth', icon: Mail },
   { id: 'notifications', label: 'Notifications', icon: Bell },
 ]
@@ -135,11 +136,12 @@ export default function AdminDashboard() {
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-          {activeTab === 'first-aid' && <ContentTab table="first_aid_cards" label="First Aid Card" fields={firstAidFields} />}
-          {activeTab === 'scripts' && <ContentTab table="scripts" label="Script" fields={scriptFields} />}
-          {activeTab === 'learning' && <ContentTab table="articles" label="Article" fields={articleFields} />}
-          {activeTab === 'printables' && <ContentTab table="printables" label="Printable" fields={printableFields} />}
-          {activeTab === 'videos' && <ContentTab table="videos" label="Video" fields={videoFields} />}
+          {activeTab === 'first-aid' && <ContentTab table="first_aid_cards" label="First Aid Card" fields={firstAidFields} previewType="first-aid" />}
+          {activeTab === 'scripts' && <ContentTab table="scripts" label="Script" fields={scriptFields} previewType="script" />}
+          {activeTab === 'learning' && <ContentTab table="articles" label="Article" fields={articleFields} previewType="article" />}
+          {activeTab === 'printables' && <ContentTab table="printables" label="Printable" fields={printableFields} previewType="printable" />}
+          {activeTab === 'videos' && <ContentTab table="videos" label="Video" fields={videoFields} previewType="video" />}
+          {activeTab === 'pages' && <PagesTab />}
           {activeTab === 'users' && <UsersTab />}
           {activeTab === 'webhooks' && <WebhooksTab />}
           {activeTab === 'pre-auth' && <PreAuthTab />}
@@ -166,6 +168,7 @@ const firstAidFields: FieldDef[] = [
   { name: 'content', label: 'Card Content', type: 'textarea', required: true, placeholder: 'De-escalation steps, what to say, what to do...' },
   { name: 'age_group', label: 'Age Group', type: 'select', options: ['All Ages', 'Early Childhood', 'Middle Childhood', 'Pre-Adolescence', 'Adolescence'] },
   { name: 'category', label: 'Category', type: 'text', placeholder: 'e.g., Aggression, Flight, Shutdown, Defiance' },
+  { name: 'video_url', label: 'Video Link (YouTube or MP4 URL)', type: 'text', placeholder: 'https://youtube.com/watch?v=... or uploaded MP4 URL' },
   { name: 'sort_order', label: 'Sort Order', type: 'number' },
   { name: 'active', label: 'Active (visible to users)', type: 'checkbox' },
 ]
@@ -176,6 +179,7 @@ const scriptFields: FieldDef[] = [
   { name: 'category', label: 'Category', type: 'text', placeholder: 'e.g., Defiance, Boundaries, Transitions' },
   { name: 'age_group', label: 'Age Group', type: 'select', options: ['All Ages', 'Early Childhood', 'Middle Childhood', 'Pre-Adolescence', 'Adolescence'] },
   { name: 'situation', label: 'Situation', type: 'text', placeholder: 'When to use this script' },
+  { name: 'video_url', label: 'Video Link (YouTube or MP4 URL)', type: 'text', placeholder: 'https://youtube.com/watch?v=...' },
   { name: 'sort_order', label: 'Sort Order', type: 'number' },
   { name: 'active', label: 'Active (visible to users)', type: 'checkbox' },
 ]
@@ -187,6 +191,7 @@ const articleFields: FieldDef[] = [
   { name: 'category', label: 'Category', type: 'text', placeholder: 'e.g., Attachment, Regulation, Trauma' },
   { name: 'age_group', label: 'Age Group', type: 'select', options: ['All Ages', 'Early Childhood', 'Middle Childhood', 'Pre-Adolescence', 'Adolescence'] },
   { name: 'author', label: 'Author', type: 'text' },
+  { name: 'video_url', label: 'Video Link (YouTube or MP4 URL)', type: 'text', placeholder: 'https://youtube.com/watch?v=...' },
   { name: 'sort_order', label: 'Sort Order', type: 'number' },
   { name: 'active', label: 'Active (visible to users)', type: 'checkbox' },
 ]
@@ -225,7 +230,68 @@ const videoFields: FieldDef[] = [
 
 // --- Generic Content CRUD Tab ---
 
-function ContentTab({ table, label, fields }: { table: string; label: string; fields: FieldDef[] }) {
+function ContentPreview({ item, type }: { item: Record<string, unknown>; type: string }) {
+  const videoUrl = item.video_url as string
+  return (
+    <div className="border border-blue-200 rounded-xl p-4 bg-blue-50/30">
+      <p className="text-xs text-slate-blue font-semibold mb-2 uppercase tracking-wide">App Preview</p>
+      {type === 'first-aid' && (
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div className="flex items-center gap-2 mb-2">
+            <Heart className="w-4 h-4 text-healing-purple" />
+            <h4 className="font-bold text-charcoal font-heading text-sm">{String(item.title || 'Card Title')}</h4>
+          </div>
+          {!!item.category && <span className="text-xs bg-healing-purple/10 text-healing-purple px-2 py-0.5 rounded-full">{String(item.category)}</span>}
+          {!!item.age_group && <span className="text-xs bg-sky-blue-bg text-slate-blue px-2 py-0.5 rounded-full ml-1">{String(item.age_group)}</span>}
+          <p className="text-xs text-charcoal-80 mt-2 whitespace-pre-wrap line-clamp-4">{String(item.content || 'Card content will appear here...')}</p>
+          {videoUrl && <p className="text-xs text-slate-blue mt-2 flex items-center gap-1"><Video className="w-3 h-3" /> Video attached</p>}
+        </div>
+      )}
+      {type === 'script' && (
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <h4 className="font-bold text-charcoal font-heading text-sm mb-1">{String(item.title || 'Script Title')}</h4>
+          {!!item.situation && <p className="text-xs text-charcoal-70 italic mb-2">Situation: {String(item.situation)}</p>}
+          <div className="bg-gray-50 rounded-lg p-3 border-l-4 border-slate-blue">
+            <p className="text-xs text-charcoal whitespace-pre-wrap line-clamp-4">{String(item.content || 'Script content...')}</p>
+          </div>
+          {videoUrl && <p className="text-xs text-slate-blue mt-2 flex items-center gap-1"><Video className="w-3 h-3" /> Video attached</p>}
+        </div>
+      )}
+      {type === 'article' && (
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <h4 className="font-bold text-charcoal font-heading text-sm">{String(item.title || 'Article Title')}</h4>
+          {!!item.author && <p className="text-xs text-charcoal-70 mt-0.5">by {String(item.author)}</p>}
+          {!!item.summary && <p className="text-xs text-charcoal-80 mt-2 italic">{String(item.summary)}</p>}
+          <p className="text-xs text-charcoal-80 mt-2 whitespace-pre-wrap line-clamp-3">{String(item.content || 'Article content...')}</p>
+          {videoUrl && <p className="text-xs text-slate-blue mt-2 flex items-center gap-1"><Video className="w-3 h-3" /> Video attached</p>}
+        </div>
+      )}
+      {type === 'printable' && (
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm flex items-center gap-3">
+          <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
+            <FileText className="w-5 h-5 text-red-600" />
+          </div>
+          <div>
+            <h4 className="font-bold text-charcoal text-sm">{String(item.title || 'Printable Title')}</h4>
+            <p className="text-xs text-charcoal-70">{String(item.description || 'Description...')}</p>
+          </div>
+        </div>
+      )}
+      {type === 'video' && (
+        <div className="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
+          <div className="bg-gray-900 rounded-lg aspect-video flex items-center justify-center mb-2">
+            <Video className="w-8 h-8 text-white/70" />
+          </div>
+          <h4 className="font-bold text-charcoal text-sm">{String(item.title || 'Video Title')}</h4>
+          {!!item.creator_name && <p className="text-xs text-charcoal-70">{String(item.creator_name)}</p>}
+          {!!item.why_it_helps && <p className="text-xs text-charcoal-80 mt-1 italic">{String(item.why_it_helps)}</p>}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ContentTab({ table, label, fields, previewType }: { table: string; label: string; fields: FieldDef[]; previewType: string }) {
   const [items, setItems] = useState<Array<Record<string, unknown>>>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -332,78 +398,85 @@ function ContentTab({ table, label, fields }: { table: string; label: string; fi
             <h4 className="font-semibold text-charcoal">{editingId ? 'Edit' : 'New'} {label}</h4>
             <button onClick={() => setShowForm(false)} className="text-charcoal-70 hover:text-charcoal"><X className="w-5 h-5" /></button>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fields.map((field) => (
-              <div key={field.name} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
-                {field.type === 'checkbox' ? (
-                  <label className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      checked={!!formData[field.name]}
-                      onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.checked ? 1 : 0 }))}
-                      className="rounded"
-                    />
-                    <span className="text-sm font-medium text-charcoal">{field.label}</span>
-                  </label>
-                ) : field.type === 'file' ? (
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">{field.label}</label>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="file"
-                        onChange={(e) => { if (e.target.files?.[0]) handleFileUpload(field.name, e.target.files[0]) }}
-                        className="text-sm"
-                      />
-                      {formData[field.name] ? (
-                        <span className="text-xs text-growth-green">✓ {String(formData[field.name]).split('/').pop()}</span>
-                      ) : null}
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {fields.map((field) => (
+                  <div key={field.name} className={field.type === 'textarea' ? 'md:col-span-2' : ''}>
+                    {field.type === 'checkbox' ? (
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={!!formData[field.name]}
+                          onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.checked ? 1 : 0 }))}
+                          className="rounded"
+                        />
+                        <span className="text-sm font-medium text-charcoal">{field.label}</span>
+                      </label>
+                    ) : field.type === 'file' ? (
+                      <div>
+                        <label className="block text-sm font-medium text-charcoal mb-1">{field.label}</label>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="file"
+                            onChange={(e) => { if (e.target.files?.[0]) handleFileUpload(field.name, e.target.files[0]) }}
+                            className="text-sm"
+                          />
+                          {formData[field.name] ? (
+                            <span className="text-xs text-growth-green">Uploaded</span>
+                          ) : null}
+                        </div>
+                      </div>
+                    ) : field.type === 'textarea' ? (
+                      <div>
+                        <label className="block text-sm font-medium text-charcoal mb-1">{field.label}</label>
+                        <textarea
+                          value={String(formData[field.name] || '')}
+                          onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
+                          rows={4}
+                          placeholder={field.placeholder}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none resize-none"
+                        />
+                      </div>
+                    ) : field.type === 'select' ? (
+                      <div>
+                        <label className="block text-sm font-medium text-charcoal mb-1">{field.label}</label>
+                        <select
+                          value={String(formData[field.name] || '')}
+                          onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                        >
+                          <option value="">Select...</option>
+                          {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                        </select>
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block text-sm font-medium text-charcoal mb-1">{field.label}</label>
+                        <input
+                          type={field.type === 'number' ? 'number' : 'text'}
+                          value={String(formData[field.name] || '')}
+                          onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: field.type === 'number' ? Number(e.target.value) : e.target.value }))}
+                          placeholder={field.placeholder}
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                        />
+                      </div>
+                    )}
                   </div>
-                ) : field.type === 'textarea' ? (
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">{field.label}</label>
-                    <textarea
-                      value={String(formData[field.name] || '')}
-                      onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
-                      rows={4}
-                      placeholder={field.placeholder}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none resize-none"
-                    />
-                  </div>
-                ) : field.type === 'select' ? (
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">{field.label}</label>
-                    <select
-                      value={String(formData[field.name] || '')}
-                      onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
-                    >
-                      <option value="">Select...</option>
-                      {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                    </select>
-                  </div>
-                ) : (
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal mb-1">{field.label}</label>
-                    <input
-                      type={field.type === 'number' ? 'number' : 'text'}
-                      value={String(formData[field.name] || '')}
-                      onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: field.type === 'number' ? Number(e.target.value) : e.target.value }))}
-                      placeholder={field.placeholder}
-                      className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
-                    />
-                  </div>
-                )}
+                ))}
               </div>
-            ))}
-          </div>
-          <div className="mt-4 flex gap-2">
-            <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 bg-growth-green text-white rounded-lg text-sm font-semibold hover:bg-growth-green/90 disabled:opacity-50">
-              {saving ? 'Saving...' : editingId ? 'Update' : 'Create'}
-            </button>
-            <button onClick={() => setShowForm(false)} className="px-6 py-2.5 bg-gray-200 text-charcoal rounded-lg text-sm font-medium hover:bg-gray-300">
-              Cancel
-            </button>
+              <div className="mt-4 flex gap-2">
+                <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 bg-growth-green text-white rounded-lg text-sm font-semibold hover:bg-growth-green/90 disabled:opacity-50">
+                  {saving ? 'Saving...' : editingId ? 'Update' : 'Create'}
+                </button>
+                <button onClick={() => setShowForm(false)} className="px-6 py-2.5 bg-gray-200 text-charcoal rounded-lg text-sm font-medium hover:bg-gray-300">
+                  Cancel
+                </button>
+              </div>
+            </div>
+            <div className="lg:col-span-1">
+              <ContentPreview item={formData} type={previewType} />
+            </div>
           </div>
         </div>
       )}
@@ -413,42 +486,23 @@ function ContentTab({ table, label, fields }: { table: string; label: string; fi
           <p className="text-sm text-charcoal-70">No {label.toLowerCase()}s yet. Click "+ Add {label}" to get started.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="text-left p-3 font-semibold">Title</th>
-                <th className="text-left p-3 font-semibold">Category</th>
-                <th className="text-left p-3 font-semibold">Age Group</th>
-                <th className="text-left p-3 font-semibold">Status</th>
-                <th className="text-left p-3 font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((item) => (
-                <tr key={item.id as number} className="border-t border-gray-100">
-                  <td className="p-3 font-medium">{String(item.title || '')}</td>
-                  <td className="p-3 text-charcoal-70">{String(item.category || '—')}</td>
-                  <td className="p-3 text-charcoal-70">{String(item.age_group || '—')}</td>
-                  <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${item.active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-600'}`}>
-                      {item.active ? 'Active' : 'Hidden'}
-                    </span>
-                  </td>
-                  <td className="p-3">
-                    <div className="flex gap-2">
-                      <button onClick={() => openEdit(item)} className="text-slate-blue hover:text-slate-blue-dark">
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => handleDelete(item.id as number)} className="text-red-500 hover:text-red-700">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => (
+            <div key={item.id as number} className="relative group">
+              <ContentPreview item={item} type={previewType} />
+              <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className={`px-2 py-0.5 rounded text-xs font-medium ${item.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-600'}`}>
+                  {item.active ? 'Active' : 'Hidden'}
+                </span>
+                <button onClick={() => openEdit(item)} className="p-1 bg-white rounded shadow text-slate-blue hover:text-slate-blue-dark">
+                  <Edit2 className="w-3.5 h-3.5" />
+                </button>
+                <button onClick={() => handleDelete(item.id as number)} className="p-1 bg-white rounded shadow text-red-500 hover:text-red-700">
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
@@ -645,6 +699,204 @@ function PreAuthTab() {
               {emails.length === 0 && <tr><td colSpan={3} className="p-3 text-center text-charcoal-70">No pre-authorized emails yet</td></tr>}
             </tbody>
           </table>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// --- Pages Tab (editable static content) ---
+
+const PAGE_DEFINITIONS: { page: string; label: string; sections: { section: string; label: string; type: string }[] }[] = [
+  {
+    page: 'landing', label: 'Landing Page', sections: [
+      { section: 'hero_title', label: 'Hero Title', type: 'text' },
+      { section: 'hero_subtitle', label: 'Hero Subtitle', type: 'text' },
+      { section: 'hero_description', label: 'Hero Description', type: 'textarea' },
+      { section: 'features_heading', label: 'Features Heading', type: 'text' },
+      { section: 'features_list', label: 'Features List (one per line)', type: 'textarea' },
+    ]
+  },
+  {
+    page: 'dashboard', label: 'Dashboard Page', sections: [
+      { section: 'welcome_title', label: 'Welcome Title', type: 'text' },
+      { section: 'welcome_message', label: 'Welcome Message', type: 'textarea' },
+      { section: 'quick_links_heading', label: 'Quick Links Heading', type: 'text' },
+    ]
+  },
+  {
+    page: 'crisis', label: 'Crisis / First Aid Page', sections: [
+      { section: 'page_title', label: 'Page Title', type: 'text' },
+      { section: 'page_description', label: 'Page Description', type: 'textarea' },
+      { section: 'emergency_note', label: 'Emergency Contact Note', type: 'textarea' },
+    ]
+  },
+  {
+    page: 'caregiver', label: 'Caregiver Support Page', sections: [
+      { section: 'page_title', label: 'Page Title', type: 'text' },
+      { section: 'page_description', label: 'Page Description', type: 'textarea' },
+      { section: 'intro_text', label: 'Intro Text', type: 'textarea' },
+    ]
+  },
+  {
+    page: 'learning', label: 'Learning Library Page', sections: [
+      { section: 'page_title', label: 'Page Title', type: 'text' },
+      { section: 'page_description', label: 'Page Description', type: 'textarea' },
+    ]
+  },
+  {
+    page: 'kids_tools', label: 'Kids Regulation Tools Page', sections: [
+      { section: 'page_title', label: 'Page Title', type: 'text' },
+      { section: 'page_description', label: 'Page Description', type: 'textarea' },
+    ]
+  },
+]
+
+function PagesTab() {
+  const [activePage, setActivePage] = useState(PAGE_DEFINITIONS[0].page)
+  const [content, setContent] = useState<Record<string, string>>({})
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  const pageDef = PAGE_DEFINITIONS.find(p => p.page === activePage)!
+
+  function switchPage(page: string) {
+    setActivePage(page)
+    setContent({})
+    setMsg('')
+    setLoading(true)
+  }
+
+  useEffect(() => {
+    let cancelled = false
+    apiGet(`/api/page-content/${activePage}`)
+      .then((data: Array<{ section: string; content: string }>) => {
+        if (cancelled) return
+        const map: Record<string, string> = {}
+        data.forEach(d => { map[d.section] = d.content })
+        setContent(map)
+      })
+      .catch(() => { if (!cancelled) setContent({}) })
+      .finally(() => { if (!cancelled) setLoading(false) })
+    return () => { cancelled = true }
+  }, [activePage])
+
+  async function saveSection(section: string) {
+    setSaving(true)
+    setMsg('')
+    try {
+      await apiPost('/api/admin/page-content', {
+        page: activePage,
+        section,
+        content: content[section] || '',
+        content_type: 'text',
+      })
+      setMsg(`Saved: ${section}`)
+    } catch {
+      setMsg('Error saving')
+    }
+    setSaving(false)
+  }
+
+  async function saveAll() {
+    setSaving(true)
+    setMsg('')
+    try {
+      for (const sec of pageDef.sections) {
+        await apiPost('/api/admin/page-content', {
+          page: activePage,
+          section: sec.section,
+          content: content[sec.section] || '',
+          content_type: sec.type === 'textarea' ? 'richtext' : 'text',
+        })
+      }
+      setMsg('All sections saved!')
+    } catch {
+      setMsg('Error saving')
+    }
+    setSaving(false)
+  }
+
+  return (
+    <div>
+      <h3 className="text-lg font-bold text-charcoal mb-2">Page Content Editor</h3>
+      <p className="text-sm text-charcoal-70 mb-4">Edit the text content on each page of the app. Changes show up immediately.</p>
+
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {PAGE_DEFINITIONS.map(p => (
+          <button
+            key={p.page}
+            onClick={() => switchPage(p.page)}
+            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+              activePage === p.page ? 'bg-slate-blue text-white' : 'bg-gray-100 text-charcoal-70 hover:bg-gray-200'
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
+      {loading ? <p className="text-sm text-charcoal-70">Loading...</p> : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <h4 className="font-semibold text-charcoal text-sm">Edit Sections</h4>
+            {pageDef.sections.map(sec => (
+              <div key={sec.section} className="border border-gray-200 rounded-lg p-3">
+                <label className="block text-sm font-medium text-charcoal mb-1">{sec.label}</label>
+                {sec.type === 'textarea' ? (
+                  <textarea
+                    value={content[sec.section] || ''}
+                    onChange={(e) => setContent(prev => ({ ...prev, [sec.section]: e.target.value }))}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none resize-none"
+                    placeholder={`Enter ${sec.label.toLowerCase()}...`}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    value={content[sec.section] || ''}
+                    onChange={(e) => setContent(prev => ({ ...prev, [sec.section]: e.target.value }))}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    placeholder={`Enter ${sec.label.toLowerCase()}...`}
+                  />
+                )}
+                <button
+                  onClick={() => saveSection(sec.section)}
+                  disabled={saving}
+                  className="mt-1 text-xs text-slate-blue hover:underline disabled:opacity-50"
+                >
+                  Save this section
+                </button>
+              </div>
+            ))}
+            <button onClick={saveAll} disabled={saving} className="px-6 py-2.5 bg-growth-green text-white rounded-lg text-sm font-semibold hover:bg-growth-green/90 disabled:opacity-50">
+              {saving ? 'Saving...' : 'Save All Sections'}
+            </button>
+            {msg && <p className="text-sm text-growth-green">{msg}</p>}
+          </div>
+
+          <div>
+            <h4 className="font-semibold text-charcoal text-sm mb-2">Page Preview</h4>
+            <div className="border border-blue-200 rounded-xl p-4 bg-blue-50/30">
+              <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm space-y-3">
+                {pageDef.sections.map(sec => {
+                  const val = content[sec.section]
+                  if (!val) return null
+                  if (sec.section.includes('title') || sec.section.includes('heading')) {
+                    return <h3 key={sec.section} className="font-bold font-heading text-charcoal text-lg">{val}</h3>
+                  }
+                  if (sec.section.includes('subtitle')) {
+                    return <p key={sec.section} className="text-sm text-charcoal-80 font-medium">{val}</p>
+                  }
+                  return <p key={sec.section} className="text-sm text-charcoal-70 whitespace-pre-wrap">{val}</p>
+                })}
+                {Object.values(content).every(v => !v) && (
+                  <p className="text-sm text-charcoal-70 italic">Enter content on the left to see a preview here.</p>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
