@@ -34,6 +34,7 @@ from .content import (
     get_all_page_content,
     upsert_page_content,
 )
+from .seed import seed_all_content
 
 app = FastAPI(
     title="The Healing Home Approach API",
@@ -55,6 +56,7 @@ def startup() -> None:
     init_db()
     init_content_tables()
     _migrate_content_tables()
+    seed_all_content()
 
 
 # --- Request/Response models ---

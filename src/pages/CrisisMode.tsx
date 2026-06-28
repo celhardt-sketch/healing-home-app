@@ -15,6 +15,13 @@ interface FirstAidCard {
   active: number
 }
 
+interface PageSection {
+  page: string
+  section: string
+  content: string
+  content_type: string
+}
+
 type AgeGroup = 'toddler' | 'preschool' | 'school-age' | 'preteen-teen' | null
 type BehaviorType = 'aggression' | 'meltdown' | 'shutting-down' | 'defiance' | 'overwhelmed' | null
 
@@ -24,45 +31,43 @@ interface Step {
   tip: string
 }
 
-const steps: Record<string, Step[]> = {
-  default: [
-    {
-      title: 'Step 1: Pause and Breathe',
-      instruction: 'Before you do anything else, take three slow, deep breaths. You cannot regulate a child from a dysregulated state. Your calm is the intervention.',
-      tip: 'Place one hand on your chest. Feel your own heartbeat slow. This is where healing starts.',
-    },
-    {
-      title: 'Step 2: Assess Safety',
-      instruction: 'Is anyone in immediate physical danger? If yes, ensure safety first. Remove dangerous objects, create physical distance if needed, and call for help if the situation requires it.',
-      tip: 'Safety is non-negotiable. Everything else can wait until everyone is physically safe.',
-    },
-    {
-      title: 'Step 3: Get Low and Soft',
-      instruction: 'Lower your body to the child\'s level or below. Soften your face, your voice, and your posture. You are communicating safety with your entire body.',
-      tip: 'Children read body language before words. A tall, tense adult feels like a threat to a scared child.',
-    },
-    {
-      title: 'Step 4: Name What You See',
-      instruction: 'Use simple, non-judgmental language: "I can see you\'re having a really hard time right now." Do not ask why. Do not lecture. Just name what is visible.',
-      tip: 'Naming the emotion without judgment tells the child: I see you. I\'m not scared of your feelings.',
-    },
-    {
-      title: 'Step 5: Offer Connection',
-      instruction: 'Ask: "Can I sit with you?" or "Would a hug help?" Accept their answer. If they say no, stay nearby. Your presence is the regulation tool.',
-      tip: 'Some children need space before they can accept connection. That\'s okay. Stay close enough to be found.',
-    },
-    {
-      title: 'Step 6: Wait for the Wave to Pass',
-      instruction: 'A meltdown is a wave. It will crest and fall. Your job is to be the shore. Stay calm, stay present, stay quiet if needed. The teaching moment comes later.',
-      tip: 'Regulation before reason. Connection before correction. There is no learning in the storm.',
-    },
-    {
-      title: 'Step 7: Repair and Reconnect',
-      instruction: 'When calm returns, gently reconnect. "That was really hard. I\'m glad we got through it together." Then, when ready, reflect gently on what happened.',
-      tip: 'Repair teaches children that relationships survive hard moments. This is attachment in action.',
-    },
-  ],
-}
+const DEFAULT_STEPS: Step[] = [
+  {
+    title: 'Pause and Breathe',
+    instruction: 'Before you do anything else, take three slow, deep breaths. You cannot regulate a child from a dysregulated state. Your calm is the intervention.',
+    tip: 'Place one hand on your chest. Feel your own heartbeat slow. This is where healing starts.',
+  },
+  {
+    title: 'Assess Safety',
+    instruction: 'Is anyone in immediate physical danger? If yes, ensure safety first. Remove dangerous objects, create physical distance if needed, and call for help if the situation requires it.',
+    tip: 'Safety is non-negotiable. Everything else can wait until everyone is physically safe.',
+  },
+  {
+    title: 'Get Low and Soft',
+    instruction: "Lower your body to the child's level or below. Soften your face, your voice, and your posture. You are communicating safety with your entire body.",
+    tip: 'Children read body language before words. A tall, tense adult feels like a threat to a scared child.',
+  },
+  {
+    title: 'Name What You See',
+    instruction: 'Use simple, non-judgmental language: "I can see you\'re having a really hard time right now." Do not ask why. Do not lecture. Just name what is visible.',
+    tip: "Naming the emotion without judgment tells the child: I see you. I'm not scared of your feelings.",
+  },
+  {
+    title: 'Offer Connection',
+    instruction: 'Ask: "Can I sit with you?" or "Would a hug help?" Accept their answer. If they say no, stay nearby. Your presence is the regulation tool.',
+    tip: "Some children need space before they can accept connection. That's okay. Stay close enough to be found.",
+  },
+  {
+    title: 'Wait for the Wave to Pass',
+    instruction: 'A meltdown is a wave. It will crest and fall. Your job is to be the shore. Stay calm, stay present, stay quiet if needed. The teaching moment comes later.',
+    tip: 'Regulation before reason. Connection before correction. There is no learning in the storm.',
+  },
+  {
+    title: 'Repair and Reconnect',
+    instruction: 'When calm returns, gently reconnect. "That was really hard. I\'m glad we got through it together." Then, when ready, reflect gently on what happened.',
+    tip: 'Repair teaches children that relationships survive hard moments. This is attachment in action.',
+  },
+]
 
 export default function CrisisMode() {
   const [currentStep, setCurrentStep] = useState(0)
@@ -71,16 +76,33 @@ export default function CrisisMode() {
   const [started, setStarted] = useState(false)
   const [cards, setCards] = useState<FirstAidCard[]>([])
   const [expandedCard, setExpandedCard] = useState<number | null>(null)
+  const [steps, setSteps] = useState<Step[]>(DEFAULT_STEPS)
 
   useEffect(() => {
     fetch(`${API_URL}/api/content/first_aid_cards`)
       .then(r => r.ok ? r.json() : [])
-      .then((data: FirstAidCard[]) => setCards(data.filter(c => c.active)))
+      .then((data: FirstAidCard[]) => setCards(data.filter(c => c.active && c.category !== 'Kids Tool')))
+      .catch(() => {})
+
+    fetch(`${API_URL}/api/page-content/crisis_steps`)
+      .then(r => r.ok ? r.json() : [])
+      .then((sections: PageSection[]) => {
+        if (sections.length === 0) return
+        const parsed: Step[] = []
+        for (let i = 1; i <= 20; i++) {
+          const title = sections.find(s => s.section === `step_${i}_title`)?.content
+          const instruction = sections.find(s => s.section === `step_${i}_instruction`)?.content
+          const tip = sections.find(s => s.section === `step_${i}_tip`)?.content
+          if (title && instruction) {
+            parsed.push({ title, instruction, tip: tip || '' })
+          }
+        }
+        if (parsed.length > 0) setSteps(parsed)
+      })
       .catch(() => {})
   }, [])
 
-  const currentSteps = steps.default
-  const step = currentSteps[currentStep]
+  const step = steps[currentStep]
 
   const reset = () => {
     setCurrentStep(0)
@@ -241,13 +263,13 @@ export default function CrisisMode() {
             </h1>
           </div>
           <span className="text-sm text-charcoal-70">
-            Step {currentStep + 1} of {currentSteps.length}
+            Step {currentStep + 1} of {steps.length}
           </span>
         </div>
         <div className="h-1 bg-gray-100">
           <div
             className="h-full bg-gradient-to-r from-red-500 to-orange-500 transition-all duration-300"
-            style={{ width: `${((currentStep + 1) / currentSteps.length) * 100}%` }}
+            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
           />
         </div>
       </div>
@@ -262,14 +284,16 @@ export default function CrisisMode() {
             ) : (
               <Heart className="w-8 h-8 text-healing-purple" />
             )}
-            <h2 className="text-xl font-bold font-heading text-charcoal">{step.title}</h2>
+            <h2 className="text-xl font-bold font-heading text-charcoal">Step {currentStep + 1}: {step.title}</h2>
           </div>
 
           <p className="text-charcoal-80 leading-relaxed mb-6">{step.instruction}</p>
 
-          <div className="bg-sky-blue-bg rounded-xl p-4">
-            <p className="text-sm text-slate-blue italic font-heading">{step.tip}</p>
-          </div>
+          {step.tip && (
+            <div className="bg-sky-blue-bg rounded-xl p-4">
+              <p className="text-sm text-slate-blue italic font-heading">{step.tip}</p>
+            </div>
+          )}
         </div>
 
         <div className="flex items-center justify-between mt-6">
@@ -281,7 +305,7 @@ export default function CrisisMode() {
             <ArrowLeft className="w-4 h-4" /> Previous
           </button>
 
-          {currentStep < currentSteps.length - 1 ? (
+          {currentStep < steps.length - 1 ? (
             <button
               onClick={() => setCurrentStep(currentStep + 1)}
               className="flex items-center gap-2 bg-slate-blue text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors"
