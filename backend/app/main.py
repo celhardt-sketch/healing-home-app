@@ -1,8 +1,9 @@
 import os
-import traceback
+import uuid
 
-from fastapi import FastAPI, HTTPException, Depends, Header
+from fastapi import FastAPI, File, Form, HTTPException, Depends, Header, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, EmailStr
 
 from .auth import (
@@ -13,7 +14,7 @@ from .auth import (
     verify_password,
 )
 from .backup import create_backup, list_backups, verify_backup
-from .config import CORS_ORIGINS
+from .config import CORS_ORIGINS, get_uploads_dir
 from .database import get_db, init_db
 
 app = FastAPI(
@@ -202,3 +203,150 @@ def trigger_backup(current_user: dict = Depends(get_current_user)) -> MessageRes
 def get_backups(current_user: dict = Depends(get_current_user)) -> list[dict]:
     """List all available backups."""
     return list_backups()
+
+
+# --- Resource Library endpoints ---
+
+VALID_SECTIONS = [
+    "professionals",
+    "foster-adoptive",
+    "kinship",
+    "biological",
+]
+
+VALID_CATEGORIES = [
+    "articles",
+    "behavior-support",
+    "mental-health",
+    "policy",
+    "research",
+    "resources",
+]
+
+
+class ResourceResponse(BaseModel):
+    id: int
+    section: str
+    category: str
+    title: str
+    original_filename: str
+    uploaded_at: str
+
+
+@app.get("/api/resources")
+def list_resources(section: str | None = None, category: str | None = None) -> list[dict]:
+    """List resources, optionally filtered by section and/or category."""
+    query = "SELECT id, section, category, title, original_filename, uploaded_at FROM resources"
+    params: list[str] = []
+    conditions: list[str] = []
+
+    if section:
+        conditions.append("section = ?")
+        params.append(section)
+    if category:
+        conditions.append("category = ?")
+        params.append(category)
+
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+
+    query += " ORDER BY uploaded_at DESC"
+
+    with get_db() as conn:
+        rows = conn.execute(query, params).fetchall()
+
+    return [dict(row) for row in rows]
+
+
+@app.post("/api/resources", response_model=ResourceResponse)
+def upload_resource(
+    section: str = Form(...),
+    category: str = Form(...),
+    title: str = Form(...),
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user),
+) -> ResourceResponse:
+    """Upload a PDF resource."""
+    if section not in VALID_SECTIONS:
+        raise HTTPException(status_code=400, detail=f"Invalid section: {section}")
+    if category not in VALID_CATEGORIES:
+        raise HTTPException(status_code=400, detail=f"Invalid category: {category}")
+
+    if not file.filename or not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+
+    if file.content_type and file.content_type != "application/pdf":
+        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+
+    unique_name = f"{uuid.uuid4().hex}.pdf"
+    uploads_dir = get_uploads_dir()
+    file_path = os.path.join(uploads_dir, unique_name)
+
+    contents = file.file.read()
+    with open(file_path, "wb") as f:
+        f.write(contents)
+
+    with get_db() as conn:
+        cursor = conn.execute(
+            "INSERT INTO resources (section, category, title, filename, original_filename) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (section, category, title, unique_name, file.filename),
+        )
+        conn.commit()
+        resource_id = cursor.lastrowid
+
+        row = conn.execute(
+            "SELECT id, section, category, title, original_filename, uploaded_at "
+            "FROM resources WHERE id = ?",
+            (resource_id,),
+        ).fetchone()
+
+    return ResourceResponse(**dict(row))
+
+
+@app.get("/api/resources/{resource_id}/download")
+def download_resource(resource_id: int) -> FileResponse:
+    """Download a resource PDF by its ID."""
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT filename, original_filename FROM resources WHERE id = ?",
+            (resource_id,),
+        ).fetchone()
+
+    if not row:
+        raise HTTPException(status_code=404, detail="Resource not found")
+
+    file_path = os.path.join(get_uploads_dir(), row["filename"])
+    if not os.path.exists(file_path):
+        raise HTTPException(status_code=404, detail="File not found on disk")
+
+    return FileResponse(
+        path=file_path,
+        filename=row["original_filename"],
+        media_type="application/pdf",
+    )
+
+
+@app.delete("/api/resources/{resource_id}", response_model=MessageResponse)
+def delete_resource(
+    resource_id: int,
+    current_user: dict = Depends(get_current_user),
+) -> MessageResponse:
+    """Delete a resource (admin only)."""
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT filename FROM resources WHERE id = ?",
+            (resource_id,),
+        ).fetchone()
+
+        if not row:
+            raise HTTPException(status_code=404, detail="Resource not found")
+
+        file_path = os.path.join(get_uploads_dir(), row["filename"])
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        conn.execute("DELETE FROM resources WHERE id = ?", (resource_id,))
+        conn.commit()
+
+    return MessageResponse(message="Resource deleted")

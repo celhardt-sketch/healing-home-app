@@ -75,6 +75,7 @@ export default function Navbar() {
               <Link to="/crisis" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-red-600">First Aid</Link>
               <Link to="/scripts" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Scripts Library</Link>
               <Link to="/learning" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Learning Library</Link>
+              <Link to="/resource-library" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Resource Library</Link>
               <Link to="/family-plan" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">My Family Plan</Link>
               <Link to="/account" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Account Settings</Link>
               <button onClick={() => { signOut(); navigate('/'); setMenuOpen(false); }} className="block text-sm font-medium text-charcoal">
