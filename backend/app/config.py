@@ -27,6 +27,14 @@ def get_backup_dir() -> str:
     return backup_dir
 
 
+def get_uploads_dir() -> str:
+    """Get uploads directory path for resource PDFs."""
+    data_dir = os.environ.get("DATA_DIR", "/data")
+    uploads_dir = os.path.join(data_dir, "uploads")
+    os.makedirs(uploads_dir, exist_ok=True)
+    return uploads_dir
+
+
 # CORS origins for the frontend
 CORS_ORIGINS = os.environ.get(
     "CORS_ORIGINS",

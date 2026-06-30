@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   Shield, BookOpen, Heart, Users,
   AlertTriangle, Sparkles, TrendingUp,
-  Settings, RefreshCw, Wrench
+  Settings, RefreshCw, Wrench, Library
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import SafetyFooter from '../components/SafetyFooter'
@@ -63,6 +63,13 @@ const dashboardCards = [
     icon: Shield,
     href: '/mandated-reporter-guide',
     gradient: 'from-amber-500 to-red-500',
+  },
+  {
+    title: 'Resource Library',
+    description: 'Downloadable PDFs for professionals, foster/adoptive, kinship, and biological parents',
+    icon: Library,
+    href: '/resource-library',
+    gradient: 'from-sky-blue to-slate-blue',
   },
   {
     title: 'Safety & Help',

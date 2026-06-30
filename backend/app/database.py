@@ -25,6 +25,21 @@ def init_db() -> None:
     conn.execute("""
         CREATE INDEX IF NOT EXISTS idx_users_email ON users(email)
     """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS resources (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            section TEXT NOT NULL,
+            category TEXT NOT NULL,
+            title TEXT NOT NULL,
+            filename TEXT NOT NULL,
+            original_filename TEXT NOT NULL,
+            uploaded_at TEXT NOT NULL DEFAULT (datetime('now'))
+        )
+    """)
+    conn.execute("""
+        CREATE INDEX IF NOT EXISTS idx_resources_section_category
+        ON resources(section, category)
+    """)
     conn.commit()
     conn.close()
 
