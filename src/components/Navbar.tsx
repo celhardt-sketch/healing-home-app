@@ -27,9 +27,6 @@ export default function Navbar() {
               <Link to="/dashboard" className="text-sm font-medium text-charcoal hover:text-slate-blue transition-colors">
                 Dashboard
               </Link>
-              <Link to="/tools" className="text-sm font-medium text-charcoal hover:text-slate-blue transition-colors">
-                Tools
-              </Link>
               <Link to="/account" className="text-sm font-medium text-charcoal hover:text-slate-blue transition-colors">
                 <Settings className="w-4 h-4" />
               </Link>
@@ -71,7 +68,6 @@ export default function Navbar() {
           {isAuthenticated ? (
             <>
               <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Dashboard</Link>
-              <Link to="/tools" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Tools</Link>
               <Link to="/crisis" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-red-600">First Aid</Link>
               <Link to="/scripts" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Scripts Library</Link>
               <Link to="/learning" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Learning Library</Link>

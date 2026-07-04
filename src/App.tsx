@@ -4,13 +4,14 @@ import LandingPage from './pages/LandingPage'
 import DisclaimerGate from './pages/DisclaimerGate'
 import Dashboard from './pages/Dashboard'
 import CrisisMode from './pages/CrisisMode'
-import Tools from './pages/Tools'
 import KidsRegulationTools from './pages/KidsRegulationTools'
 import TryAgainTool from './pages/TryAgainTool'
 import RegulateMeNow from './pages/RegulateMeNow'
 import CaregiverSupport from './pages/CaregiverSupport'
 import ScriptsLibrary from './pages/ScriptsLibrary'
 import LearningLibrary from './pages/LearningLibrary'
+import LearningCategory from './pages/LearningCategory'
+import LearningArticle from './pages/LearningArticle'
 import GrowthTracker from './pages/GrowthTracker'
 import FamilyPlan from './pages/FamilyPlan'
 import SafetyResources from './pages/SafetyResources'
@@ -31,13 +32,14 @@ export default function App() {
         <Route path="/disclaimer" element={<DisclaimerGate />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/crisis" element={<CrisisMode />} />
-        <Route path="/tools" element={<Tools />} />
         <Route path="/kids-regulation" element={<KidsRegulationTools />} />
         <Route path="/try-again" element={<TryAgainTool />} />
         <Route path="/regulate-me" element={<RegulateMeNow />} />
         <Route path="/caregiver-support" element={<CaregiverSupport />} />
         <Route path="/scripts" element={<ScriptsLibrary />} />
         <Route path="/learning" element={<LearningLibrary />} />
+        <Route path="/learning/:categorySlug" element={<LearningCategory />} />
+        <Route path="/learning/:categorySlug/:articleSlug" element={<LearningArticle />} />
         <Route path="/growth-tracker" element={<GrowthTracker />} />
         <Route path="/family-plan" element={<FamilyPlan />} />
         <Route path="/safety-resources" element={<SafetyResources />} />
