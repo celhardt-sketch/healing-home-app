@@ -61,6 +61,7 @@ def startup() -> None:
     seed_all_content()
     _init_journal_table()
     _init_regulation_plans_table()
+    _init_growth_moments_table()
 
 
 def _init_journal_table() -> None:
@@ -104,6 +105,29 @@ def _init_regulation_plans_table() -> None:
         conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_regulation_plans_user
             ON regulation_plans(user_id)
+        """)
+        conn.commit()
+
+
+def _init_growth_moments_table() -> None:
+    """Create the growth moments table if it doesn't exist."""
+    with get_db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS growth_moments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                moment_date TEXT NOT NULL,
+                title TEXT NOT NULL,
+                description TEXT NOT NULL DEFAULT '',
+                category TEXT NOT NULL DEFAULT 'Other',
+                child_name TEXT NOT NULL DEFAULT '',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_growth_moments_user_date
+            ON growth_moments(user_id, moment_date)
         """)
         conn.commit()
 
@@ -794,6 +818,81 @@ def delete_regulation_plan(
         conn.commit()
     if result.rowcount == 0:
         raise HTTPException(404, "Plan not found")
+    return MessageResponse(message="Deleted")
+
+
+# --- Growth Moments Endpoints ---
+
+
+class GrowthMomentRequest(BaseModel):
+    moment_date: str  # YYYY-MM-DD
+    title: str
+    description: str = ""
+    category: str = "Other"
+    child_name: str = ""
+
+
+@app.post("/api/growth/save")
+def save_growth_moment(
+    body: GrowthMomentRequest,
+    current_user: dict = Depends(get_current_user),
+) -> dict:
+    """Create a growth moment."""
+    user_id = int(current_user["sub"])
+    if not body.title.strip():
+        raise HTTPException(400, "title is required")
+    with get_db() as conn:
+        cursor = conn.execute(
+            "INSERT INTO growth_moments (user_id, moment_date, title, description, category, child_name) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, body.moment_date, body.title.strip(), body.description, body.category, body.child_name),
+        )
+        conn.commit()
+        moment_id = cursor.lastrowid
+    return {"id": moment_id, "message": "Saved"}
+
+
+@app.get("/api/growth/list")
+def list_growth_moments(
+    current_user: dict = Depends(get_current_user),
+) -> list[dict]:
+    """List all growth moments for the current user, newest first."""
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT id, moment_date, title, description, category, child_name, created_at "
+            "FROM growth_moments WHERE user_id = ? ORDER BY moment_date DESC, id DESC",
+            (user_id,),
+        ).fetchall()
+    return [
+        {
+            "id": r["id"],
+            "moment_date": r["moment_date"],
+            "title": r["title"],
+            "description": r["description"],
+            "category": r["category"],
+            "child_name": r["child_name"],
+            "created_at": r["created_at"],
+        }
+        for r in rows
+    ]
+
+
+@app.delete("/api/growth/{moment_id}")
+def delete_growth_moment(
+    moment_id: int,
+    current_user: dict = Depends(get_current_user),
+) -> MessageResponse:
+    """Delete a growth moment (own moments only)."""
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        result = conn.execute(
+            "DELETE FROM growth_moments WHERE id = ? AND user_id = ?",
+            (moment_id, user_id),
+        )
+        conn.commit()
+    if result.rowcount == 0:
+        raise HTTPException(404, "Moment not found")
     return MessageResponse(message="Deleted")
 
 
