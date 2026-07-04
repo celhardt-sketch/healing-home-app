@@ -11,6 +11,8 @@ import RegulateMeNow from './pages/RegulateMeNow'
 import CaregiverSupport from './pages/CaregiverSupport'
 import ScriptsLibrary from './pages/ScriptsLibrary'
 import LearningLibrary from './pages/LearningLibrary'
+import LearningCategory from './pages/LearningCategory'
+import LearningArticle from './pages/LearningArticle'
 import GrowthTracker from './pages/GrowthTracker'
 import FamilyPlan from './pages/FamilyPlan'
 import SafetyResources from './pages/SafetyResources'
@@ -38,6 +40,8 @@ export default function App() {
         <Route path="/caregiver-support" element={<CaregiverSupport />} />
         <Route path="/scripts" element={<ScriptsLibrary />} />
         <Route path="/learning" element={<LearningLibrary />} />
+        <Route path="/learning/:categorySlug" element={<LearningCategory />} />
+        <Route path="/learning/:categorySlug/:articleSlug" element={<LearningArticle />} />
         <Route path="/growth-tracker" element={<GrowthTracker />} />
         <Route path="/family-plan" element={<FamilyPlan />} />
         <Route path="/safety-resources" element={<SafetyResources />} />
