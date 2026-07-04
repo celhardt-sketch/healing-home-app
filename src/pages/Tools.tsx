@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import {
-  Brain, Heart, RefreshCw, FileText, BookOpen, TrendingUp,
+  Brain, RefreshCw, FileText, BookOpen, TrendingUp,
   Users, Sparkles, Shield, Printer, Phone, ArrowRight
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
@@ -8,7 +8,6 @@ import SafetyFooter from '../components/SafetyFooter'
 
 const tools = [
   { title: 'First Aid for Big Feelings', description: 'Immediate, step by step support during challenging moments', icon: Shield, href: '/crisis', gradient: 'from-red-500 to-orange-500' },
-  { title: 'Regulate Me Now', description: 'Quick regulation exercises for caregivers in the moment', icon: Heart, href: '/regulate-me', gradient: 'from-healing-purple to-healing-purple-dark' },
   { title: 'Try Again Tool', description: 'A guided tool for repair, body awareness, and reinforcing identity', icon: RefreshCw, href: '/try-again', gradient: 'from-growth-green to-growth-green-dark' },
   { title: 'Kids Regulation Tools', description: 'Interactive regulation videos and tools for children', icon: Brain, href: '/kids-regulation', gradient: 'from-cyan-500 to-blue-500' },
   { title: 'Scripts Library', description: 'Trauma informed response templates for everyday situations', icon: FileText, href: '/scripts', gradient: 'from-slate-blue to-slate-blue-dark' },

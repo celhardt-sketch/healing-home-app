@@ -404,6 +404,24 @@ export default function CaregiverSupport() {
         </div>
 
         <div className="space-y-8">
+          {/* Regulate Me Now */}
+          <Link
+            to="/regulate-me"
+            className="block bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition-shadow group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-r from-healing-purple to-healing-purple-dark rounded-xl flex items-center justify-center shrink-0">
+                <Heart className="w-6 h-6 text-white" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-bold font-heading text-charcoal group-hover:text-slate-blue transition-colors">
+                  Regulate Me Now
+                </h3>
+                <p className="text-sm text-charcoal-80">Quick regulation exercises for caregivers in the moment.</p>
+              </div>
+            </div>
+          </Link>
+
           {/* Regulation Videos */}
           <div>
             <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-2">
