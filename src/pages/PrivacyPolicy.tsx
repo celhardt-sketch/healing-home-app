@@ -93,6 +93,22 @@ export default function PrivacyPolicy() {
               <p className="mt-2 font-semibold text-charcoal">Important Notice: Children's profile data is never shared externally, used for advertising, or linked to any child-facing content or records.</p>
             </section>
 
+            {/* TODO(legal-review): A privacy attorney must draft the foster-placement consent
+                language below. Do not treat this placeholder as authoritative. It should address
+                who may enter a foster or kinship child's information, agency-policy expectations,
+                and consent requirements. */}
+            <section className="border border-amber-200 bg-amber-50 rounded-lg p-4">
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">4a. Foster and Kinship Placements</h2>
+              <p className="text-amber-800 font-semibold mb-2">This section is pending legal review and is not yet complete.</p>
+              <p>
+                If a child in your care is in foster or kinship placement, agency policies may govern
+                whether and how their information can be recorded. Before entering a foster child's
+                information, check your agency's policy. Final consent and eligibility language for
+                foster and kinship placements will be provided here after review by qualified legal
+                counsel.
+              </p>
+            </section>
+
             <section>
               <h2 className="text-xl font-bold font-heading text-charcoal mb-3">5. Data Security</h2>
               <p>No method of electronic transmission or storage is completely secure. While we strive to protect your information, we cannot guarantee its absolute security.</p>
