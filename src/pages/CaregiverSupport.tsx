@@ -35,17 +35,64 @@ const sections = [
       { title: 'Repair After Caregiver Rupture', duration: 'Article' },
     ],
   },
+]
+
+const eveningWindDownItems = [
   {
-    title: 'Evening Wind-Down',
-    icon: Moon,
-    description: 'End your day with intentional practices that support nervous system recovery.',
-    color: 'text-sky-blue',
-    items: [
-      { title: 'Gratitude & Wins Reflection', duration: '5 min' },
-      { title: 'Body Release Sequence', duration: '7 min' },
-      { title: 'Journaling Prompts for Caregivers', duration: '10 min' },
-      { title: 'Sleep Preparation Ritual', duration: '5 min' },
-    ],
+    title: 'Gratitude & Wins Reflection',
+    duration: '5 min',
+    content: {
+      intro: 'Small moments count. You don\u2019t need a good day to find one good thing.',
+      prompts: [
+        'Name one thing that went right today, however small.',
+        'Name one thing you handled better than you would have a year ago.',
+        'Name one person or moment you\u2019re grateful for.',
+        'Finish this sentence: Today, I showed up by ______.',
+      ],
+      closing: 'Hard days still have wins. \u201cI kept everyone fed and safe\u201d is enough.',
+    },
+  },
+  {
+    title: 'Body Release Sequence',
+    duration: '7 min',
+    content: {
+      intro: 'This guided practice helps your body let go of the day\u2019s tension. Follow along with the video below.',
+      note: 'A gentle note before you start: this is an invitation, not a rule. You can keep your eyes open, skip any step, or stop at any time. If tensing your muscles feels uncomfortable, simply breathe slowly instead \u2014 inhale for 4, exhale for 6. The goal is comfort, not doing it perfectly.',
+      videoUrl: 'https://www.youtube.com/watch?v=1nZEdqcGVzo',
+      videoTitle: 'How to do Progressive Muscle Relaxation \u2014 Therapist Aid, 6:33',
+      closing: 'Afterward, take one slow breath and notice any place that feels a little lighter.',
+    },
+  },
+  {
+    title: 'Journaling Prompts for Caregivers',
+    duration: '10 min',
+    content: {
+      intro: 'Write freely \u2014 no one else will read this. Pick one prompt or a few.',
+      prompts: [
+        'What did I carry today that wasn\u2019t mine to carry?',
+        'Where did I feel most stretched, and what did I need in that moment?',
+        'What did my child teach me today, even in a hard moment?',
+        'What am I still holding onto that I could set down before sleep?',
+        'If I could tell myself one kind thing right now, what would it be?',
+        'What do I want tomorrow to feel like?',
+      ],
+      closing: 'You don\u2019t have to resolve anything on the page. Getting it out of your head is the point. And if a prompt brings up more than you want to sit with tonight, set it down \u2014 you can come back to it another time.',
+    },
+  },
+  {
+    title: 'Sleep Preparation Ritual',
+    duration: '5 min',
+    content: {
+      intro: 'A short, repeatable routine that tells your body the day is done.',
+      steps: [
+        'Dim the lights and put screens away if you can \u2014 even 30 minutes helps.',
+        'Set down tomorrow: jot any lingering to-dos on paper so your mind can release them.',
+        'Warm and calm: a warm drink, a shower, or soft socks \u2014 one small comfort.',
+        'One slow breath cycle: inhale for 4, exhale for 6, three times.',
+        'Close the day: silently tell yourself, I did what I could today. That\u2019s enough.',
+      ],
+      closing: 'If your mind races once you\u2019re in bed, that\u2019s normal \u2014 return to the slow exhale and let the thoughts drift by. If sleep trouble lasts for weeks or leaves you exhausted during the day, it\u2019s worth checking in with your doctor.',
+    },
   },
 ]
 
@@ -181,6 +228,7 @@ function todayStr(): string {
 
 export default function CaregiverSupport() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
+  const [expandedEvening, setExpandedEvening] = useState<string | null>(null)
   const [journalTab, setJournalTab] = useState<'morning' | 'evening' | 'past'>('morning')
   const [morning, setMorning] = useState<MorningEntries>({ ...emptyMorning })
   const [evening, setEvening] = useState<EveningEntries>({ ...emptyEvening })
@@ -444,6 +492,98 @@ export default function CaregiverSupport() {
                       {'closing' in item.content && (
                         <div className="bg-healing-purple/5 rounded-lg p-4">
                           <p className="text-sm text-charcoal-80 leading-relaxed whitespace-pre-line">{(item.content as Record<string, unknown>).closing as string}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ---------- Evening Wind-Down ---------- */}
+          <div>
+            <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-2">
+              <Moon className="w-5 h-5 text-sky-blue" />
+              Evening Wind-Down
+            </h3>
+            <p className="text-sm text-charcoal-80 mb-2">
+              End your day with intentional practices that support nervous system recovery.
+            </p>
+            <p className="text-sm text-charcoal-80 mb-4 leading-relaxed">
+              After a full day of caring for others, your body and mind need a signal that it&apos;s safe to rest. These practices are invitations, not requirements &mdash; do the ones that help tonight and skip the rest. There&apos;s no wrong way to wind down.
+            </p>
+
+            <div className="space-y-3">
+              {eveningWindDownItems.map((item) => (
+                <div key={item.title} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                  <button
+                    onClick={() => setExpandedEvening(expandedEvening === item.title ? null : item.title)}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-sky-blue/10 rounded-lg flex items-center justify-center">
+                        <Moon className="w-5 h-5 text-sky-blue" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-charcoal">{item.title}</h4>
+                        <span className="text-xs text-charcoal-70">{item.duration}</span>
+                      </div>
+                    </div>
+                    {expandedEvening === item.title
+                      ? <ChevronUp className="w-5 h-5 text-charcoal-70" />
+                      : <ChevronDown className="w-5 h-5 text-charcoal-70" />
+                    }
+                  </button>
+
+                  {expandedEvening === item.title && (
+                    <div className="border-t border-gray-100 px-5 pb-5 pt-3 space-y-4">
+                      <p className="text-sm text-charcoal-80 leading-relaxed">{item.content.intro}</p>
+
+                      {/* Prompts list */}
+                      {'prompts' in item.content && (
+                        <ul className="space-y-2">
+                          {(item.content.prompts as string[]).map((prompt, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm text-charcoal-80">
+                              <span className="text-sky-blue mt-0.5">&#8226;</span>
+                              <span className="leading-relaxed">{prompt}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {/* Video embed (Body Release) */}
+                      {'videoUrl' in item.content && (
+                        <>
+                          <p className="text-sm text-charcoal-80 italic leading-relaxed">{(item.content as Record<string, unknown>).note as string}</p>
+                          <div className="rounded-lg overflow-hidden">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${((item.content as Record<string, unknown>).videoUrl as string).split('v=')[1]}`}
+                              title={(item.content as Record<string, unknown>).videoTitle as string}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="w-full aspect-video"
+                            />
+                          </div>
+                          <p className="text-xs text-charcoal-70 italic">{(item.content as Record<string, unknown>).videoTitle as string}</p>
+                        </>
+                      )}
+
+                      {/* Steps list (Sleep Preparation) */}
+                      {'steps' in item.content && (
+                        <ol className="space-y-2">
+                          {((item.content as Record<string, unknown>).steps as string[]).map((step, idx) => (
+                            <li key={idx} className="flex items-start gap-3 text-sm text-charcoal-80">
+                              <span className="w-6 h-6 bg-sky-blue/10 text-sky-blue rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold">{idx + 1}</span>
+                              <span className="leading-relaxed">{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+
+                      {'closing' in item.content && (
+                        <div className="bg-sky-blue/5 rounded-lg p-4">
+                          <p className="text-sm text-charcoal-80 leading-relaxed">{(item.content as Record<string, unknown>).closing as string}</p>
                         </div>
                       )}
                     </div>
