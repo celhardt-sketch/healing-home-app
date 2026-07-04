@@ -36,9 +36,15 @@ export default function SafetyFooter() {
           your child's treating mental health professional before implementing new strategies.
         </p>
 
-        <p className="text-white/50 text-xs">
+        <p className="text-white/50 text-xs max-w-2xl mx-auto">
+          This content is general education, not legal advice. Laws vary by state and by role. When in
+          doubt about a child's safety, contact your state child-abuse hotline.
+        </p>
+
+        <p className="text-white/50 text-xs max-w-2xl mx-auto">
           For adults 18+ only. Intended for caregivers, foster parents, adoptive parents,
-          and professionals working with children.
+          and professionals working with children. The caregiver operates this app with the child;
+          children do not have their own accounts.
         </p>
       </div>
     </footer>
