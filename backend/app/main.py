@@ -14,7 +14,7 @@ from .auth import (
     verify_password,
 )
 from .backup import create_backup, list_backups, verify_backup
-from .config import CORS_ORIGINS
+from .config import CORS_ORIGINS, CORS_ORIGIN_REGEX
 from .database import get_db, init_db
 from .stripe_billing import (
     create_checkout_session,
@@ -45,6 +45,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
+    allow_origin_regex=CORS_ORIGIN_REGEX,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
