@@ -133,6 +133,7 @@ export default function FamilyPlan() {
   const [printSections, setPrintSections] = useState<Set<string>>(new Set(SECTIONS.map(s => s.key)))
   const [printConsentAcked, setPrintConsentAcked] = useState(false)
   const [expandedPlan, setExpandedPlan] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const printRef = useRef<HTMLDivElement>(null)
 
   // Load plans from API
@@ -236,9 +237,15 @@ export default function FamilyPlan() {
   const savePlan = async () => {
     if (!editing || !editing.child_name.trim()) return
     setSaving(true)
+    setSaveError(null)
     const token = getToken()
+    if (!token) {
+      setSaveError('Please log in to save your plan.')
+      setSaving(false)
+      return
+    }
     try {
-      await fetch(`${API_URL}/api/regulation-plan/save`, {
+      const res = await fetch(`${API_URL}/api/regulation-plan/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -246,10 +253,18 @@ export default function FamilyPlan() {
           plan_data: { ...editing.plan_data, saved_items: editing.saved_items },
         }),
       })
+      if (!res.ok) {
+        const detail = await res.text().catch(() => 'Unknown error')
+        setSaveError(`Save failed: ${detail}`)
+        setSaving(false)
+        return
+      }
       await loadPlans()
       setEditing(null)
       setShowForm(false)
-    } catch { /* ignore */ }
+    } catch {
+      setSaveError('Could not connect to server. Please try again.')
+    }
     setSaving(false)
   }
 
@@ -487,7 +502,7 @@ export default function FamilyPlan() {
                         value={customInputs[section.key] || ''}
                         onChange={(e) => setCustomInputs({ ...customInputs, [section.key]: e.target.value })}
                         onKeyDown={(e) => { if (e.key === 'Enter') addCustomChip(section.key) }}
-                        placeholder="Add your own \u2014 please don\u2019t include identifying details"
+                        placeholder="Add your own - please don't include identifying details"
                         className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
                       />
                       <button
@@ -513,6 +528,9 @@ export default function FamilyPlan() {
           >
             <Save className="w-4 h-4" /> {saving ? 'Saving...' : 'Save Plan'}
           </button>
+          {saveError && (
+            <p className="text-xs text-red-600 mt-2">{saveError}</p>
+          )}
         </div>
       </div>
     )
