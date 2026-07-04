@@ -60,6 +60,7 @@ def startup() -> None:
     _migrate_content_tables()
     seed_all_content()
     _init_journal_table()
+    _init_regulation_plans_table()
 
 
 def _init_journal_table() -> None:
@@ -81,6 +82,28 @@ def _init_journal_table() -> None:
         conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_journal_user_date
             ON gratitude_journal(user_id, entry_date)
+        """)
+        conn.commit()
+
+
+def _init_regulation_plans_table() -> None:
+    """Create the regulation plans table if it doesn't exist."""
+    with get_db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS regulation_plans (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                child_name TEXT NOT NULL,
+                plan_data TEXT NOT NULL DEFAULT '{}',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, child_name)
+            )
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_regulation_plans_user
+            ON regulation_plans(user_id)
         """)
         conn.commit()
 
@@ -692,6 +715,85 @@ def delete_journal_entry(
         conn.commit()
     if result.rowcount == 0:
         raise HTTPException(404, "Entry not found")
+    return MessageResponse(message="Deleted")
+
+
+# --- Regulation Plan Endpoints ---
+
+
+class RegulationPlanRequest(BaseModel):
+    child_name: str
+    plan_data: dict  # JSON: {sectionKey: [selected chips]}
+
+
+@app.post("/api/regulation-plan/save")
+def save_regulation_plan(
+    body: RegulationPlanRequest,
+    current_user: dict = Depends(get_current_user),
+) -> dict:
+    """Save or update a regulation plan for a child."""
+    import json
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM regulation_plans WHERE user_id = ? AND child_name = ?",
+            (user_id, body.child_name),
+        ).fetchone()
+        plan_json = json.dumps(body.plan_data)
+        if existing:
+            conn.execute(
+                "UPDATE regulation_plans SET plan_data = ?, updated_at = datetime('now') WHERE id = ?",
+                (plan_json, existing["id"]),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO regulation_plans (user_id, child_name, plan_data) VALUES (?, ?, ?)",
+                (user_id, body.child_name, plan_json),
+            )
+        conn.commit()
+    return {"message": "Saved", "child_name": body.child_name}
+
+
+@app.get("/api/regulation-plan/list")
+def list_regulation_plans(
+    current_user: dict = Depends(get_current_user),
+) -> list[dict]:
+    """List all regulation plans for the current user."""
+    import json
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        rows = conn.execute(
+            "SELECT id, child_name, plan_data, created_at, updated_at "
+            "FROM regulation_plans WHERE user_id = ? ORDER BY updated_at DESC",
+            (user_id,),
+        ).fetchall()
+    return [
+        {
+            "id": r["id"],
+            "child_name": r["child_name"],
+            "plan_data": json.loads(r["plan_data"]),
+            "created_at": r["created_at"],
+            "updated_at": r["updated_at"],
+        }
+        for r in rows
+    ]
+
+
+@app.delete("/api/regulation-plan/{plan_id}")
+def delete_regulation_plan(
+    plan_id: int,
+    current_user: dict = Depends(get_current_user),
+) -> MessageResponse:
+    """Delete a regulation plan (own plans only)."""
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        result = conn.execute(
+            "DELETE FROM regulation_plans WHERE id = ? AND user_id = ?",
+            (plan_id, user_id),
+        )
+        conn.commit()
+    if result.rowcount == 0:
+        raise HTTPException(404, "Plan not found")
     return MessageResponse(message="Deleted")
 
 
