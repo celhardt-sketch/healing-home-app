@@ -1,7 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Heart, Play, BookOpen, Coffee, Moon, Shield, ChevronDown, ChevronUp, Phone, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, Heart, Play, BookOpen, Coffee, Moon, Shield, ChevronDown, ChevronUp, Phone, AlertTriangle, Pen, Save, Calendar, Trash2, Check } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+
+const API_URL = import.meta.env.VITE_API_URL || ''
+
+function getToken(): string {
+  return localStorage.getItem('auth_token') || ''
+}
 
 const sections = [
   {
@@ -29,17 +35,64 @@ const sections = [
       { title: 'Repair After Caregiver Rupture', duration: 'Article' },
     ],
   },
+]
+
+const eveningWindDownItems = [
   {
-    title: 'Evening Wind-Down',
-    icon: Moon,
-    description: 'End your day with intentional practices that support nervous system recovery.',
-    color: 'text-sky-blue',
-    items: [
-      { title: 'Gratitude & Wins Reflection', duration: '5 min' },
-      { title: 'Body Release Sequence', duration: '7 min' },
-      { title: 'Journaling Prompts for Caregivers', duration: '10 min' },
-      { title: 'Sleep Preparation Ritual', duration: '5 min' },
-    ],
+    title: 'Gratitude & Wins Reflection',
+    duration: '5 min',
+    content: {
+      intro: 'Small moments count. You don\u2019t need a good day to find one good thing.',
+      prompts: [
+        'Name one thing that went right today, however small.',
+        'Name one thing you handled better than you would have a year ago.',
+        'Name one person or moment you\u2019re grateful for.',
+        'Finish this sentence: Today, I showed up by ______.',
+      ],
+      closing: 'Hard days still have wins. \u201cI kept everyone fed and safe\u201d is enough.',
+    },
+  },
+  {
+    title: 'Body Release Sequence',
+    duration: '7 min',
+    content: {
+      intro: 'This guided practice helps your body let go of the day\u2019s tension. Follow along with the video below.',
+      note: 'A gentle note before you start: this is an invitation, not a rule. You can keep your eyes open, skip any step, or stop at any time. If tensing your muscles feels uncomfortable, simply breathe slowly instead \u2014 inhale for 4, exhale for 6. The goal is comfort, not doing it perfectly.',
+      videoUrl: 'https://www.youtube.com/watch?v=1nZEdqcGVzo',
+      videoTitle: 'How to do Progressive Muscle Relaxation \u2014 Therapist Aid, 6:33',
+      closing: 'Afterward, take one slow breath and notice any place that feels a little lighter.',
+    },
+  },
+  {
+    title: 'Journaling Prompts for Caregivers',
+    duration: '10 min',
+    content: {
+      intro: 'Write freely \u2014 no one else will read this. Pick one prompt or a few.',
+      prompts: [
+        'What did I carry today that wasn\u2019t mine to carry?',
+        'Where did I feel most stretched, and what did I need in that moment?',
+        'What did my child teach me today, even in a hard moment?',
+        'What am I still holding onto that I could set down before sleep?',
+        'If I could tell myself one kind thing right now, what would it be?',
+        'What do I want tomorrow to feel like?',
+      ],
+      closing: 'You don\u2019t have to resolve anything on the page. Getting it out of your head is the point. And if a prompt brings up more than you want to sit with tonight, set it down \u2014 you can come back to it another time.',
+    },
+  },
+  {
+    title: 'Sleep Preparation Ritual',
+    duration: '5 min',
+    content: {
+      intro: 'A short, repeatable routine that tells your body the day is done.',
+      steps: [
+        'Dim the lights and put screens away if you can \u2014 even 30 minutes helps.',
+        'Set down tomorrow: jot any lingering to-dos on paper so your mind can release them.',
+        'Warm and calm: a warm drink, a shower, or soft socks \u2014 one small comfort.',
+        'One slow breath cycle: inhale for 4, exhale for 6, three times.',
+        'Close the day: silently tell yourself, I did what I could today. That\u2019s enough.',
+      ],
+      closing: 'If your mind races once you\u2019re in bed, that\u2019s normal \u2014 return to the slow exhale and let the thoughts drift by. If sleep trouble lasts for weeks or leaves you exhausted during the day, it\u2019s worth checking in with your doctor.',
+    },
   },
 ]
 
@@ -121,8 +174,131 @@ const selfCareItems = [
   },
 ]
 
+/* ---------- Gratitude Journal types ---------- */
+
+interface MorningEntries {
+  grateful1: string
+  grateful2: string
+  grateful3: string
+  grateful4: string
+  grateful5: string
+  obstacle1: string
+  learning1: string
+  obstacle2: string
+  learning2: string
+  obstacle3: string
+  learning3: string
+}
+
+interface EveningEntries {
+  beautiful1: string
+  beautiful2: string
+  beautiful3: string
+  beautiful4: string
+  beautiful5: string
+  person1: string
+  person2: string
+  person3: string
+  bestPart: string
+}
+
+interface SavedEntry {
+  id: number
+  entry_date: string
+  entry_type: 'morning' | 'evening'
+  entries: MorningEntries | EveningEntries
+  created_at: string
+  updated_at: string
+}
+
+const emptyMorning: MorningEntries = {
+  grateful1: '', grateful2: '', grateful3: '', grateful4: '', grateful5: '',
+  obstacle1: '', learning1: '', obstacle2: '', learning2: '', obstacle3: '', learning3: '',
+}
+
+const emptyEvening: EveningEntries = {
+  beautiful1: '', beautiful2: '', beautiful3: '', beautiful4: '', beautiful5: '',
+  person1: '', person2: '', person3: '',
+  bestPart: '',
+}
+
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
 export default function CaregiverSupport() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
+  const [expandedEvening, setExpandedEvening] = useState<string | null>(null)
+  const [journalTab, setJournalTab] = useState<'morning' | 'evening' | 'past'>('morning')
+  const [morning, setMorning] = useState<MorningEntries>({ ...emptyMorning })
+  const [evening, setEvening] = useState<EveningEntries>({ ...emptyEvening })
+  const [selectedDate, setSelectedDate] = useState(todayStr())
+  const [pastEntries, setPastEntries] = useState<SavedEntry[]>([])
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState<string | null>(null)
+  const [journalOpen, setJournalOpen] = useState(false)
+  const [expandedPast, setExpandedPast] = useState<number | null>(null)
+
+  useEffect(() => {
+    const token = getToken()
+    if (!token) return
+    let cancelled = false
+    fetch(`${API_URL}/api/journal/entries?entry_date=${selectedDate}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => (res.ok ? res.json() : []))
+      .then((data: SavedEntry[]) => {
+        if (cancelled) return
+        const m = data.find((e) => e.entry_type === 'morning')
+        const ev = data.find((e) => e.entry_type === 'evening')
+        setMorning(m ? (m.entries as MorningEntries) : { ...emptyMorning })
+        setEvening(ev ? (ev.entries as EveningEntries) : { ...emptyEvening })
+      })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [selectedDate])
+
+  const loadPastEntries = useCallback(async () => {
+    const token = getToken()
+    if (!token) return
+    try {
+      const res = await fetch(`${API_URL}/api/journal/entries?limit=60`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (!res.ok) return
+      setPastEntries(await res.json())
+    } catch { /* ignore */ }
+  }, [])
+
+  const saveEntry = async (entryType: 'morning' | 'evening') => {
+    const token = getToken()
+    if (!token) return
+    setSaving(true)
+    try {
+      await fetch(`${API_URL}/api/journal/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          entry_date: selectedDate,
+          entry_type: entryType,
+          entries: entryType === 'morning' ? morning : evening,
+        }),
+      })
+      setSaved(entryType)
+      setTimeout(() => setSaved(null), 2000)
+    } catch { /* ignore */ }
+    setSaving(false)
+  }
+
+  const deleteEntry = async (id: number) => {
+    const token = getToken()
+    if (!token) return
+    await fetch(`${API_URL}/api/journal/${id}`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    loadPastEntries()
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-growth-green/5 via-white to-healing-purple/5 flex flex-col">
@@ -323,6 +499,378 @@ export default function CaregiverSupport() {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* ---------- Evening Wind-Down ---------- */}
+          <div>
+            <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-2">
+              <Moon className="w-5 h-5 text-sky-blue" />
+              Evening Wind-Down
+            </h3>
+            <p className="text-sm text-charcoal-80 mb-2">
+              End your day with intentional practices that support nervous system recovery.
+            </p>
+            <p className="text-sm text-charcoal-80 mb-4 leading-relaxed">
+              After a full day of caring for others, your body and mind need a signal that it&apos;s safe to rest. These practices are invitations, not requirements &mdash; do the ones that help tonight and skip the rest. There&apos;s no wrong way to wind down.
+            </p>
+
+            <div className="space-y-3">
+              {eveningWindDownItems.map((item) => (
+                <div key={item.title} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                  <button
+                    onClick={() => setExpandedEvening(expandedEvening === item.title ? null : item.title)}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-sky-blue/10 rounded-lg flex items-center justify-center">
+                        <Moon className="w-5 h-5 text-sky-blue" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-charcoal">{item.title}</h4>
+                        <span className="text-xs text-charcoal-70">{item.duration}</span>
+                      </div>
+                    </div>
+                    {expandedEvening === item.title
+                      ? <ChevronUp className="w-5 h-5 text-charcoal-70" />
+                      : <ChevronDown className="w-5 h-5 text-charcoal-70" />
+                    }
+                  </button>
+
+                  {expandedEvening === item.title && (
+                    <div className="border-t border-gray-100 px-5 pb-5 pt-3 space-y-4">
+                      <p className="text-sm text-charcoal-80 leading-relaxed">{item.content.intro}</p>
+
+                      {/* Prompts list */}
+                      {'prompts' in item.content && (
+                        <ul className="space-y-2">
+                          {(item.content.prompts as string[]).map((prompt, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-sm text-charcoal-80">
+                              <span className="text-sky-blue mt-0.5">&#8226;</span>
+                              <span className="leading-relaxed">{prompt}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {/* Video embed (Body Release) */}
+                      {'videoUrl' in item.content && (
+                        <>
+                          <p className="text-sm text-charcoal-80 italic leading-relaxed">{(item.content as Record<string, unknown>).note as string}</p>
+                          <div className="rounded-lg overflow-hidden">
+                            <iframe
+                              src={`https://www.youtube.com/embed/${((item.content as Record<string, unknown>).videoUrl as string).split('v=')[1]}`}
+                              title={(item.content as Record<string, unknown>).videoTitle as string}
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                              className="w-full aspect-video"
+                            />
+                          </div>
+                          <p className="text-xs text-charcoal-70 italic">{(item.content as Record<string, unknown>).videoTitle as string}</p>
+                        </>
+                      )}
+
+                      {/* Steps list (Sleep Preparation) */}
+                      {'steps' in item.content && (
+                        <ol className="space-y-2">
+                          {((item.content as Record<string, unknown>).steps as string[]).map((step, idx) => (
+                            <li key={idx} className="flex items-start gap-3 text-sm text-charcoal-80">
+                              <span className="w-6 h-6 bg-sky-blue/10 text-sky-blue rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold">{idx + 1}</span>
+                              <span className="leading-relaxed">{step}</span>
+                            </li>
+                          ))}
+                        </ol>
+                      )}
+
+                      {'closing' in item.content && (
+                        <div className="bg-sky-blue/5 rounded-lg p-4">
+                          <p className="text-sm text-charcoal-80 leading-relaxed">{(item.content as Record<string, unknown>).closing as string}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ---------- Daily Gratitude Journal ---------- */}
+          <div>
+            <button
+              onClick={() => setJournalOpen(!journalOpen)}
+              className="w-full flex items-center justify-between mb-2"
+            >
+              <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
+                <Pen className="w-5 h-5 text-amber-500" />
+                Daily Gratitude Journal
+              </h3>
+              {journalOpen
+                ? <ChevronUp className="w-5 h-5 text-charcoal-70" />
+                : <ChevronDown className="w-5 h-5 text-charcoal-70" />
+              }
+            </button>
+            <p className="text-sm text-charcoal-80 mb-4">
+              Gratitude rewires your brain toward hope. Save your entries and revisit them whenever you need a reminder of the good.
+            </p>
+
+            {journalOpen && (
+              <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-5">
+                {/* Date picker */}
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-4 h-4 text-charcoal-70" />
+                  <input
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none"
+                  />
+                </div>
+
+                {/* Tabs */}
+                <div className="flex gap-2">
+                  {(['morning', 'evening', 'past'] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => { setJournalTab(tab); if (tab === 'past') loadPastEntries() }}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        journalTab === tab
+                          ? 'bg-amber-500 text-white'
+                          : 'bg-gray-100 text-charcoal-70 hover:bg-gray-200'
+                      }`}
+                    >
+                      {tab === 'morning' ? 'Morning Gratitude' : tab === 'evening' ? 'Evening Gratitude' : 'Past Entries'}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Morning form */}
+                {journalTab === 'morning' && (
+                  <div className="space-y-5">
+                    <div>
+                      <h4 className="font-bold text-charcoal mb-1">Morning Gratitude</h4>
+                      <p className="text-sm text-charcoal-80 mb-3">Before you begin your day, list 5 things you&apos;re grateful for.</p>
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <div key={n} className="flex items-center gap-2 mb-2">
+                          <span className="w-6 h-6 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-xs font-bold">{n}</span>
+                          <input
+                            type="text"
+                            value={morning[`grateful${n}` as keyof MorningEntries]}
+                            onChange={(e) => setMorning({ ...morning, [`grateful${n}`]: e.target.value })}
+                            placeholder={`I'm grateful for...`}
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-charcoal mb-1">What I&apos;m Learning from My Challenges</h4>
+                      <p className="text-sm text-charcoal-80 mb-3">List three obstacles and what you&apos;re learning from them.</p>
+                      {[1, 2, 3].map((n) => (
+                        <div key={n} className="mb-3 bg-amber-50 rounded-lg p-3">
+                          <input
+                            type="text"
+                            value={morning[`obstacle${n}` as keyof MorningEntries]}
+                            onChange={(e) => setMorning({ ...morning, [`obstacle${n}`]: e.target.value })}
+                            placeholder={`Obstacle ${n}...`}
+                            className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm mb-2 focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-white"
+                          />
+                          <input
+                            type="text"
+                            value={morning[`learning${n}` as keyof MorningEntries]}
+                            onChange={(e) => setMorning({ ...morning, [`learning${n}`]: e.target.value })}
+                            placeholder="What I'm learning..."
+                            className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-white"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
+                      onClick={() => saveEntry('morning')}
+                      disabled={saving}
+                      className="flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-amber-600 transition-colors disabled:opacity-50"
+                    >
+                      {saved === 'morning' ? <><Check className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> Save Morning Entry</>}
+                    </button>
+                  </div>
+                )}
+
+                {/* Evening form */}
+                {journalTab === 'evening' && (
+                  <div className="space-y-5">
+                    <div>
+                      <h4 className="font-bold text-charcoal mb-1">Beautiful Things I Saw Today</h4>
+                      <p className="text-sm text-charcoal-80 mb-3">List 5 beautiful things you noticed today.</p>
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <div key={n} className="flex items-center gap-2 mb-2">
+                          <span className="w-6 h-6 bg-sky-blue-bg text-slate-blue rounded-full flex items-center justify-center text-xs font-bold">{n}</span>
+                          <input
+                            type="text"
+                            value={evening[`beautiful${n}` as keyof EveningEntries]}
+                            onChange={(e) => setEvening({ ...evening, [`beautiful${n}`]: e.target.value })}
+                            placeholder={`Beautiful thing ${n}...`}
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-charcoal mb-1">People I&apos;m Grateful For</h4>
+                      <p className="text-sm text-charcoal-80 mb-3">List 3 people who made your life a little happier today. These could be friends, family or strangers!</p>
+                      {[1, 2, 3].map((n) => (
+                        <div key={n} className="flex items-center gap-2 mb-2">
+                          <span className="w-6 h-6 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-xs font-bold">{n}</span>
+                          <input
+                            type="text"
+                            value={evening[`person${n}` as keyof EveningEntries]}
+                            onChange={(e) => setEvening({ ...evening, [`person${n}`]: e.target.value })}
+                            placeholder={`Person ${n}...`}
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none"
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-charcoal mb-1">The Best Part of My Day</h4>
+                      <p className="text-sm text-charcoal-80 mb-3">Choose one moment of your day that made you happy and focus on it for 5 minutes before bed.</p>
+                      <textarea
+                        value={evening.bestPart}
+                        onChange={(e) => setEvening({ ...evening, bestPart: e.target.value })}
+                        placeholder="The best part of my day was..."
+                        rows={3}
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none resize-none"
+                      />
+                    </div>
+
+                    <button
+                      onClick={() => saveEntry('evening')}
+                      disabled={saving}
+                      className="flex items-center gap-2 bg-slate-blue text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50"
+                    >
+                      {saved === 'evening' ? <><Check className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> Save Evening Entry</>}
+                    </button>
+                  </div>
+                )}
+
+                {/* Past entries */}
+                {journalTab === 'past' && (
+                  <div className="space-y-3">
+                    {pastEntries.length === 0 && (
+                      <p className="text-sm text-charcoal-70 text-center py-4">No journal entries yet. Start writing today!</p>
+                    )}
+                    {/* Group by date */}
+                    {Array.from(new Set(pastEntries.map((e) => e.entry_date))).map((dateStr) => {
+                      const dayEntries = pastEntries.filter((e) => e.entry_date === dateStr)
+                      return (
+                        <div key={dateStr} className="bg-gray-50 rounded-xl border border-gray-100 overflow-hidden">
+                          <button
+                            onClick={() => setExpandedPast(expandedPast === dayEntries[0].id ? null : dayEntries[0].id)}
+                            className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-100 transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Calendar className="w-4 h-4 text-amber-500" />
+                              <span className="font-bold text-charcoal text-sm">
+                                {new Date(dateStr + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
+                              </span>
+                              <span className="text-xs text-charcoal-70">
+                                ({dayEntries.map((e) => e.entry_type).join(' & ')})
+                              </span>
+                            </div>
+                            {expandedPast === dayEntries[0].id
+                              ? <ChevronUp className="w-4 h-4 text-charcoal-70" />
+                              : <ChevronDown className="w-4 h-4 text-charcoal-70" />
+                            }
+                          </button>
+
+                          {expandedPast === dayEntries[0].id && (
+                            <div className="border-t border-gray-200 p-4 space-y-4">
+                              {dayEntries.map((entry) => (
+                                <div key={entry.id}>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <h5 className="font-bold text-charcoal text-sm capitalize">
+                                      {entry.entry_type === 'morning' ? 'Morning Gratitude' : 'Evening Gratitude'}
+                                    </h5>
+                                    <button
+                                      onClick={() => deleteEntry(entry.id)}
+                                      className="text-red-400 hover:text-red-600 transition-colors"
+                                      title="Delete entry"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+
+                                  {entry.entry_type === 'morning' && (() => {
+                                    const m = entry.entries as MorningEntries
+                                    return (
+                                      <div className="space-y-2 text-sm text-charcoal-80">
+                                        <p className="font-medium text-charcoal">Grateful for:</p>
+                                        {[1, 2, 3, 4, 5].map((n) => {
+                                          const val = m[`grateful${n}` as keyof MorningEntries]
+                                          return val ? <p key={n} className="pl-4">&#8226; {val}</p> : null
+                                        })}
+                                        {(m.obstacle1 || m.obstacle2 || m.obstacle3) && (
+                                          <>
+                                            <p className="font-medium text-charcoal mt-2">Challenges & Learnings:</p>
+                                            {[1, 2, 3].map((n) => {
+                                              const ob = m[`obstacle${n}` as keyof MorningEntries]
+                                              const le = m[`learning${n}` as keyof MorningEntries]
+                                              return (ob || le) ? (
+                                                <div key={n} className="pl-4">
+                                                  {ob && <p>Obstacle: {ob}</p>}
+                                                  {le && <p className="italic">Learning: {le}</p>}
+                                                </div>
+                                              ) : null
+                                            })}
+                                          </>
+                                        )}
+                                      </div>
+                                    )
+                                  })()}
+
+                                  {entry.entry_type === 'evening' && (() => {
+                                    const ev = entry.entries as EveningEntries
+                                    return (
+                                      <div className="space-y-2 text-sm text-charcoal-80">
+                                        {(ev.beautiful1 || ev.beautiful2 || ev.beautiful3 || ev.beautiful4 || ev.beautiful5) && (
+                                          <>
+                                            <p className="font-medium text-charcoal">Beautiful things:</p>
+                                            {[1, 2, 3, 4, 5].map((n) => {
+                                              const val = ev[`beautiful${n}` as keyof EveningEntries]
+                                              return val ? <p key={n} className="pl-4">&#8226; {val}</p> : null
+                                            })}
+                                          </>
+                                        )}
+                                        {(ev.person1 || ev.person2 || ev.person3) && (
+                                          <>
+                                            <p className="font-medium text-charcoal">People I&apos;m grateful for:</p>
+                                            {[1, 2, 3].map((n) => {
+                                              const val = ev[`person${n}` as keyof EveningEntries]
+                                              return val ? <p key={n} className="pl-4">&#8226; {val}</p> : null
+                                            })}
+                                          </>
+                                        )}
+                                        {ev.bestPart && (
+                                          <>
+                                            <p className="font-medium text-charcoal mt-2">Best part of the day:</p>
+                                            <p className="pl-4 whitespace-pre-wrap">{ev.bestPart}</p>
+                                          </>
+                                        )}
+                                      </div>
+                                    )
+                                  })()}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </main>

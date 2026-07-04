@@ -4,7 +4,8 @@ import traceback
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
-from typing import Optional
+from typing import Optional, List
+from datetime import date
 
 from .auth import (
     create_token,
@@ -58,6 +59,30 @@ def startup() -> None:
     init_content_tables()
     _migrate_content_tables()
     seed_all_content()
+    _init_journal_table()
+
+
+def _init_journal_table() -> None:
+    """Create the gratitude journal table if it doesn't exist."""
+    with get_db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS gratitude_journal (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                entry_date TEXT NOT NULL,
+                entry_type TEXT NOT NULL,
+                entries TEXT NOT NULL DEFAULT '{}',
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                UNIQUE(user_id, entry_date, entry_type)
+            )
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_journal_user_date
+            ON gratitude_journal(user_id, entry_date)
+        """)
+        conn.commit()
 
 
 # --- Request/Response models ---
@@ -568,6 +593,105 @@ def delete_content(table: str, item_id: int, current_user: dict = Depends(requir
         raise HTTPException(404, f"Unknown content type: {table}")
     if not delete_item(table, item_id):
         raise HTTPException(404, "Item not found")
+    return MessageResponse(message="Deleted")
+
+
+# --- Gratitude Journal Endpoints ---
+
+
+class JournalEntryRequest(BaseModel):
+    entry_date: str  # YYYY-MM-DD
+    entry_type: str  # 'morning' or 'evening'
+    entries: dict  # JSON object with the form field values
+
+
+@app.post("/api/journal/save")
+def save_journal_entry(
+    body: JournalEntryRequest,
+    current_user: dict = Depends(get_current_user),
+) -> dict:
+    """Save or update a gratitude journal entry."""
+    import json
+    user_id = int(current_user["sub"])
+    if body.entry_type not in ("morning", "evening"):
+        raise HTTPException(400, "entry_type must be 'morning' or 'evening'")
+
+    with get_db() as conn:
+        existing = conn.execute(
+            "SELECT id FROM gratitude_journal WHERE user_id = ? AND entry_date = ? AND entry_type = ?",
+            (user_id, body.entry_date, body.entry_type),
+        ).fetchone()
+
+        entries_json = json.dumps(body.entries)
+        if existing:
+            conn.execute(
+                "UPDATE gratitude_journal SET entries = ?, updated_at = datetime('now') WHERE id = ?",
+                (entries_json, existing["id"]),
+            )
+        else:
+            conn.execute(
+                "INSERT INTO gratitude_journal (user_id, entry_date, entry_type, entries) VALUES (?, ?, ?, ?)",
+                (user_id, body.entry_date, body.entry_type, entries_json),
+            )
+        conn.commit()
+
+    return {"message": "Saved", "entry_date": body.entry_date, "entry_type": body.entry_type}
+
+
+@app.get("/api/journal/entries")
+def get_journal_entries(
+    current_user: dict = Depends(get_current_user),
+    entry_date: Optional[str] = None,
+    limit: int = 30,
+) -> list[dict]:
+    """Get journal entries for the current user. Optionally filter by date."""
+    import json
+    user_id = int(current_user["sub"])
+
+    with get_db() as conn:
+        if entry_date:
+            rows = conn.execute(
+                "SELECT id, entry_date, entry_type, entries, created_at, updated_at "
+                "FROM gratitude_journal WHERE user_id = ? AND entry_date = ? "
+                "ORDER BY entry_type",
+                (user_id, entry_date),
+            ).fetchall()
+        else:
+            rows = conn.execute(
+                "SELECT id, entry_date, entry_type, entries, created_at, updated_at "
+                "FROM gratitude_journal WHERE user_id = ? "
+                "ORDER BY entry_date DESC, entry_type LIMIT ?",
+                (user_id, limit),
+            ).fetchall()
+
+    return [
+        {
+            "id": r["id"],
+            "entry_date": r["entry_date"],
+            "entry_type": r["entry_type"],
+            "entries": json.loads(r["entries"]),
+            "created_at": r["created_at"],
+            "updated_at": r["updated_at"],
+        }
+        for r in rows
+    ]
+
+
+@app.delete("/api/journal/{entry_id}")
+def delete_journal_entry(
+    entry_id: int,
+    current_user: dict = Depends(get_current_user),
+) -> MessageResponse:
+    """Delete a journal entry (own entries only)."""
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        result = conn.execute(
+            "DELETE FROM gratitude_journal WHERE id = ? AND user_id = ?",
+            (entry_id, user_id),
+        )
+        conn.commit()
+    if result.rowcount == 0:
+        raise HTTPException(404, "Entry not found")
     return MessageResponse(message="Deleted")
 
 
