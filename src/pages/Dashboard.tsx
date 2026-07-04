@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import {
   Shield, BookOpen, Heart, Users,
   AlertTriangle, Sparkles, TrendingUp,
-  Settings, RefreshCw, Wrench
+  Settings, RefreshCw, Brain, FileText, Printer
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import SafetyFooter from '../components/SafetyFooter'
@@ -44,11 +44,25 @@ const dashboardCards = [
     gradient: 'from-growth-green to-growth-green-dark',
   },
   {
-    title: 'Tools',
-    description: 'Scripts, kids regulation videos, and printable resources',
-    icon: Wrench,
-    href: '/tools',
+    title: 'Kids Regulation Tools',
+    description: 'Short guided regulation videos your child can use with you',
+    icon: Brain,
+    href: '/kids-regulation',
+    gradient: 'from-cyan-500 to-blue-500',
+  },
+  {
+    title: 'Scripts Library',
+    description: 'Trauma-informed response templates for everyday situations',
+    icon: FileText,
+    href: '/scripts',
     gradient: 'from-slate-blue to-slate-blue-dark',
+  },
+  {
+    title: 'Printables Vault',
+    description: 'Downloadable visual schedules, charts, and tools',
+    icon: Printer,
+    href: '/printables',
+    gradient: 'from-orange-500 to-amber-500',
   },
   {
     title: 'Learning Library',
