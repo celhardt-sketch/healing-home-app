@@ -44,18 +44,63 @@ const regulationVideos = [
   },
 ]
 
-const sections = [
+const educationArticles = [
   {
-    title: 'Caregiver Education',
-    icon: BookOpen,
-    description: 'Understanding your own responses helps you show up better for your child.',
-    color: 'text-slate-blue',
-    items: [
-      { title: 'Understanding Blocked Care', duration: 'Article' },
-      { title: 'Secondary Trauma in Caregivers', duration: 'Article' },
-      { title: 'The Biology of Caregiver Stress', duration: 'Article' },
-      { title: 'Repair After Caregiver Rupture', duration: 'Article' },
+    title: 'Understanding Blocked Care',
+    duration: '~7 min read',
+    subtitle: 'Why you can love your child deeply and still, some days, not feel it \u2014 and what that actually means.',
+    sections: [
+      { heading: '', body: 'There is a particular kind of guilt that many foster, adoptive, and kinship caregivers carry quietly. It\u2019s the moment you realize you\u2019re going through the motions \u2014 feeding, driving, managing, correcting \u2014 but the warmth underneath has gone flat. You still love this child. You would still do anything for them. But in the moment, you can\u2019t feel the tenderness you know is supposed to be there. And then comes the second wave: What kind of parent feels this way?\n\nIf that describes even a few of your days, you are not a bad caregiver. You may be experiencing something researchers Daniel Hughes and Jonathan Baylin named blocked care in their work on the neuroscience of parenting. Blocked care is what happens when chronic stress temporarily suppresses the brain systems that let us nurture. It is not a character flaw, a lack of love, or a sign you were never meant to do this. It is a stressed caregiving brain shifting into self-protection \u2014 and it is reversible.' },
+      { heading: 'What \u201cthe parenting brain\u201d actually does', body: 'Hughes and Baylin describe caregiving as running on several interconnected brain systems working together in the background. One keeps you feeling safe and open enough to move toward your child rather than away. Another makes caring for them feel rewarding \u2014 the small hit of satisfaction when they smile, settle, or reach for you. Others help you read your child\u2019s cues accurately, make generous sense of their behavior, and stay thoughtful instead of reactive when things get hard.\n\nWhen you\u2019re rested, supported, and your child is giving back, these systems hum along and good parenting feels almost automatic. The trouble is that they all run on the same fuel \u2014 and that fuel is a nervous system that feels reasonably safe. When stress climbs and stays high, the brain does something protective and ancient: it dials down the open, nurturing systems and turns up the defensive ones. You become guarded, irritable, and detached, not because you\u2019ve stopped caring, but because your brain has decided you need to protect yourself first.' },
+      { heading: 'Why this hits our families especially hard', body: 'Blocked care can happen to any parent. But it\u2019s more common, and often more intense, for those raising children who have experienced trauma \u2014 and here\u2019s the piece that\u2019s rarely said out loud.\n\nThe parenting reward system is designed to be refueled by the child. A baby coos, you feel a wave of warmth, and that warmth replenishes you for the next round of care. But many children who\u2019ve been hurt or moved between homes have learned that closeness isn\u2019t safe. They may push away comfort, reject affection, escalate right when you\u2019re trying to connect, or stay flat and unreachable. None of this is a choice, and it isn\u2019t a rejection of you \u2014 it\u2019s a nervous system that learned early on that closeness wasn\u2019t safe, still doing its best to stay protected. So you pour care in, and very little comes back through the usual channels. Over months and years, the reward loop that\u2019s supposed to refill your tank keeps coming up empty \u2014 and the caregiving systems quietly run down. You are essentially parenting uphill, against a child\u2019s survival wiring, without the biological paycheck most parenting is built to provide.' },
+      { heading: 'The different shapes blocked care takes', body: 'It helps to know that blocked care isn\u2019t one thing. Sometimes it\u2019s acute \u2014 a single brutal day, a bad night\u2019s sleep, a crisis that leaves you empty by dinnertime. That kind lifts once you recover. Sometimes it\u2019s chronic, built up slowly over months of unrelenting stress until flatness becomes your baseline. Sometimes it\u2019s child-specific: you feel open and warm with one child and inexplicably shut down with another whose particular behaviors get under your skin. And sometimes it rises from your own history \u2014 when a child\u2019s behavior brushes against something unhealed from your own early life, and your brain reacts to old danger rather than the present moment.\n\nNone of these mean you\u2019re failing. They mean you\u2019re human, and your brain is doing exactly what stressed brains do.' },
+      { heading: 'What actually helps', body: 'The first move is the hardest and the most important: name it without shame. Blocked care thrives in secrecy and self-judgment. Simply recognizing \u201cthis is blocked care, not the truth about how I feel about my child\u201d loosens its grip.\n\nFrom there, the work is less about trying harder to feel loving and more about lowering your stress load so the caregiving systems can come back online. That means tending to your own regulation \u2014 sleep, food, movement, moments of genuine rest \u2014 not as a luxury but as the mechanism that restores your capacity to nurture. It means getting your own support: people who co-regulate you, whether that\u2019s a partner, a friend, a peer group of other caregivers, or a therapist who understands trauma parenting. It means looking honestly at your own triggers, because the child-specific and history-based forms of blocked care often ease when you understand what\u2019s really being activated.\n\nAnd it means going looking for the small moments of connection that the reward system has stopped noticing \u2014 the weight of their head against your shoulder, a shared laugh, the fact that they came to you when they were scared. Hughes offers a helpful stance for these moments, summed up as playfulness, acceptance, curiosity, and empathy: a way of staying open and warm toward your child even when their behavior is hard, and even when you have to reach for it on purpose.' },
+      { heading: 'The most important thing to remember', body: 'Blocked care is a stress state, not a verdict. The warmth hasn\u2019t been destroyed; it\u2019s been suppressed by a nervous system trying to protect you. When the pressure eases and your own tank begins to refill, those caregiving systems reawaken \u2014 often more quickly than you\u2019d expect. Feeling blocked doesn\u2019t mean you love your child less. It means you\u2019ve been carrying more than any one nervous system was built to carry alone.' },
     ],
+    citation: 'The concept of blocked care comes from the work of Daniel A. Hughes and Jonathan Baylin, \u201cBrain-Based Parenting: The Neuroscience of Caregiving for Healthy Attachment.\u201d',
+  },
+  {
+    title: 'Secondary Trauma in Caregivers',
+    duration: '~6 min read',
+    subtitle: 'You didn\u2019t live through your child\u2019s trauma \u2014 so why does it sometimes feel like you did?',
+    sections: [
+      { heading: '', body: 'You\u2019ve read the file. You\u2019ve heard the disclosures. You\u2019ve watched a nightmare grip your child at 2 a.m. and held them while they shook. And somewhere along the way, you started noticing changes in yourself: intrusive images you can\u2019t shake, a new jumpiness, trouble sleeping, a heaviness or numbness that wasn\u2019t there before. Maybe you\u2019ve caught yourself scanning every room for danger, or bracing for the next crisis even during a calm moment.\n\nThis isn\u2019t weakness, and it isn\u2019t you being \u201ctoo sensitive.\u201d It has a name: secondary traumatic stress. And understanding it is one of the most protective things a caregiver can do \u2014 for themselves and for their child.' },
+      { heading: 'What secondary trauma is', body: 'The trauma researcher Charles Figley described secondary traumatic stress as the stress that comes from helping, or wanting to help, a person who has been traumatized. In plain terms: you can develop trauma symptoms from being close to someone else\u2019s trauma, even though the frightening events never happened to you directly. Your nervous system, steeped day after day in another person\u2019s pain, can begin to carry marks of that pain itself.\n\nWhat makes this so relevant for foster, adoptive, and kinship caregivers is exposure. A therapist sees a child for an hour a week. You live inside the story \u2014 through the disclosures, the trauma-driven behaviors, the medical appointments, the court dates, the details you can never quite un-know. You are one of the most exposed helpers there is, precisely because you\u2019re the one who\u2019s always there.' },
+      { heading: 'How it can show up', body: 'Secondary traumatic stress often mirrors the shape of trauma itself. You might notice re-experiencing \u2014 intrusive thoughts about what your child went through, distressing mental images, or bad dreams. You might notice avoidance and numbing \u2014 steering away from reminders, feeling emotionally flat, pulling back from people or activities you used to enjoy. And you might notice heightened arousal \u2014 being on edge, easily startled, irritable, hypervigilant, unable to relax even when things are calm.\n\nSome caregivers also describe a quieter shift in how they see the world \u2014 a new sense that the world is more dangerous, or a loss of some of the hope or trust they used to carry. When that shift runs deep and starts to reshape how you see everything, it can benefit from professional support to work through, not just rest. Others feel a persistent, low-grade guilt, as though nothing they do is ever enough to undo what happened to their child.\n\nReading through that list, you may recognize yourself in several of these. If so, take a breath: seeing yourself here is useful information, not a diagnosis and not a verdict on your fitness as a caregiver. It simply means your system has been carrying a lot, and it\u2019s worth paying attention to.' },
+      { heading: 'How it\u2019s different from burnout and \u201cjust being tired\u201d', body: 'These terms get tangled together, and the distinction matters. Burnout is the gradual depletion that comes from operating in a demanding, under-resourced environment for too long \u2014 the sense of being used up, cynical, and running on empty. It builds slowly and lifts with rest, support, and lightened load.\n\nSecondary traumatic stress is different in flavor. It\u2019s not just exhaustion; it carries the specific fingerprints of trauma \u2014 the intrusions, the hypervigilance, the sense of threat. You can be well-rested and still be carrying secondary trauma. The two often travel together, but they\u2019re not the same thing, and secondary trauma sometimes needs more than rest to resolve.' },
+      { heading: 'What helps', body: 'The first thing that helps is simply knowing this is real and has a name. So many caregivers silently conclude they\u2019re falling apart or \u201cnot cut out for this,\u201d when what\u2019s actually happening is a predictable response to sustained exposure. Naming it \u2014 this is secondary traumatic stress \u2014 takes some of the fear and shame out of it.\n\nFrom there, the most protective step is finding a place to process what you\u2019re carrying rather than absorbing it alone. That might be a therapist who understands trauma and caregiving, a support group of others doing this work, or trusted people who can hear the hard parts without flinching. Trauma held silently tends to grow; trauma spoken in a safe place tends to loosen.\n\nIt also helps to protect the boundary between your child\u2019s story and your identity \u2014 to remember that being deeply affected doesn\u2019t mean you\u2019ve been damaged beyond repair, and that you\u2019re allowed to have a life, joys, and an inner world that aren\u2019t defined by the worst things that happened to your child. Regulating your nervous system through the ordinary channels \u2014 sleep, movement, breath, connection, moments of genuine rest \u2014 gives your body real recovery time between exposures.' },
+      { heading: 'When to reach for more support', body: 'Secondary traumatic stress exists on a spectrum. Some of it eases with awareness, support, and rest. But if the symptoms are intense, lasting more than a few weeks, getting worse, or interfering with your sleep, relationships, work, or ability to function, that\u2019s a signal to bring in a professional \u2014 ideally one who understands trauma. Reaching out is not an admission of failure; it\u2019s exactly what we\u2019d tell your child to do, and you deserve the same care.\n\nAnd if you ever find yourself having thoughts of harming yourself, please reach out right away \u2014 you can call or text 988, the Suicide & Crisis Lifeline, any time, day or night.\n\nCaring this much is not the problem. It\u2019s evidence of exactly the kind of caregiver your child needs. The goal isn\u2019t to feel less \u2014 it\u2019s to make sure you\u2019re carried, too.' },
+    ],
+    citation: 'This is a sensitive topic. The concept of secondary traumatic stress draws on the work of Charles Figley and colleagues.',
+  },
+  {
+    title: 'The Biology of Caregiver Stress',
+    duration: '~7 min read',
+    subtitle: 'Why \u201cjust stay calm\u201d is easier said than done \u2014 and what\u2019s actually happening in your body when you can\u2019t.',
+    sections: [
+      { heading: '', body: 'Picture the moment: your child is escalating \u2014 yelling, throwing, spiraling \u2014 and you can feel it happening in your own body. Your heart speeds up. Your chest tightens. Your thoughts narrow. Somewhere in the back of your mind a calm, wise voice reminds you to breathe and stay regulated, but your body has already left the building. Afterward, you might wonder why you couldn\u2019t just keep it together.\n\nHere\u2019s the reassuring truth: what happened in your body wasn\u2019t a failure of willpower. It was biology doing exactly what it evolved to do. Understanding that biology won\u2019t make caregiving easy, but it will help you stop blaming yourself for being human \u2014 and it will point you toward what actually works.' },
+      { heading: 'Your stress response is a feature, not a flaw', body: 'Deep in your brain sits a threat-detection system whose entire job is to keep you alive. When it senses danger \u2014 real or perceived \u2014 it doesn\u2019t ask permission. It floods your body with adrenaline and cortisol, speeds your heart, sharpens your senses, and shunts energy toward your muscles so you can fight, flee, or freeze. This is your sympathetic nervous system, the body\u2019s accelerator, and it\u2019s brilliant at getting you through emergencies.\n\nThe counterpart is your parasympathetic nervous system \u2014 the brakes \u2014 which brings you back down to rest, digest, and connect once the danger passes. In a well-functioning day, you move fluidly between the two: a stressor hits, you rev up, you handle it, you settle back down. The problem for caregivers isn\u2019t that the accelerator works. It\u2019s that parenting a child with trauma can keep a foot pressed on it for hours, days, months at a time.' },
+      { heading: 'Two nervous systems in one room', body: 'There\u2019s a second layer that makes caregiving uniquely demanding: co-regulation. Human nervous systems are not sealed off from one another. We are wired to pick up on and sync with the emotional states of the people around us \u2014 especially the people we\u2019re bonded to. This is a gift when you\u2019re calm and your child borrows your steadiness. It\u2019s exhausting when your child is dysregulated and their alarm keeps pulling on yours.\n\nWhen you sit with an escalating child, your body isn\u2019t just reacting to the noise and the risk. It\u2019s resonating with their distress. Their racing nervous system is, in a very real sense, talking to yours. This is why a single hard hour with a dysregulated child can leave you as wrung out as a full day of physical labor. You weren\u2019t just managing a behavior; you were lending your regulation to someone whose own was offline.' },
+      { heading: 'When the alarm never fully resets', body: 'Our stress system was designed for bursts \u2014 sprint from the threat, then recover. It was not designed to stay switched on. But caregiving for a child with trauma often means unpredictability, big behaviors, and a constant low hum of vigilance, so the system never gets its full recovery window.\n\nResearchers use the term allostatic load to describe the cumulative wear and tear of a stress response that stays activated too long without enough recovery. Over time, that chronic activation shows up in the body: disrupted sleep, a weakened immune system, headaches and stomach trouble, low mood, difficulty concentrating, and a shorter fuse. It\u2019s not that you\u2019ve become weak or impatient. It\u2019s that a body running on high alert for months is paying a physiological bill.\n\nA word of care here: while these symptoms are common signs of chronic stress, they aren\u2019t only caused by stress. If physical symptoms \u2014 chest pain, ongoing stomach issues, persistent sleep problems, or anything that worries you \u2014 stick around or get worse, get them checked by a doctor rather than assuming it\u2019s \u201cjust stress.\u201d You deserve to have the real cause ruled in or out.\n\nThis is also why \u201cjust think positive\u201d or \u201cjust stay calm\u201d so often fails in the heat of the moment. When your survival system is fully activated, it temporarily downshifts the thinking, reasoning parts of your brain \u2014 the very parts those instructions rely on. You genuinely cannot reason your way to calm from inside a threat state. The body has to lead.' },
+      { heading: 'Working with your biology instead of against it', body: 'Because regulation starts in the body, the most effective tools are the ones that speak the body\u2019s language directly \u2014 what\u2019s sometimes called bottom-up regulation. Slow breathing with a longer exhale sends a physical signal of safety to your nervous system. Movement, rhythm, and gentle physical activity help discharge the stress chemistry your body has mobilized. Cool water, a change of scenery, or stepping outside can interrupt an escalating state. These aren\u2019t soft extras; they\u2019re the levers that actually reach the accelerator and brakes.\n\nJust as important is recovery. A nervous system that\u2019s asked to activate repeatedly needs real windows to come back down, or the load keeps accumulating. That means protecting sleep as if it were medicine, building in small pockets of genuine rest, and finding your own sources of co-regulation \u2014 people and moments that steady your system the way you steady your child\u2019s. You are not exempt from the co-regulation you provide; you need it too.\n\nAnd it means offering yourself the same grace you\u2019d offer your child after a hard moment. A body that spikes and struggles to settle isn\u2019t broken. It\u2019s a normal system carrying an abnormal load.' },
+      { heading: 'The bottom line', body: 'Taking care of your own physiology is not a detour from caring for your child. It is the mechanism. A regulated caregiver is the single most powerful regulating force in a dysregulated child\u2019s life \u2014 and you can\u2019t lend a calm you don\u2019t have. Tending to your nervous system isn\u2019t selfish. It\u2019s the most direct investment you can make in your child\u2019s healing.' },
+    ],
+    citation: 'This article draws on widely accepted concepts in stress physiology, including the body\u2019s autonomic stress response and the idea of allostatic load described by researcher Bruce McEwen.',
+  },
+  {
+    title: 'Repair After Caregiver Rupture',
+    duration: '~6 min read',
+    subtitle: 'You will lose your patience. What you do next matters more than the moment you lost it.',
+    sections: [
+      { heading: '', body: 'You raised your voice. You said the sharp thing. You slammed the cabinet, or walked away, or met your child\u2019s dysregulation with your own. And now you\u2019re sitting in the aftermath, flooded with guilt, replaying it, certain you\u2019ve undone months of progress or confirmed every fear your child carries about adults.\n\nTake a breath. Not only is this recoverable \u2014 the recovery itself is one of the most powerful things you will ever give your child. To understand why, it helps to know what decades of attachment research have quietly established: connection is not built by getting it right. It\u2019s built by repairing when you get it wrong.' },
+      { heading: 'The 70% that no one tells you about', body: 'In the 1970s, developmental psychologist Edward Tronick ran a now-famous study called the Still Face Experiment. A parent and baby interact warmly; then the parent goes blank and unresponsive; the baby works hard to win them back and grows distressed; then the parent re-engages and the baby settles. What the broader body of this research revealed is striking: even healthy, securely attached parent-child pairs are out of sync with each other a majority of the time \u2014 by some estimates around 70% of the time. Misattunement is not the exception. It\u2019s the normal texture of every close relationship.\n\nWhat separated the secure pairs from the struggling ones wasn\u2019t the absence of rupture. It was the presence of repair \u2014 the reliable return to connection after a break. As the pediatrician and psychoanalyst D.W. Winnicott put it, children don\u2019t need a perfect parent. They need a \u201cgood enough\u201d one. The rupture, it turns out, was never the wound. The absence of repair was.' },
+      { heading: 'Why repair is medicine for our kids especially', body: 'For a child who came to you from hard places, this is not a minor comfort \u2014 it\u2019s the whole point. Many children who\u2019ve experienced trauma learned early that ruptures don\u2019t get repaired. An adult got angry and stayed gone. Connection broke and never came back. Their internal expectation, written before they could speak, is that disconnection is permanent and relationships can\u2019t survive conflict.\n\nEvery time you rupture and then repair, you are gently rewriting that expectation. You are showing them, in real time, that anger doesn\u2019t end love, that adults come back, that they are still worthy of connection even after a hard moment. You cannot teach this with words alone. You teach it by living it \u2014 which means, paradoxically, that your imperfect moments followed by genuine repair may do more healing than a flawless day ever could.' },
+      { heading: 'What repair is \u2014 and what it isn\u2019t', body: 'Repair is not groveling. It\u2019s not endless apologizing, over-explaining, or dissolving the boundary that the moment was about in the first place. A child doesn\u2019t need you to collapse; they need you to reconnect while staying the steady adult. You can absolutely repair the relationship without withdrawing a reasonable limit.\n\nRepair is the simple, sincere act of reaching back across the gap: acknowledging that something happened between you, taking your part in it, and restoring the warmth. That\u2019s it. It can take thirty seconds.' },
+      { heading: 'An important boundary: rupture is not the same as harm', body: 'Everything in this article is about ordinary rupture \u2014 the raised voice, the sharp word, the moment your patience ran out. Those moments are human, they\u2019re recoverable, and repair is exactly the right response. But it\u2019s important to be honest about where that ends. Repair is not a fix for a pattern of physical aggression, for rage that frightens your child, or for a home where your child feels genuinely unsafe. If your ruptures are becoming frequent, escalating, or turning physical \u2014 or if you\u2019re scared of your own reactions \u2014 that is not a repair problem, and it\u2019s not a sign you\u2019re beyond help. It\u2019s a sign you need and deserve real support: a therapist, your child\u2019s treatment team, or your caseworker. Reaching out in that situation isn\u2019t failure. It\u2019s the most protective thing a caregiver can do, for your child and for yourself.' },
+      { heading: 'How to actually do it', body: 'Start with yourself. You can\u2019t repair from inside a stress state, so the first step is to regulate your own nervous system \u2014 breathe, step away if you need to, let your body come down. Repair attempted while you\u2019re still flooded usually just becomes a second rupture.\n\nReconnect before you explain. Often the most powerful repair is nonverbal at first \u2014 a softened face, a gentle tone, sitting nearby, an offered hand. Safety in the body comes before words.\n\nName it simply and take your part. You don\u2019t need a speech. Something like, \u201cI raised my voice earlier. That was my stress talking, and it wasn\u2019t fair to you. I\u2019m sorry.\u201d Notice that this takes ownership without making your child responsible for your feelings, and without erasing them as a person. Keep it short and honest.\n\nDon\u2019t require a particular response. Your child may not be ready to meet you \u2014 they might shrug, stay guarded, or test whether you really mean it. That\u2019s okay. Repair is something you offer, not something you extract. The offering itself does the work, even if the warmth takes time to return.\n\nLet it be followed by ordinary connection. After repair, you don\u2019t need to keep processing it. Move back into normal life \u2014 a shared task, a snack, a bit of play. The message lands: we\u2019re okay, and we go on.' },
+      { heading: 'On timing, and on being human', body: 'Repair is rarely too late. If the moment has passed, you can still come back an hour later, or the next morning, and reconnect. What children internalize is the pattern over time \u2014 that in your home, ruptures reliably get mended.\n\nAnd here\u2019s the freeing part: you don\u2019t have to fear your own imperfection anymore. The occasional lost temper, met with sincere repair, isn\u2019t the thing that harms your child. Withholding repair is. So when you get it wrong \u2014 and you will, because you\u2019re a human being doing one of the hardest jobs there is \u2014 you already know the most important move. You turn back toward them. Every time you do, you\u2019re teaching a child who once had no reason to believe it that love is something that stays.' },
+    ],
+    citation: 'This article draws on the developmental research of Edward Tronick (the Still Face Experiment) and the concept of \u201cgood enough\u201d parenting from D.W. Winnicott.',
   },
 ]
 
@@ -252,6 +297,7 @@ export default function CaregiverSupport() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const [expandedEvening, setExpandedEvening] = useState<string | null>(null)
   const [expandedVideo, setExpandedVideo] = useState<string | null>(null)
+  const [expandedArticle, setExpandedArticle] = useState<string | null>(null)
   const [journalTab, setJournalTab] = useState<'morning' | 'evening' | 'past'>('morning')
   const [morning, setMorning] = useState<MorningEntries>({ ...emptyMorning })
   const [evening, setEvening] = useState<EveningEntries>({ ...emptyEvening })
@@ -409,26 +455,65 @@ export default function CaregiverSupport() {
             </div>
           </div>
 
-          {sections.map((section) => (
-            <div key={section.title}>
-              <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-2">
-                <section.icon className={`w-5 h-5 ${section.color}`} />
-                {section.title}
-              </h3>
-              <p className="text-sm text-charcoal-80 mb-4">{section.description}</p>
-              <div className="grid sm:grid-cols-2 gap-3">
-                {section.items.map((item) => (
-                  <div
-                    key={item.title}
-                    className="bg-white rounded-lg p-4 border border-gray-100 hover:shadow-sm transition-shadow flex items-center justify-between cursor-pointer"
+          {/* Caregiver Education */}
+          <div>
+            <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-2">
+              <BookOpen className="w-5 h-5 text-slate-blue" />
+              Caregiver Education
+            </h3>
+            <p className="text-sm text-charcoal-80 mb-2">
+              Understanding your own responses helps you show up better for your child.
+            </p>
+            <p className="text-xs text-charcoal-70 italic mb-4">
+              These articles are for education and reflection. They are not medical or mental-health care and are not a diagnosis. If you are struggling, support from a qualified professional can help.
+            </p>
+
+            <div className="space-y-3">
+              {educationArticles.map((article) => (
+                <div key={article.title} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                  <button
+                    onClick={() => setExpandedArticle(expandedArticle === article.title ? null : article.title)}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
                   >
-                    <span className="text-sm font-medium text-charcoal">{item.title}</span>
-                    <span className="text-xs text-charcoal-70 bg-gray-50 px-2 py-1 rounded">{item.duration}</span>
-                  </div>
-                ))}
-              </div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-slate-blue/10 rounded-lg flex items-center justify-center">
+                        <BookOpen className="w-5 h-5 text-slate-blue" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-charcoal">{article.title}</h4>
+                        <span className="text-xs text-charcoal-70">{article.duration}</span>
+                      </div>
+                    </div>
+                    {expandedArticle === article.title
+                      ? <ChevronUp className="w-5 h-5 text-charcoal-70" />
+                      : <ChevronDown className="w-5 h-5 text-charcoal-70" />
+                    }
+                  </button>
+
+                  {expandedArticle === article.title && (
+                    <div className="border-t border-gray-100 px-5 pb-5 pt-3 space-y-5">
+                      <p className="text-sm text-slate-blue font-medium italic leading-relaxed">{article.subtitle}</p>
+
+                      {article.sections.map((section, idx) => (
+                        <div key={idx}>
+                          {section.heading && (
+                            <h5 className="font-bold text-charcoal mb-2">{section.heading}</h5>
+                          )}
+                          <p className="text-sm text-charcoal-80 leading-relaxed whitespace-pre-line">{section.body}</p>
+                        </div>
+                      ))}
+
+                      <div className="bg-slate-blue/5 rounded-lg p-4">
+                        <p className="text-xs text-charcoal-70 italic leading-relaxed">{article.citation}</p>
+                      </div>
+
+                      <p className="text-xs text-charcoal-70 italic">Caregiver Education is provided by Elhardt Family Wellness / The Healing Home Approach for educational purposes. It is not a substitute for individualized clinical, medical, or mental-health care.</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
 
           {/* Self-Care Check-In */}
           <div>
