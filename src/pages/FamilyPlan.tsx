@@ -145,11 +145,14 @@ export default function FamilyPlan() {
       })
       if (!res.ok) return
       const data = await res.json()
-      setPlans(data.map((p: RegulationPlan & { plan_data: PlanData & { saved_items?: SavedItems } }) => ({
-        ...p,
-        saved_items: p.plan_data.saved_items || { ...EMPTY_SAVED_ITEMS },
-        plan_data: { ...p.plan_data, saved_items: undefined },
-      })))
+      setPlans(data.map((p: RegulationPlan & { plan_data: PlanData & { saved_items?: SavedItems } }) => {
+        const { saved_items: si, ...planFields } = p.plan_data as PlanData & { saved_items?: SavedItems }
+        return {
+          ...p,
+          saved_items: si || { ...EMPTY_SAVED_ITEMS },
+          plan_data: planFields as PlanData,
+        }
+      }))
     } catch { /* ignore */ }
   }, [])
 
@@ -163,11 +166,14 @@ export default function FamilyPlan() {
       .then(res => res.ok ? res.json() : [])
       .then((data: (RegulationPlan & { plan_data: PlanData & { saved_items?: SavedItems } })[]) => {
         if (cancelled) return
-        setPlans(data.map(p => ({
-          ...p,
-          saved_items: p.plan_data.saved_items || { ...EMPTY_SAVED_ITEMS },
-          plan_data: { ...p.plan_data, saved_items: undefined },
-        })))
+        setPlans(data.map(p => {
+          const { saved_items: si, ...planFields } = p.plan_data as PlanData & { saved_items?: SavedItems }
+          return {
+            ...p,
+            saved_items: si || { ...EMPTY_SAVED_ITEMS },
+            plan_data: planFields as PlanData,
+          }
+        }))
       })
       .catch(() => {})
     return () => { cancelled = true }
