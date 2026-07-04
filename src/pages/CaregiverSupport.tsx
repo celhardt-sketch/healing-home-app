@@ -9,20 +9,42 @@ function getToken(): string {
   return localStorage.getItem('auth_token') || ''
 }
 
-const sections = [
+const regulationVideos = [
   {
-    title: 'Regulation Videos',
-    icon: Play,
-    description: 'Follow along with these guided videos to help calm your nervous system.',
-    color: 'text-growth-green',
-    items: [
-      { title: 'Box Breathing for Caregivers', duration: '3 min' },
-      { title: 'Progressive Muscle Relaxation', duration: '8 min' },
-      { title: 'Guided Body Scan', duration: '10 min' },
-      { title: 'Mindful Grounding Exercise', duration: '5 min' },
-    ],
+    title: 'Box Breathing for Caregivers',
+    duration: '3 min',
+    source: 'Sunnybrook Hospital (Dr. Joanna Mansfield, Women\u2019s Mood & Anxiety Clinic)',
+    caption: 'A simple breath pattern to steady yourself in a stressful moment.',
+    embedUrl: 'https://www.youtube.com/embed/tEmt1Znux58',
+    embedType: 'youtube' as const,
   },
+  {
+    title: 'Progressive Muscle Relaxation',
+    duration: '7 min',
+    source: 'Therapist Aid',
+    caption: 'Tense and release each muscle group to let go of stored tension. If tensing feels uncomfortable, just breathe slowly instead.',
+    embedUrl: 'https://www.youtube.com/embed/1nZEdqcGVzo',
+    embedType: 'youtube' as const,
+  },
+  {
+    title: 'Guided Body Scan',
+    duration: '15 min',
+    source: 'UCLA Health, Simms/Mann Center for Integrative Oncology (Shiori Lange, LCSW)',
+    caption: 'Slowly move your attention through your body, noticing without judging. If a sensation feels too intense, return to your breath.',
+    embedUrl: 'https://player.vimeo.com/video/1092920047',
+    embedType: 'vimeo' as const,
+  },
+  {
+    title: 'Mindful Grounding Exercise',
+    duration: '5 min',
+    source: 'The Partnership in Education, Duquesne University (NIH-funded)',
+    caption: 'The 5-4-3-2-1 method uses your five senses to bring you back to the present moment.',
+    embedUrl: 'https://www.youtube.com/embed/30VMIEmA114',
+    embedType: 'youtube' as const,
+  },
+]
 
+const sections = [
   {
     title: 'Caregiver Education',
     icon: BookOpen,
@@ -229,6 +251,7 @@ function todayStr(): string {
 export default function CaregiverSupport() {
   const [expandedItem, setExpandedItem] = useState<string | null>(null)
   const [expandedEvening, setExpandedEvening] = useState<string | null>(null)
+  const [expandedVideo, setExpandedVideo] = useState<string | null>(null)
   const [journalTab, setJournalTab] = useState<'morning' | 'evening' | 'past'>('morning')
   const [morning, setMorning] = useState<MorningEntries>({ ...emptyMorning })
   const [evening, setEvening] = useState<EveningEntries>({ ...emptyEvening })
@@ -335,6 +358,57 @@ export default function CaregiverSupport() {
         </div>
 
         <div className="space-y-8">
+          {/* Regulation Videos */}
+          <div>
+            <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-2">
+              <Play className="w-5 h-5 text-growth-green" />
+              Regulation Videos
+            </h3>
+            <p className="text-sm text-charcoal-80 mb-4">
+              Follow along with these guided videos to help calm your nervous system. Each is an invitation &mdash; you can pause, skip, or stop anytime, and keep your eyes open if that feels more comfortable.
+            </p>
+            <div className="space-y-3">
+              {regulationVideos.map((video) => (
+                <div key={video.title} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
+                  <button
+                    onClick={() => setExpandedVideo(expandedVideo === video.title ? null : video.title)}
+                    className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-growth-green/10 rounded-lg flex items-center justify-center">
+                        <Play className="w-5 h-5 text-growth-green" />
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-charcoal">{video.title}</h4>
+                        <span className="text-xs text-charcoal-70">{video.duration} &middot; {video.source}</span>
+                      </div>
+                    </div>
+                    {expandedVideo === video.title
+                      ? <ChevronUp className="w-5 h-5 text-charcoal-70" />
+                      : <ChevronDown className="w-5 h-5 text-charcoal-70" />
+                    }
+                  </button>
+
+                  {expandedVideo === video.title && (
+                    <div className="border-t border-gray-100 px-5 pb-5 pt-3 space-y-4">
+                      <p className="text-sm text-charcoal-80 italic leading-relaxed">{video.caption}</p>
+                      <div className="rounded-lg overflow-hidden">
+                        <iframe
+                          src={video.embedUrl}
+                          title={video.title}
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          className="w-full aspect-video"
+                        />
+                      </div>
+                      <p className="text-xs text-charcoal-70">Source: {video.source}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
           {sections.map((section) => (
             <div key={section.title}>
               <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-2">

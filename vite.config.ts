@@ -49,6 +49,9 @@ export default defineConfig({
         // Precache ALL built assets (JS, CSS, HTML, images, fonts)
         // This ensures the entire app shell + all page content loads offline
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,woff,ttf}'],
+        // Force new service worker to activate immediately on deploy
+        skipWaiting: true,
+        clientsClaim: true,
         // Cache Google Fonts (Playfair Display + Inter) at runtime
         runtimeCaching: [
           {
