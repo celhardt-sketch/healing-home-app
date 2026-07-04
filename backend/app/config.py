@@ -30,8 +30,11 @@ def get_backup_dir() -> str:
 # CORS origins for the frontend
 CORS_ORIGINS = os.environ.get(
     "CORS_ORIGINS",
-    "http://localhost:5173,https://healing-home-app.vercel.app"
+    "http://localhost:5173,http://localhost:5174,http://localhost:5175,https://healing-home-app.vercel.app"
 ).split(",")
+
+# Allow Vercel preview deployments (e.g. healing-home-app-git-<branch>-efw.vercel.app)
+CORS_ORIGIN_REGEX = r"https://healing-home-app.*\.vercel\.app"
 
 # JWT settings
 JWT_ALGORITHM = "HS256"  # Pinned — never allow "none" or other algorithms
