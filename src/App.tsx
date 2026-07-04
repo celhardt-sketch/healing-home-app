@@ -4,7 +4,6 @@ import LandingPage from './pages/LandingPage'
 import DisclaimerGate from './pages/DisclaimerGate'
 import Dashboard from './pages/Dashboard'
 import CrisisMode from './pages/CrisisMode'
-import Tools from './pages/Tools'
 import KidsRegulationTools from './pages/KidsRegulationTools'
 import TryAgainTool from './pages/TryAgainTool'
 import RegulateMeNow from './pages/RegulateMeNow'
@@ -31,7 +30,6 @@ export default function App() {
         <Route path="/disclaimer" element={<DisclaimerGate />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/crisis" element={<CrisisMode />} />
-        <Route path="/tools" element={<Tools />} />
         <Route path="/kids-regulation" element={<KidsRegulationTools />} />
         <Route path="/try-again" element={<TryAgainTool />} />
         <Route path="/regulate-me" element={<RegulateMeNow />} />
