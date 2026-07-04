@@ -87,7 +87,7 @@ export default function KidsRegulationTools() {
             Regulation Tools for Kids
           </h2>
           <p className="text-charcoal-80 leading-relaxed">
-            Short guided videos to help your child's body and mind settle. Try them together, and let your child pick the ones that feel good. There's no wrong way to use them.
+            Short guided videos to help your child's body and mind settle. This section is for you, the caregiver, to open and use together with your child; children do not have their own accounts. Try them together, and let your child pick the ones that feel good. There's no wrong way to use them.
           </p>
         </div>
 

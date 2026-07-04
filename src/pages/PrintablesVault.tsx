@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowLeft, Printer, Search, Download, FileText, Filter } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
 
-const categories = ['All', 'Emotion Charts', 'Visual Schedules', 'Regulation Tools', 'Social Stories', 'Worksheets', 'Checklists']
+const categories = ['All', 'Emotion Charts', 'Visual Schedules', 'Regulation Tools', 'Story Guides', 'Worksheets', 'Checklists']
 
 const printables = [
   { id: '1', title: 'Feelings Check-In Chart', description: 'A visual tool for children to identify and communicate their current emotional state using faces and colors.', category: 'Emotion Charts', ageRange: 'Ages 3-10', file: '/printables/01_Feelings_Check-In_Chart.pdf' },
@@ -11,7 +11,7 @@ const printables = [
   { id: '3', title: 'Calm Down Corner Poster', description: 'A visual guide for the calm down corner showing available regulation tools and how to use them.', category: 'Regulation Tools', ageRange: 'Ages 3-10', file: '/printables/03_Calm_Down_Corner_Poster.pdf' },
   { id: '4', title: 'Bedtime Routine Cards', description: 'Visual sequence cards for bedtime routine. Each card shows one step with a simple illustration.', category: 'Visual Schedules', ageRange: 'Ages 3-8', file: '/printables/04_Bedtime_Routine_Cards.pdf' },
   { id: '5', title: 'Emotion Thermometer', description: 'A visual scale from 1-5 showing escalation levels with body cues and matching strategies.', category: 'Regulation Tools', ageRange: 'Ages 5-12', file: '/printables/05_Emotion_Thermometer.pdf' },
-  { id: '6', title: 'Social Story: Going to a New Place', description: 'A simple social story template for preparing a child for new environments and transitions.', category: 'Social Stories', ageRange: 'Ages 3-8', file: '/printables/06_A_Story_for_New_Places.pdf' },
+  { id: '6', title: 'A Story for New Places', description: 'A simple story template for preparing a child for new environments and transitions.', category: 'Story Guides', ageRange: 'Ages 3-8', file: '/printables/06_A_Story_for_New_Places.pdf' },
   { id: '7', title: 'My Body Map', description: 'An outline of a body for children to color where they feel different emotions. Builds interoception and body awareness.', category: 'Worksheets', ageRange: 'Ages 5-12', file: '/printables/07_My_Body_Map.pdf' },
   { id: '8', title: 'Daily Caregiver Self-Check', description: 'A simple checklist for caregivers to assess their own regulation, energy, and needs throughout the day.', category: 'Checklists', ageRange: 'For Caregivers', file: '/printables/10_Daily_Caregiver_Self-Check.pdf' },
   { id: '9', title: 'Trigger Tracking Log', description: 'A structured log for tracking behavioral triggers, antecedents, and outcomes to identify patterns.', category: 'Worksheets', ageRange: 'For Caregivers', file: '/printables/11_Trigger_Tracking_Log.pdf' },
