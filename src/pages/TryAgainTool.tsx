@@ -1,18 +1,34 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, RefreshCw, RotateCcw, CheckCircle } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
 
-const tryAgainSteps = [
+const API_URL = import.meta.env.VITE_API_URL || ''
+
+interface PageSection {
+  page: string
+  section: string
+  content: string
+  content_type: string
+}
+
+interface TryAgainStep {
+  title: string
+  instruction: string
+  prompt: string
+  affirmation: string
+}
+
+const DEFAULT_STEPS: TryAgainStep[] = [
   {
     title: 'Take a Breath',
-    instruction: 'Let\'s start by taking three deep breaths together. In through your nose... out through your mouth. You\'re safe.',
+    instruction: "Let's start by taking three deep breaths together. In through your nose... out through your mouth. You're safe.",
     prompt: 'Can you feel your body getting a little calmer?',
     affirmation: 'Great job noticing how your body feels.',
   },
   {
     title: 'Name What Happened',
-    instruction: 'Something happened that didn\'t go the way we wanted. That\'s okay. Everyone makes mistakes. Let\'s think about what happened.',
+    instruction: "Something happened that didn't go the way we wanted. That's okay. Everyone makes mistakes. Let's think about what happened.",
     prompt: 'Can you tell me (or think about) what happened?',
     affirmation: 'Thank you for being honest. That takes courage.',
   },
@@ -32,13 +48,13 @@ const tryAgainSteps = [
     title: 'Think About What You Needed',
     instruction: 'Behind every big behavior is an unmet need. Maybe you needed space, help, fairness, connection, or to feel safe.',
     prompt: 'What did you really need in that moment?',
-    affirmation: 'Knowing what you need is a powerful skill. You\'re learning it.',
+    affirmation: "Knowing what you need is a powerful skill. You're learning it.",
   },
   {
     title: 'Try Again',
-    instruction: 'Now that you know what happened, what you felt, and what you needed, let\'s think about what you could do differently next time.',
-    prompt: 'What\'s one thing you could try next time?',
-    affirmation: 'That\'s a great plan. Trying again is what brave people do.',
+    instruction: "Now that you know what happened, what you felt, and what you needed, let's think about what you could do differently next time.",
+    prompt: "What's one thing you could try next time?",
+    affirmation: "That's a great plan. Trying again is what brave people do.",
   },
   {
     title: 'Remember Who You Are',
@@ -51,8 +67,29 @@ const tryAgainSteps = [
 export default function TryAgainTool() {
   const [currentStep, setCurrentStep] = useState(0)
   const [completed, setCompleted] = useState(false)
+  const [steps, setSteps] = useState<TryAgainStep[]>(DEFAULT_STEPS)
 
-  const step = tryAgainSteps[currentStep]
+  useEffect(() => {
+    fetch(`${API_URL}/api/page-content/try_again_steps`)
+      .then(r => r.ok ? r.json() : [])
+      .then((sections: PageSection[]) => {
+        if (sections.length === 0) return
+        const parsed: TryAgainStep[] = []
+        for (let i = 1; i <= 20; i++) {
+          const title = sections.find(s => s.section === `step_${i}_title`)?.content
+          const instruction = sections.find(s => s.section === `step_${i}_instruction`)?.content
+          const prompt = sections.find(s => s.section === `step_${i}_prompt`)?.content
+          const affirmation = sections.find(s => s.section === `step_${i}_affirmation`)?.content
+          if (title && instruction) {
+            parsed.push({ title, instruction, prompt: prompt || '', affirmation: affirmation || '' })
+          }
+        }
+        if (parsed.length > 0) setSteps(parsed)
+      })
+      .catch(() => {})
+  }, [])
+
+  const step = steps[currentStep]
 
   const reset = () => {
     setCurrentStep(0)
@@ -106,13 +143,13 @@ export default function TryAgainTool() {
             </h1>
           </div>
           <span className="text-sm text-charcoal-70">
-            {currentStep + 1} of {tryAgainSteps.length}
+            {currentStep + 1} of {steps.length}
           </span>
         </div>
         <div className="h-1 bg-gray-100">
           <div
             className="h-full bg-gradient-to-r from-growth-green to-growth-green-dark transition-all duration-300"
-            style={{ width: `${((currentStep + 1) / tryAgainSteps.length) * 100}%` }}
+            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
           />
         </div>
       </div>
@@ -125,10 +162,14 @@ export default function TryAgainTool() {
             </div>
             <h2 className="text-xl font-bold font-heading text-charcoal mb-4">{step.title}</h2>
             <p className="text-charcoal-80 mb-6 leading-relaxed">{step.instruction}</p>
-            <div className="bg-sky-blue-bg rounded-xl p-4 mb-4">
-              <p className="text-sm text-slate-blue font-medium">{step.prompt}</p>
-            </div>
-            <p className="text-sm text-growth-green italic">{step.affirmation}</p>
+            {step.prompt && (
+              <div className="bg-sky-blue-bg rounded-xl p-4 mb-4">
+                <p className="text-sm text-slate-blue font-medium">{step.prompt}</p>
+              </div>
+            )}
+            {step.affirmation && (
+              <p className="text-sm text-growth-green italic">{step.affirmation}</p>
+            )}
           </div>
 
           <div className="flex items-center justify-between mt-6">
@@ -139,7 +180,7 @@ export default function TryAgainTool() {
             >
               <ArrowLeft className="w-4 h-4" /> Back
             </button>
-            {currentStep < tryAgainSteps.length - 1 ? (
+            {currentStep < steps.length - 1 ? (
               <button
                 onClick={() => setCurrentStep(currentStep + 1)}
                 className="flex items-center gap-2 bg-growth-green text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-growth-green-dark transition-colors"

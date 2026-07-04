@@ -12,69 +12,96 @@ export default function TermsOfService() {
 
         <div className="bg-white rounded-xl shadow-sm border p-8 md:p-12 max-w-none">
           <h1 className="text-3xl font-bold font-heading text-slate-blue mb-2">Terms of Service</h1>
-          <p className="text-sm text-charcoal-70 mb-8">Last updated: {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}</p>
+          <p className="text-sm text-charcoal-70 mb-2">Last Updated: June 22, 2026</p>
+          <p className="text-sm text-charcoal-70 mb-8">
+            <strong>App:</strong> The Healing Home Approach&#8482;<br />
+            <strong>Company:</strong> Elhardt Family Wellness LLC
+          </p>
+
+          <p className="text-sm text-charcoal-80 leading-relaxed mb-6">
+            By accessing or using the Service, you agree to be bound by these Terms.
+          </p>
 
           <div className="space-y-6 text-sm text-charcoal-80 leading-relaxed">
             <section>
-              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">1. Acceptance of Terms</h2>
-              <p>By accessing and using The Healing Home Approach application, you agree to be bound by these Terms of Service. If you do not agree to these terms, do not use the application.</p>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">1. Eligibility and Account Requirements</h2>
+              <p>You are responsible for maintaining the confidentiality of your account credentials and for all activities that occur under your account.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">2. Eligibility</h2>
-              <p>This application is intended for use by adults 18 years of age or older. By using this application, you represent that you are at least 18 years old and are a caregiver, foster parent, adoptive parent, or professional working with children.</p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">3. Nature of Content</h2>
-              <p>The Healing Home Approach provides general psychoeducational content only. It is NOT:</p>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">2. Nature of the Service: Psychoeducational Content Only</h2>
+              <p>The Service does not provide and shall not be construed as providing:</p>
               <ul className="list-disc ml-6 mt-2 space-y-1">
-                <li>A substitute for professional mental health treatment, diagnosis, or emergency services</li>
-                <li>A crisis intervention tool</li>
-                <li>A replacement for therapy or clinical treatment</li>
-                <li>A diagnostic tool</li>
+                <li>Professional mental health treatment, therapy, or counseling</li>
+                <li>Medical advice, diagnosis, or treatment of any kind</li>
+                <li>Clinical assessment, psychological evaluation, or diagnostic services</li>
+                <li>Crisis intervention or emergency mental health services</li>
+                <li>Legal advice or legal representation</li>
+                <li>Treatment plans or individualized clinical recommendations</li>
               </ul>
-              <p className="mt-2">Always consult with your child's treating mental health professional before implementing new strategies. App guidance is always subordinate to professional, legal, and caregiver judgment.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">4. User Responsibilities</h2>
-              <p>You agree to:</p>
-              <ul className="list-disc ml-6 mt-2 space-y-1">
-                <li>Use the application in accordance with all applicable laws</li>
-                <li>Keep your account credentials confidential</li>
-                <li>Not share your account access with others</li>
-                <li>Not reproduce, distribute, or create derivative works from the content</li>
-                <li>Seek professional help in crisis situations</li>
-              </ul>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">3. Professional Approval Requirement</h2>
+              <p>By using the Service, you represent that, where a child in your care is currently in treatment, you have obtained approval from their treatment team to use psychoeducational regulation tools, or that you are a professional using these tools within your role.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">4. Subscription, Payment, and Cancellation</h2>
+              <p>Access to the Service requires a paid subscription at a rate of $9.99 per month, billed through Stripe. You can update your payment method or cancel at any time through the Stripe billing portal (Manage Billing). Cancelling stops future charges and ends access at the close of your current billing period. No Refunds. We reserve the right to change subscription pricing at any time.</p>
             </section>
 
             <section>
               <h2 className="text-xl font-bold font-heading text-charcoal mb-3">5. Intellectual Property</h2>
-              <p>All content, including but not limited to text, scripts, educational materials, graphics, and design elements, is the property of Elhardt Family Wellness LLC and is protected by copyright and trademark laws. The Healing Home Approach is a trademark of Elhardt Family Wellness LLC.</p>
+              <p>Unauthorized reproduction or distribution of Service content may result in immediate termination of your access and may subject you to civil and criminal penalties.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">6. Disclaimer of Warranties</h2>
-              <p>The application is provided "as is" without warranties of any kind. We do not warrant that the application will be uninterrupted, error-free, or that the content will be accurate or complete.</p>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">7. Emergency Situations and Crisis Services</h2>
+              <p>The Service is not an emergency service and is not equipped to handle crisis situations.</p>
+              <ul className="list-disc ml-6 mt-2 space-y-1">
+                <li>Suicide &amp; Crisis Lifeline at <a href="tel:988" className="text-slate-blue hover:underline">988</a></li>
+                <li>Crisis Text Line: Text HOME to 741741</li>
+              </ul>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">7. Limitation of Liability</h2>
-              <p>To the fullest extent permitted by law, Elhardt Family Wellness LLC shall not be liable for any indirect, incidental, special, consequential, or punitive damages arising from your use of the application.</p>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">9. Family Plan and User Data</h2>
+              <p className="font-semibold text-charcoal">Important: Profile data is organizational only and is never used for clinical assessment or shared externally.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">8. Changes to Terms</h2>
-              <p>We reserve the right to modify these terms at any time. Continued use of the application after changes constitutes acceptance of the modified terms.</p>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">13. Mandatory Binding Arbitration and Class Action Waiver</h2>
+              <p className="font-semibold text-charcoal">PLEASE READ THIS SECTION CAREFULLY. IT AFFECTS YOUR LEGAL RIGHTS, INCLUDING YOUR RIGHT TO FILE A LAWSUIT IN COURT.</p>
+              <p className="mt-2">Any dispute arising out of or relating to these Terms or the Service shall be resolved by binding arbitration administered by the American Arbitration Association in accordance with its Consumer Arbitration Rules. You agree to waive any right to a jury trial or to participate in a class action lawsuit or class-wide arbitration.</p>
             </section>
 
             <section>
-              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">9. Contact</h2>
-              <p>For questions about these Terms of Service, contact:</p>
-              <p className="mt-2">
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">14. Governing Law and Jurisdiction</h2>
+              <p>These Terms shall be governed by and construed in accordance with the laws of the Commonwealth of Virginia, without regard to conflict of law principles.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">17. Severability</h2>
+              <p>If any provision of these Terms is found to be unenforceable or invalid, that provision shall be limited or eliminated to the minimum extent necessary so that these Terms shall otherwise remain in full force and effect.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">18. Force Majeure</h2>
+              <p>Neither party shall be liable for any failure or delay in performing obligations where such failure or delay results from circumstances beyond the reasonable control of that party.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">19. Entire Agreement</h2>
+              <p>These Terms, together with the Privacy Policy, constitute the entire agreement between you and Elhardt Family Wellness LLC regarding the Service.</p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-bold font-heading text-charcoal mb-3">20. Contact Information</h2>
+              <p>
                 <strong>Elhardt Family Wellness LLC</strong><br />
-                Email: <a href="mailto:info@elhardtfamilywellness.com" className="text-slate-blue hover:underline">info@elhardtfamilywellness.com</a>
+                <a href="https://www.elhardtfamilywellness.com" className="text-slate-blue hover:underline">www.elhardtfamilywellness.com</a><br />
+                <a href="mailto:info@elhardtfamilywellness.com" className="text-slate-blue hover:underline">info@elhardtfamilywellness.com</a>
               </p>
             </section>
           </div>

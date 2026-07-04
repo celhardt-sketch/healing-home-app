@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Settings, User, Bell, Shield, LogOut, Save, Mail, Lock } from 'lucide-react'
+import { ArrowLeft, Settings, User, Bell, Shield, LogOut, Save, Mail, Lock, CreditCard } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import SafetyFooter from '../components/SafetyFooter'
 
 export default function AccountSettings() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, subscription, openBillingPortal } = useAuth()
   const navigate = useNavigate()
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
@@ -85,6 +85,43 @@ export default function AccountSettings() {
                 <div className={`w-5 h-5 bg-white rounded-full shadow transition-transform ${notifications ? 'translate-x-5.5' : 'translate-x-0.5'}`} />
               </button>
             </label>
+          </div>
+
+          {/* Subscription & Billing */}
+          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+            <h3 className="font-bold text-charcoal flex items-center gap-2 mb-4">
+              <CreditCard className="w-5 h-5 text-slate-blue" />
+              Subscription &amp; Billing
+            </h3>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-charcoal-80">Status</span>
+                <span className={`text-sm font-medium ${subscription.has_access ? 'text-growth-green' : 'text-red-500'}`}>
+                  {subscription.status === 'active' ? 'Active' :
+                   subscription.status === 'past_due' ? 'Past Due' :
+                   subscription.status === 'canceled' ? 'Canceled' : 'None'}
+                </span>
+              </div>
+              {subscription.has_access && (
+                <button
+                  onClick={async () => {
+                    const url = await openBillingPortal()
+                    if (url) window.location.href = url
+                  }}
+                  className="w-full bg-gray-50 text-charcoal py-2.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors border border-gray-200"
+                >
+                  Manage Billing
+                </button>
+              )}
+              {!subscription.has_access && (
+                <Link
+                  to="/access-gate"
+                  className="block w-full bg-slate-blue text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors text-center"
+                >
+                  Subscribe — $9.99/month
+                </Link>
+              )}
+            </div>
           </div>
 
           {/* Security */}

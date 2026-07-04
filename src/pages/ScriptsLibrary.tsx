@@ -1,101 +1,56 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, FileText, Search, Copy, Check, Filter } from 'lucide-react'
+import { ArrowLeft, FileText, Search, Copy, Check, Filter, Video, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
 
-const categories = ['All', 'De-escalation', 'Connection', 'Boundaries', 'Transitions', 'Repair', 'Bedtime', 'School']
-const ageGroups = ['All Ages', 'Toddler (1-3)', 'Preschool (3-5)', 'School Age (6-11)', 'Preteen/Teen (12+)']
+const API_URL = import.meta.env.VITE_API_URL || ''
 
-const scripts = [
-  {
-    id: '1',
-    title: 'When a Child Says "I Hate You"',
-    category: 'De-escalation',
-    ageGroup: 'All Ages',
-    script: '"I hear you. You\'re feeling really big feelings right now, and that\'s okay. I\'m not going anywhere. When you\'re ready, I\'m right here."',
-    context: 'When children lash out verbally, they are often testing whether the relationship can survive their biggest feelings. This is attachment behavior, not rejection.',
-    tip: 'Do not take it personally. Do not mirror the intensity. Your calm, steady presence is the response.',
-  },
-  {
-    id: '2',
-    title: 'Before a Difficult Transition',
-    category: 'Transitions',
-    ageGroup: 'All Ages',
-    script: '"In five minutes, we\'re going to be done with this and start something new. I know transitions can feel hard. I\'ll be right there with you when it\'s time."',
-    context: 'Children with trauma histories often struggle with transitions because change signals unpredictability. Advance notice and co-regulation reduce the threat response.',
-    tip: 'Give time warnings: 5 minutes, 2 minutes, 1 minute. Predictability is safety.',
-  },
-  {
-    id: '3',
-    title: 'After a Meltdown (Repair)',
-    category: 'Repair',
-    ageGroup: 'All Ages',
-    script: '"That was really hard. For both of us. But we got through it together. I\'m still here, and I still love you. Would you like to talk about what happened, or do you need more time?"',
-    context: 'Repair after rupture is one of the most powerful attachment experiences. It teaches children that relationships survive hard moments.',
-    tip: 'Wait until the child is fully regulated before initiating repair. Regulation before reason.',
-  },
-  {
-    id: '4',
-    title: 'Setting a Boundary with Warmth',
-    category: 'Boundaries',
-    ageGroup: 'School Age (6-11)',
-    script: '"I love you AND hitting is not okay. I\'m going to help keep everyone safe. Let\'s find another way to show how angry you are."',
-    context: 'Boundaries and warmth are not opposites. Children need both. The "and" construction validates the feeling while holding the limit.',
-    tip: 'Children need both compassion and accountability. Use AND instead of BUT.',
-  },
-  {
-    id: '5',
-    title: 'Bedtime Resistance',
-    category: 'Bedtime',
-    ageGroup: 'Preschool (3-5)',
-    script: '"I know bedtime can feel hard. Your body needs rest so it can grow strong. I\'m going to stay close. You are safe here. Nothing bad is going to happen while you sleep."',
-    context: 'For children with trauma, bedtime can trigger fear of abandonment, hypervigilance, or memories of unsafe nighttime experiences.',
-    tip: 'Consistent bedtime routines build predictability. Name the safety explicitly.',
-  },
-  {
-    id: '6',
-    title: 'When a Child Lies',
-    category: 'Connection',
-    ageGroup: 'School Age (6-11)',
-    script: '"I think what really happened might be different from what you told me. It\'s okay. I\'m not going to be angry. I just want to understand. You\'re safe to tell me the truth."',
-    context: 'Lying in trauma-affected children is often a survival strategy, not a character flaw. They learned that truth could be dangerous.',
-    tip: 'Create safety for truth-telling. Punishing honesty guarantees more lying.',
-  },
-  {
-    id: '7',
-    title: 'First Day of School',
-    category: 'School',
-    ageGroup: 'All Ages',
-    script: '"Today might feel a little scary, and that makes total sense. New things are hard. I will be here when you get back. You can do hard things, and I believe in you."',
-    context: 'School transitions activate separation anxiety and fear of the unknown. Naming the fear and affirming the return reduces the threat.',
-    tip: 'Consider giving the child a small object (a stone, a keychain) to carry as a reminder of connection.',
-  },
-  {
-    id: '8',
-    title: 'When a Child Won\'t Eat',
-    category: 'Connection',
-    ageGroup: 'Toddler (1-3)',
-    script: '"Your body, your choice about eating. The food is here whenever you\'re ready. There will always be enough food in this home."',
-    context: 'Food refusal in children from hard places is often about control, trust, or sensory sensitivities. Power struggles around food reinforce scarcity fears.',
-    tip: 'For children who experienced food insecurity, having access to a snack basket can reduce hoarding and refusal behaviors.',
-  },
-]
+interface Script {
+  id: number
+  title: string
+  content: string
+  category: string
+  age_group: string
+  situation: string
+  video_url: string | null
+  active: number
+}
+
+const defaultCategories = ['All', 'Regulation-First', 'Aggression / Fight Response', 'Flight / Avoidance / Elopement', 'Freeze / Shutdown', 'School / Task Avoidance', 'Attachment Protests', 'Survival Strategies', 'Control Battles', 'Destructive Behavior', 'Sibling Conflict', 'Sexual Behavior Boundaries', 'Public Settings', 'Threat Statements', 'Transitions', 'Repair & Try Again', 'Caregiver Self-Regulation']
+const ageGroups = ['All Ages', 'Ages 4-6', 'Ages 7-10', 'Ages 11-13', 'Ages 14-18']
 
 export default function ScriptsLibrary() {
+  const [scripts, setScripts] = useState<Script[]>([])
   const [search, setSearch] = useState('')
   const [category, setCategory] = useState('All')
   const [ageGroup, setAgeGroup] = useState('All Ages')
-  const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [copiedId, setCopiedId] = useState<number | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [showDisclaimer, setShowDisclaimer] = useState(false)
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/content/scripts`)
+      .then(r => r.ok ? r.json() : [])
+      .then((data: Script[]) => setScripts(data.filter(s => s.active)))
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [])
+
+  const categories = (() => {
+    const cats = new Set(defaultCategories)
+    scripts.forEach(s => { if (s.category) cats.add(s.category) })
+    return Array.from(cats)
+  })()
 
   const filtered = scripts.filter((s) => {
     const matchSearch = s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.script.toLowerCase().includes(search.toLowerCase())
+      s.content.toLowerCase().includes(search.toLowerCase())
     const matchCategory = category === 'All' || s.category === category
-    const matchAge = ageGroup === 'All Ages' || s.ageGroup === ageGroup || s.ageGroup === 'All Ages'
+    const matchAge = ageGroup === 'All Ages' || s.age_group === ageGroup || s.age_group === 'All Ages'
     return matchSearch && matchCategory && matchAge
   })
 
-  const copyScript = (id: string, text: string) => {
+  const copyScript = (id: number, text: string) => {
     navigator.clipboard.writeText(text)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
@@ -116,6 +71,50 @@ export default function ScriptsLibrary() {
       </div>
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+        <div className="text-center mb-6">
+          <p className="text-charcoal-80 text-sm leading-relaxed">
+            Trauma-informed response templates for everyday situations. Copy and adapt these scripts to your family&rsquo;s needs.
+          </p>
+        </div>
+
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5 mb-6">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-bold text-charcoal text-sm mb-1">Psychoeducational Guidance</h3>
+              <p className="text-xs text-charcoal-80 leading-relaxed mb-2">
+                These scripts are general templates based on trauma-informed principles. They are not therapeutic directives and should be adapted to your child&rsquo;s unique needs. Always defer to your child&rsquo;s treatment team for specific behavioral guidance.
+              </p>
+              <button
+                onClick={() => setShowDisclaimer(!showDisclaimer)}
+                className="text-xs text-amber-700 font-medium flex items-center gap-1 hover:underline"
+              >
+                Please read before using
+                {showDisclaimer ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              </button>
+              {showDisclaimer && (
+                <div className="mt-3 space-y-2 text-xs text-charcoal-80 leading-relaxed">
+                  <p><strong>Safety first, within your limits.</strong> These scripts are about creating safety &mdash; staying present, removing others from harm&rsquo;s way, and getting help. They are not instructions to physically restrain a child. Any hands-on response must follow your agency&rsquo;s and state&rsquo;s policies and your own training. When in doubt, create space and call for help rather than physically intervening.</p>
+                  <p><strong>Some behaviors are more than behavior.</strong> Sexualized behavior, threats to harm self or others, or disclosures of harm may require more than a script. Document them, bring them to your child&rsquo;s treatment team, and follow your mandated-reporting responsibilities. Redirect without shame &mdash; but do not treat these as fully handled by a calm response.</p>
+                  <p><strong>In a crisis, this is not a scripting moment.</strong> If a child expresses intent to harm themselves or someone else, contact your treatment team, call or text 988 (Suicide &amp; Crisis Lifeline), or call 911, and follow your safety plan.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-blue/5 border border-slate-blue/20 rounded-xl p-5 mb-6">
+          <h3 className="font-bold text-charcoal text-sm mb-2">How to use these scripts</h3>
+          <p className="text-xs text-charcoal-80 leading-relaxed mb-2">
+            Most situations have two moments: <strong>In the Moment</strong> (active dysregulation) and <strong>Calm Time</strong> (after regulation has returned).
+          </p>
+          <ul className="text-xs text-charcoal-80 leading-relaxed space-y-1 list-disc list-inside">
+            <li><strong>In the Moment</strong> is only for safety and regulation. Do not teach, investigate, or present consequences while a child is dysregulated.</li>
+            <li><strong>Calm Time</strong> is for teaching, repair, and natural consequences &mdash; once both of you are regulated.</li>
+            <li>At peak escalation, fewer words and calm presence work better than explanation. Say less, stay close.</li>
+          </ul>
+        </div>
+
         <div className="mb-6">
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-charcoal-70" />
@@ -156,34 +155,60 @@ export default function ScriptsLibrary() {
           </div>
         </div>
 
-        <p className="text-sm text-charcoal-70 mb-4">{filtered.length} scripts found</p>
+        {loading ? (
+          <p className="text-sm text-charcoal-70">Loading scripts...</p>
+        ) : (
+          <>
+            <p className="text-sm text-charcoal-70 mb-4">{filtered.length} scripts found</p>
 
-        <div className="space-y-4">
-          {filtered.map((s) => (
-            <div key={s.id} className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-              <div className="flex items-start justify-between mb-3">
-                <div>
-                  <h3 className="font-bold text-charcoal">{s.title}</h3>
-                  <div className="flex gap-2 mt-1">
-                    <span className="text-xs bg-slate-blue/10 text-slate-blue px-2 py-0.5 rounded-full">{s.category}</span>
-                    <span className="text-xs bg-gray-100 text-charcoal-70 px-2 py-0.5 rounded-full">{s.ageGroup}</span>
+            <div className="space-y-4">
+              {filtered.map((s) => (
+                <div key={s.id} className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <h3 className="font-bold text-charcoal">{s.title}</h3>
+                      <div className="flex gap-2 mt-1">
+                        <span className="text-xs bg-slate-blue/10 text-slate-blue px-2 py-0.5 rounded-full">{s.category}</span>
+                        <span className="text-xs bg-gray-100 text-charcoal-70 px-2 py-0.5 rounded-full">{s.age_group}</span>
+                        {s.video_url && <span className="text-xs text-slate-blue flex items-center gap-0.5"><Video className="w-3 h-3" /> Video</span>}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => copyScript(s.id, s.content)}
+                      className="text-charcoal-70 hover:text-slate-blue transition-colors"
+                      title="Copy script"
+                    >
+                      {copiedId === s.id ? <Check className="w-4 h-4 text-growth-green" /> : <Copy className="w-4 h-4" />}
+                    </button>
                   </div>
+                  <blockquote className="text-charcoal-80 bg-sky-blue-bg rounded-lg p-4 italic text-sm leading-relaxed mb-3">
+                    {s.content}
+                  </blockquote>
+                  {s.situation && (
+                    <p className="text-sm text-charcoal-80 whitespace-pre-wrap">{s.situation}</p>
+                  )}
+                  {s.video_url && (
+                    <a href={s.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-3 text-sm text-slate-blue hover:underline font-medium">
+                      <Video className="w-4 h-4" /> Watch Video
+                    </a>
+                  )}
                 </div>
-                <button
-                  onClick={() => copyScript(s.id, s.script)}
-                  className="text-charcoal-70 hover:text-slate-blue transition-colors"
-                  title="Copy script"
-                >
-                  {copiedId === s.id ? <Check className="w-4 h-4 text-growth-green" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
-              <blockquote className="text-charcoal-80 bg-sky-blue-bg rounded-lg p-4 italic text-sm leading-relaxed mb-3">
-                {s.script}
-              </blockquote>
-              <p className="text-sm text-charcoal-80 mb-2"><strong>Context:</strong> {s.context}</p>
-              <p className="text-sm text-growth-green-dark italic">{s.tip}</p>
+              ))}
             </div>
-          ))}
+          </>
+        )}
+
+        <div className="mt-8 bg-slate-blue/5 border border-slate-blue/20 rounded-xl p-5">
+          <h3 className="font-bold text-charcoal text-sm mb-3">Script Guidelines</h3>
+          <ul className="text-xs text-charcoal-80 leading-relaxed space-y-1.5 list-disc list-inside">
+            <li>Scripts preserve caregiver authority while maintaining connection.</li>
+            <li>Scripts never promise non-intervention when safety is at risk.</li>
+            <li>Scripts defer consequences to calm time, prioritizing regulation first.</li>
+            <li>Scripts avoid investigation or therapy language.</li>
+            <li>Scripts communicate belief in growth and redemption.</li>
+            <li>Scripts create safety through presence and help &mdash; never through physical restraint.</li>
+            <li>At peak escalation, fewer words and calm presence work better than explanation. Say less, stay close.</li>
+          </ul>
         </div>
       </main>
 

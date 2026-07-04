@@ -9,7 +9,7 @@ import SafetyFooter from '../components/SafetyFooter'
 
 const dashboardCards = [
   {
-    title: 'First Aid for Big Feelings',
+    title: 'First Aid for Big Feelings & Behaviors',
     description: 'Immediate support for challenging moments with age-appropriate guidance',
     icon: AlertTriangle,
     href: '/crisis',
@@ -81,10 +81,10 @@ export default function Dashboard() {
       <main className="flex-1 container mx-auto px-4 py-8">
         <div className="mb-8">
           <h2 className="text-3xl font-bold font-heading text-charcoal mb-2">
-            Welcome to Your Healing Home
+            Welcome back
           </h2>
           <p className="text-charcoal-80">
-            Your trauma-informed toolkit. Choose where you need to start today.
+            We walk alongside you as you navigate trauma, attachment, and emotional growth with the children in your care.
           </p>
         </div>
 

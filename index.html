@@ -14,6 +14,27 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Force stale service workers to update. On first visit after deploy,
+      // this unregisters old SWs that don't have skipWaiting, reloads once,
+      // and the new SW (with skipWaiting+clientsClaim) takes over cleanly.
+      (function () {
+        var SW_VERSION = '3';
+        if (!('serviceWorker' in navigator)) return;
+        var stored = localStorage.getItem('sw_version');
+        if (stored === SW_VERSION) return;
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          if (regs.length === 0) {
+            localStorage.setItem('sw_version', SW_VERSION);
+            return;
+          }
+          Promise.all(regs.map(function (r) { return r.unregister(); })).then(function () {
+            localStorage.setItem('sw_version', SW_VERSION);
+            if (stored !== null) location.reload();
+          });
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
