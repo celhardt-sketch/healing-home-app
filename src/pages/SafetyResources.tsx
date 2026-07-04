@@ -98,8 +98,6 @@ export default function SafetyResources() {
             {[
               { name: 'Child Welfare Information Gateway', url: 'https://www.childwelfare.gov' },
               { name: 'National Child Traumatic Stress Network', url: 'https://www.nctsn.org' },
-              { name: 'AdoptUSKids', url: 'https://www.adoptuskids.org' },
-              { name: 'Creating a Family', url: 'https://creatingafamily.org' },
             ].map((link) => (
               <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-blue hover:text-slate-blue-dark transition-colors text-sm">
                 <ExternalLink className="w-4 h-4" /> {link.name}
