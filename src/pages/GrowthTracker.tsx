@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, TrendingUp, Plus, Star, Calendar, Trash2, BarChart3 } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+import DataNoticeGate from '../components/DataNoticeGate'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -216,6 +217,7 @@ export default function GrowthTracker() {
       </div>
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-3xl">
+        <DataNoticeGate featureKey="growth_tracker" title="Growth Tracker">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold font-heading text-charcoal mb-2">
             Celebrate Growth
@@ -413,6 +415,7 @@ export default function GrowthTracker() {
             ))}
           </div>
         )}
+        </DataNoticeGate>
       </main>
 
       <SafetyFooter />

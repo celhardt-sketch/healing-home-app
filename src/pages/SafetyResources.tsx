@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Phone, ExternalLink, Shield, AlertTriangle, Heart } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+import CrisisBanner from '../components/CrisisBanner'
 
 const emergencyNumbers = [
   { name: 'Emergency Services', number: '911', description: 'For immediate danger to life' },
@@ -36,6 +37,7 @@ export default function SafetyResources() {
       </div>
 
       <main className="flex-1 max-w-4xl mx-auto px-4 py-8 w-full">
+        <CrisisBanner className="mb-6" />
         <div className="bg-red-100 rounded-xl p-6 mb-8">
           <h2 className="text-lg font-bold font-heading text-red-800 flex items-center gap-2 mb-2">
             <AlertTriangle className="w-5 h-5" />

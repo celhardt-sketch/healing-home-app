@@ -104,6 +104,50 @@ export default function MandatedReporterGuide() {
           </p>
         </div>
 
+        {/* Prominent top notice — general education, not legal advice */}
+        <div
+          role="note"
+          aria-label="Important notice before using this guide"
+          className="bg-[#FBF2E2] border-[1.5px] border-[#EFD9AE] rounded-[14px] shadow-[0_2px_10px_rgba(46,58,51,0.06)] p-5 mb-4"
+        >
+          <h2 className="font-heading text-[18px] font-bold text-[#B9791F] mb-2.5">Please read first</h2>
+          <ul className="list-disc pl-[22px] m-0 space-y-2">
+            <li>
+              This guide is <strong>general education, not legal advice</strong>. Mandated reporting
+              laws vary by state and by your role, so confirm the rules that apply to you.
+            </li>
+            <li>
+              <strong>When in doubt, report.</strong> Call your state's child-abuse hotline or Child
+              Protective Services.
+              {hotline ? (
+                <>
+                  {' '}
+                  For {stateCode === 'VA' ? 'Virginia' : 'your selected state'}, the hotline shown
+                  above is <strong>{hotline.number}</strong>.
+                </>
+              ) : (
+                <> Look up and use your own state's verified hotline.</>
+              )}
+              {/* TODO(legal-review): insert verified hotline/reporting info for each supported state
+                  and confirm the reporting process. Do not rely on this list without verification. */}
+            </li>
+            <li>
+              <strong>Do not interview or question the child</strong> about a disclosure. Asking for
+              details can compromise an investigation. Document the facts and the child's own words,
+              make the report, and let professionals investigate.
+            </li>
+          </ul>
+          <p className="text-[12.5px] text-[#55635B] mt-3 mb-0">
+            The detailed guidance below is pending review by a licensed attorney and a mandated
+            reporting expert before launch.
+          </p>
+        </div>
+
+        {/* TODO(legal-review): The substantive body content below (all sections through
+            "One Core Principle to Remember") must be reviewed and signed off by an attorney
+            licensed in each supported state plus a mandated-reporting expert before launch.
+            Do not treat this content as authoritative until that review is complete. */}
+
         {/* Important Legal Notice */}
         <Card className="bg-[#FCFAF5] border-[#EFE7D6]">
           <CardHeading className="text-[18px]">Important Legal Notice</CardHeading>

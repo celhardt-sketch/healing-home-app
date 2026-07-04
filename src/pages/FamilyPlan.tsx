@@ -6,6 +6,7 @@ import {
   CheckCircle,
 } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+import DataNoticeGate from '../components/DataNoticeGate'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -652,6 +653,7 @@ export default function FamilyPlan() {
       </div>
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+        <DataNoticeGate featureKey="family_plan" title="My Family Plan">
         {/* Page intro */}
         <div className="text-center mb-4">
           <p className="text-charcoal-80 text-sm leading-relaxed">
@@ -695,6 +697,7 @@ export default function FamilyPlan() {
             {plans.map(renderPlanCard)}
           </div>
         )}
+        </DataNoticeGate>
       </main>
 
       {renderPrintFlow()}
