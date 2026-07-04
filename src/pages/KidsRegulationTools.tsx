@@ -1,159 +1,143 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Brain, Play, Star, Video, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowLeft, Brain, Info } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
 
-const API_URL = import.meta.env.VITE_API_URL || ''
-
-interface ContentItem {
-  id: number
+// Kid-facing regulation videos. Third-party videos can be removed or renamed by
+// their owners — periodic link-check: confirm each still plays and embeds.
+// Last verified: 2026-07 (all six confirmed embeddable via YouTube oEmbed).
+interface KidsVideo {
   title: string
-  content: string
-  category: string
-  age_group: string
-  situation?: string
-  video_url: string | null
-  active: number
+  source: string
+  description: string
+  ageTag: string
+  embedUrl: string
 }
 
+const kidsVideos: KidsVideo[] = [
+  {
+    title: 'Belly Breathing',
+    source: 'Sesame Street (Sesame Workshop)',
+    description: 'Elmo, Common & Colbie Caillat sing "Belly Breathe" — deep breathing to calm big feelings.',
+    ageTag: 'Ages 3\u20137',
+    embedUrl: 'https://www.youtube.com/embed/_mZbzDOpylA',
+  },
+  {
+    title: 'Melting (Guided Calm-Down)',
+    source: 'GoNoodle',
+    description: 'A guided relaxation to "melt" away the frozen, angry, or scared feeling.',
+    ageTag: 'Ages 5\u201310',
+    embedUrl: 'https://www.youtube.com/embed/fTzXFPh6CPI',
+  },
+  {
+    title: 'Be the Pond (Mindfulness)',
+    source: 'Cosmic Kids Zen Den',
+    description: 'Teaches noticing feelings without being swept up by them.',
+    ageTag: 'Ages 5\u201310',
+    embedUrl: 'https://www.youtube.com/embed/wf5K3pP2IUQ',
+  },
+  {
+    title: 'Body Scan',
+    source: 'Smiling Mind (mental-health nonprofit)',
+    description: 'A guided head-to-toe body scan to release tension.',
+    ageTag: 'Ages 7+',
+    embedUrl: 'https://www.youtube.com/embed/VxYC_UcQ0PI',
+  },
+  {
+    title: '5-4-3-2-1 Senses Grounding',
+    source: 'The Partnership in Education, Duquesne University (NIH-funded)',
+    description: 'The five-senses grounding technique to come back to the present moment.',
+    ageTag: 'Ages 7+',
+    embedUrl: 'https://www.youtube.com/embed/30VMIEmA114',
+  },
+  {
+    title: 'Five-Finger Breathing',
+    source: "CHOC Children's (Children's Hospital of Orange County)",
+    description: 'Trace your hand while breathing — a self-contained tool needing only your hands.',
+    ageTag: 'Ages 4+',
+    embedUrl: 'https://www.youtube.com/embed/67JDaNcX3gE',
+  },
+]
+
+const ageFilters = ['All ages', 'Ages 3\u20137', 'Ages 5\u201310', 'Ages 7+']
+
 export default function KidsRegulationTools() {
-  const [tools, setTools] = useState<ContentItem[]>([])
-  const [scripts, setScripts] = useState<ContentItem[]>([])
-  const [expandedScript, setExpandedScript] = useState<number | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [ageFilter, setAgeFilter] = useState('All ages')
 
-  useEffect(() => {
-    Promise.all([
-      fetch(`${API_URL}/api/content/first_aid_cards`).then(r => r.ok ? r.json() : []),
-      fetch(`${API_URL}/api/content/scripts`).then(r => r.ok ? r.json() : []),
-    ])
-      .then(([cardsData, scriptsData]) => {
-        setTools((cardsData as ContentItem[]).filter(c => c.active && c.category === 'Kids Tool'))
-        setScripts((scriptsData as ContentItem[]).filter(s => s.active))
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
-
-  const toolColors = [
-    'bg-cyan-50 border-cyan-200',
-    'bg-healing-purple/10 border-healing-purple/20',
-    'bg-sky-blue-bg border-sky-blue/30',
-    'bg-growth-green/10 border-growth-green/20',
-    'bg-orange-50 border-orange-200',
-    'bg-sky-blue-bg border-sky-blue/30',
-  ]
+  const visibleVideos =
+    ageFilter === 'All ages' ? kidsVideos : kidsVideos.filter((v) => v.ageTag === ageFilter)
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-sky-blue-bg to-healing-purple/5 flex flex-col">
       <div className="bg-white border-b shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/dashboard" className="text-charcoal hover:text-slate-blue">
+          <Link to="/dashboard" className="text-charcoal hover:text-slate-blue" aria-label="Back to dashboard">
             <ArrowLeft className="w-5 h-5" />
           </Link>
           <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
             <Brain className="w-5 h-5 text-cyan-600" />
-            Kids Regulation Tools
+            Regulation Tools for Kids
           </h1>
         </div>
       </div>
 
       <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <div className="text-center mb-8">
+        <div className="mb-6">
           <h2 className="text-2xl font-bold font-heading text-charcoal mb-2">
-            Regulation Tools for Children
+            Regulation Tools for Kids
           </h2>
-          <p className="text-charcoal-80">
-            Interactive tools designed to help children build regulation skills, body awareness, and emotional literacy.
+          <p className="text-charcoal-80 leading-relaxed">
+            Short guided videos to help your child's body and mind settle. Try them together, and let your child pick the ones that feel good. There's no wrong way to use them.
           </p>
         </div>
 
-        {loading ? (
-          <p className="text-sm text-charcoal-70">Loading tools...</p>
-        ) : (
-          <>
-            <div className="grid sm:grid-cols-2 gap-4">
-              {tools.map((tool, idx) => (
-                <div
-                  key={tool.id}
-                  className={`bg-white rounded-xl p-6 border ${toolColors[idx % toolColors.length]} hover:shadow-md transition-shadow`}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div>
-                      <span className="text-xs font-semibold text-charcoal-70 uppercase tracking-wide">
-                        {tool.category === 'Kids Tool' ? '' : tool.category}
-                      </span>
-                      <h3 className="text-lg font-bold font-heading text-charcoal mt-1">{tool.title}</h3>
-                    </div>
-                    <span className="text-xs bg-gray-100 text-charcoal-70 px-2 py-1 rounded-full">{tool.age_group}</span>
-                  </div>
-                  <p className="text-sm text-charcoal-80 mb-4 whitespace-pre-wrap">{tool.content}</p>
-                  <div className="flex items-center gap-3">
-                    <button className="flex items-center gap-2 text-sm text-slate-blue font-medium hover:text-slate-blue-dark transition-colors">
-                      <Play className="w-4 h-4" /> Start Activity
-                    </button>
-                    {tool.video_url && (
-                      <a href={tool.video_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-slate-blue hover:underline">
-                        <Video className="w-4 h-4" /> Watch
-                      </a>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+        <div className="bg-white rounded-xl p-4 border border-cyan-200 flex items-start gap-3 mb-6">
+          <Info className="w-5 h-5 text-cyan-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-charcoal-80 leading-relaxed">
+            These are invitations &mdash; your child can pause, stop, or skip anytime.
+          </p>
+        </div>
 
-            <div className="mt-8 bg-white rounded-xl p-6 border border-gray-100">
-              <div className="flex items-center gap-2 mb-3">
-                <Star className="w-5 h-5 text-growth-green" />
-                <h3 className="font-bold text-charcoal">Tip for Caregivers</h3>
-              </div>
-              <p className="text-sm text-charcoal-80 leading-relaxed">
-                Practice these tools with your child during calm moments, not only during dysregulation.
-                Children learn regulation best when their nervous system is already in a regulated state.
-                The more they practice when calm, the more accessible these tools become during hard moments.
-              </p>
-            </div>
+        <div className="flex flex-wrap gap-2 mb-6" role="group" aria-label="Filter videos by age">
+          {ageFilters.map((f) => (
+            <button
+              key={f}
+              onClick={() => setAgeFilter(f)}
+              aria-pressed={ageFilter === f}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                ageFilter === f
+                  ? 'bg-cyan-600 text-white'
+                  : 'bg-white text-charcoal-80 border border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
 
-            {scripts.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-xl font-bold font-heading text-charcoal mb-4">De-escalation Scripts</h2>
-                <div className="space-y-3">
-                  {scripts.map((script) => (
-                    <div key={script.id} className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-                      <button
-                        onClick={() => setExpandedScript(expandedScript === script.id ? null : script.id)}
-                        className="w-full flex items-center justify-between p-5 text-left hover:bg-gray-50 transition-colors"
-                      >
-                        <div>
-                          <h4 className="font-bold text-charcoal">{script.title}</h4>
-                          <div className="flex gap-2 mt-1">
-                            {script.situation && <span className="text-xs text-charcoal-70 italic">{script.situation.substring(0, 60)}...</span>}
-                            {script.category && <span className="text-xs bg-cyan-100 text-cyan-700 px-2 py-0.5 rounded-full">{script.category}</span>}
-                            {script.age_group && <span className="text-xs bg-sky-blue-bg text-slate-blue px-2 py-0.5 rounded-full">{script.age_group}</span>}
-                            {script.video_url && <span className="text-xs text-slate-blue flex items-center gap-0.5"><Video className="w-3 h-3" /> Video</span>}
-                          </div>
-                        </div>
-                        {expandedScript === script.id ? <ChevronUp className="w-5 h-5 text-charcoal-70" /> : <ChevronDown className="w-5 h-5 text-charcoal-70" />}
-                      </button>
-                      {expandedScript === script.id && (
-                        <div className="border-t border-gray-100 px-5 pb-5 pt-3">
-                          <div className="bg-gray-50 rounded-lg p-4 border-l-4 border-slate-blue">
-                            <p className="text-sm text-charcoal whitespace-pre-wrap">{script.content}</p>
-                          </div>
-                          {script.video_url && (
-                            <a href={script.video_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 mt-3 text-sm text-slate-blue hover:underline font-medium">
-                              <Video className="w-4 h-4" /> Watch Video
-                            </a>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+        <div className="grid sm:grid-cols-2 gap-5">
+          {visibleVideos.map((video) => (
+            <div key={video.title} className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+              <div className="aspect-video bg-black">
+                <iframe
+                  src={video.embedUrl}
+                  title={`Play ${video.title} video`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
               </div>
-            )}
-          </>
-        )}
+              <div className="p-5">
+                <div className="flex items-start justify-between gap-3 mb-1">
+                  <h3 className="text-lg font-bold font-heading text-charcoal">{video.title}</h3>
+                  <span className="text-xs bg-cyan-100 text-cyan-700 px-2 py-1 rounded-full shrink-0">{video.ageTag}</span>
+                </div>
+                <p className="text-sm text-charcoal-80 leading-relaxed mb-2">{video.description}</p>
+                <p className="text-xs text-charcoal-70">Source: {video.source}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </main>
 
       <SafetyFooter />
