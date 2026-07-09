@@ -150,8 +150,8 @@ export default function DisclaimerGate() {
           </p>
 
           <div className="mt-4 pt-4 border-t border-gray-100 text-center">
-            <Link to="/dashboard" className="text-sm text-charcoal-70 hover:text-slate-blue">
-              Continue without account &rarr;
+            <Link to="/crisis" className="text-sm text-charcoal-70 hover:text-slate-blue">
+              Access free crisis &amp; safety tools &rarr;
             </Link>
           </div>
         </div>

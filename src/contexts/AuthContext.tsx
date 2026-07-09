@@ -16,6 +16,7 @@ interface SubscriptionInfo {
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
+  initializing: boolean
   subscription: SubscriptionInfo
   disclaimerAccepted: boolean
   signIn: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>
@@ -42,16 +43,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [disclaimerAccepted, setDisclaimerAccepted] = useState(() => {
     return localStorage.getItem('disclaimerAccepted') === 'true'
   })
+  const [initializing, setInitializing] = useState<boolean>(
+    () => localStorage.getItem('auth_token') !== null
+  )
 
   // On mount, restore session from stored token
   useEffect(() => {
     const token = localStorage.getItem('auth_token')
+    // initializing starts false when there is no token, so only the
+    // authenticated path needs to flip it once the profile resolves.
     if (token) {
-      fetchProfile(token)
+      fetchProfile(token).finally(() => setInitializing(false))
     }
   }, [])
 
-  async function fetchProfile(token: string) {
+  async function fetchProfile(token: string): Promise<void> {
     try {
       const res = await fetch(`${API_URL}/api/me`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -204,6 +210,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       value={{
         user,
         isAuthenticated: !!user,
+        initializing,
         subscription,
         disclaimerAccepted,
         signIn,
