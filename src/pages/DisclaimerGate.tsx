@@ -1,16 +1,18 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Shield, AlertTriangle, Phone, CheckCircle } from 'lucide-react'
 
 export default function DisclaimerGate() {
   const { acceptDisclaimer, disclaimerAccepted, signIn, register } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
+  const wantsRegister = Boolean((location.state as { register?: boolean } | null)?.register)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [name, setName] = useState('')
   const [showLogin, setShowLogin] = useState(disclaimerAccepted)
-  const [isRegister, setIsRegister] = useState(false)
+  const [isRegister, setIsRegister] = useState(wantsRegister)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
