@@ -5,12 +5,46 @@ import { useAuth } from '../contexts/AuthContext'
 import SafetyFooter from '../components/SafetyFooter'
 
 export default function AccountSettings() {
-  const { user, signOut, subscription, openBillingPortal } = useAuth()
+  const { user, signOut, subscription, openBillingPortal, changePassword } = useAuth()
   const navigate = useNavigate()
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
   const [notifications, setNotifications] = useState(true)
   const [saved, setSaved] = useState(false)
+
+  const [showPasswordForm, setShowPasswordForm] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [pwLoading, setPwLoading] = useState(false)
+  const [pwError, setPwError] = useState('')
+  const [pwSuccess, setPwSuccess] = useState(false)
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setPwError('')
+    setPwSuccess(false)
+    if (newPassword.length < 8) {
+      setPwError('New password must be at least 8 characters')
+      return
+    }
+    if (newPassword !== confirmPassword) {
+      setPwError('New passwords do not match')
+      return
+    }
+    setPwLoading(true)
+    const result = await changePassword(currentPassword, newPassword)
+    setPwLoading(false)
+    if (result.ok) {
+      setPwSuccess(true)
+      setCurrentPassword('')
+      setNewPassword('')
+      setConfirmPassword('')
+      setShowPasswordForm(false)
+    } else {
+      setPwError(result.error || 'Could not change password')
+    }
+  }
 
   const handleSave = () => {
     setSaved(true)
@@ -130,9 +164,80 @@ export default function AccountSettings() {
               <Lock className="w-5 h-5 text-slate-blue" />
               Security
             </h3>
-            <button className="text-sm text-slate-blue font-medium hover:text-slate-blue-dark transition-colors">
-              Change Password
-            </button>
+            {pwSuccess && !showPasswordForm && (
+              <p className="text-sm text-growth-green font-medium mb-2">Password updated.</p>
+            )}
+            {!showPasswordForm ? (
+              <button
+                onClick={() => { setShowPasswordForm(true); setPwSuccess(false) }}
+                className="text-sm text-slate-blue font-medium hover:text-slate-blue-dark transition-colors"
+              >
+                Change Password
+              </button>
+            ) : (
+              <form onSubmit={handleChangePassword} className="space-y-3">
+                {pwError && (
+                  <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                    {pwError}
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-charcoal mb-1">Current password</label>
+                  <input
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-charcoal mb-1">New password</label>
+                  <input
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    required
+                    minLength={8}
+                  />
+                  <p className="text-xs text-charcoal-70 mt-1">Minimum 8 characters</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-charcoal mb-1">Confirm new password</label>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    required
+                    minLength={8}
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="submit"
+                    disabled={pwLoading}
+                    className="bg-slate-blue text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50"
+                  >
+                    {pwLoading ? 'Updating...' : 'Update Password'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPasswordForm(false)
+                      setPwError('')
+                      setCurrentPassword('')
+                      setNewPassword('')
+                      setConfirmPassword('')
+                    }}
+                    className="text-sm text-charcoal-70 hover:text-charcoal font-medium"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
 
           {/* Disclaimer */}

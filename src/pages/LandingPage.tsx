@@ -111,10 +111,10 @@ export default function LandingPage() {
               Sign In
             </button>
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/disclaimer', { state: { register: true } })}
               className="bg-slate-blue text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors"
             >
-              Open App
+              Sign Up
             </button>
           </div>
         </div>
@@ -138,10 +138,10 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap gap-4 mb-8">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/disclaimer', { state: { register: true } })}
               className="inline-flex items-center gap-2 bg-slate-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors"
             >
-              Open App <ArrowRight className="w-4 h-4" />
+              Sign Up <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => navigate('/disclaimer')}
@@ -265,10 +265,10 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <button
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/disclaimer', { state: { register: true } })}
               className="inline-flex items-center gap-2 bg-slate-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors"
             >
-              Open App <ArrowRight className="w-4 h-4" />
+              Sign Up <ArrowRight className="w-4 h-4" />
             </button>
             <button
               onClick={() => navigate('/disclaimer')}

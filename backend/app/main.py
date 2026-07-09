@@ -1,4 +1,5 @@
 import os
+import secrets
 import traceback
 
 from fastapi import FastAPI, HTTPException, Depends, Header, Request
@@ -146,6 +147,11 @@ class LoginRequest(BaseModel):
     password: str
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
@@ -285,6 +291,34 @@ def get_profile(current_user: dict = Depends(get_current_user)) -> UserResponse:
         raise HTTPException(status_code=404, detail="User not found")
 
     return UserResponse(id=user["id"], name=user["name"], email=user["email"])
+
+
+@app.post("/api/me/change-password", response_model=MessageResponse)
+def change_password(
+    body: ChangePasswordRequest, current_user: dict = Depends(get_current_user)
+) -> MessageResponse:
+    """Change the current user's password. Requires the current password."""
+    if len(body.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+
+    user_id = int(current_user["sub"])
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT password_hash, salt FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        if not verify_password(body.current_password, user["salt"], user["password_hash"]):
+            raise HTTPException(status_code=401, detail="Current password is incorrect")
+
+        salt = generate_salt()
+        password_hash = hash_password(body.new_password, salt)
+        conn.execute(
+            "UPDATE users SET password_hash = ?, salt = ? WHERE id = ?",
+            (password_hash, salt, user_id),
+        )
+        conn.commit()
+    return MessageResponse(message="Password updated")
 
 
 @app.get("/api/me/admin-status")
@@ -444,6 +478,30 @@ def grant_access(email: str, current_user: dict = Depends(require_admin)) -> Mes
         )
         conn.commit()
     return MessageResponse(message=f"Access granted to {email}")
+
+
+@app.post("/api/admin/reset-password")
+def admin_reset_password(email: str, current_user: dict = Depends(require_admin)) -> dict:
+    """Reset a user's password to a generated temporary password (admin only).
+
+    Returns the temporary password once so the admin can hand it to the user,
+    who can then change it from Account settings.
+    """
+    temporary_password = secrets.token_urlsafe(9)
+    salt = generate_salt()
+    password_hash = hash_password(temporary_password, salt)
+    with get_db() as conn:
+        result = conn.execute(
+            "UPDATE users SET password_hash = ?, salt = ? WHERE email = ?",
+            (password_hash, salt, email),
+        )
+        conn.commit()
+    if result.rowcount == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {
+        "message": f"Password reset for {email}",
+        "temporary_password": temporary_password,
+    }
 
 
 @app.post("/api/admin/revoke-access")

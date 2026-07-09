@@ -516,6 +516,7 @@ function UsersTab() {
   const [loading, setLoading] = useState(true)
   const [actionEmail, setActionEmail] = useState('')
   const [actionMsg, setActionMsg] = useState('')
+  const [tempPassword, setTempPassword] = useState('')
 
   useEffect(() => {
     apiGet('/api/admin/users').then(setUsers).catch(() => {}).finally(() => setLoading(false))
@@ -541,6 +542,17 @@ function UsersTab() {
     } catch { setActionMsg('Failed') }
   }
 
+  async function resetPassword() {
+    if (!actionEmail) return
+    setTempPassword('')
+    try {
+      const res = await apiPost(`/api/admin/reset-password?email=${encodeURIComponent(actionEmail)}`)
+      setActionMsg(`Temporary password created for ${actionEmail}. Share it securely; the user can change it from Account Settings.`)
+      setTempPassword(res.temporary_password || '')
+      setActionEmail('')
+    } catch { setActionMsg('Failed to reset password (is the email correct?)') }
+  }
+
   return (
     <div>
       <h3 className="text-lg font-bold text-charcoal mb-4">User Access Management</h3>
@@ -551,9 +563,16 @@ function UsersTab() {
           className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none" />
         <button onClick={grantAccess} className="px-4 py-2 bg-growth-green text-white rounded-lg text-sm font-medium hover:bg-growth-green/90">Grant Access</button>
         <button onClick={revokeAccess} className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600">Revoke Access</button>
+        <button onClick={resetPassword} className="px-4 py-2 bg-slate-blue text-white rounded-lg text-sm font-medium hover:bg-slate-blue-dark">Reset Password</button>
       </div>
 
       {actionMsg && <p className="text-sm text-growth-green mb-4">{actionMsg}</p>}
+      {tempPassword && (
+        <div className="mb-4 p-3 bg-sky-blue-bg border border-slate-blue/20 rounded-lg">
+          <p className="text-sm text-charcoal mb-1">Temporary password (shown once):</p>
+          <code className="text-sm font-mono font-semibold text-slate-blue break-all">{tempPassword}</code>
+        </div>
+      )}
 
       {loading ? <p className="text-sm text-charcoal-70">Loading...</p> : (
         <div className="overflow-x-auto">
