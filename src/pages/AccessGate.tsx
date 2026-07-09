@@ -101,10 +101,10 @@ export default function AccessGate() {
 
           <div className="mt-6 pt-4 border-t border-gray-100">
             <Link
-              to="/dashboard"
+              to="/crisis"
               className="text-sm text-charcoal-70 hover:text-slate-blue inline-flex items-center gap-1"
             >
-              Access free First Aid tools <ArrowRight className="w-3 h-3" />
+              Access free crisis &amp; safety tools <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
         </div>

@@ -23,33 +23,40 @@ import TermsOfService from './pages/TermsOfService'
 import AccessGate from './pages/AccessGate'
 import AdminDashboard from './pages/AdminDashboard'
 import NotFound from './pages/NotFound'
+import ProtectedRoute from './components/ProtectedRoute'
 
 export default function App() {
   return (
     <AuthProvider>
       <Routes>
+        {/* Public: landing, gates, legal, and safety-critical crisis pages */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/disclaimer" element={<DisclaimerGate />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/access-gate" element={<AccessGate />} />
         <Route path="/crisis" element={<CrisisMode />} />
-        <Route path="/kids-regulation" element={<KidsRegulationTools />} />
-        <Route path="/try-again" element={<TryAgainTool />} />
-        <Route path="/regulate-me" element={<RegulateMeNow />} />
-        <Route path="/caregiver-support" element={<CaregiverSupport />} />
-        <Route path="/scripts" element={<ScriptsLibrary />} />
-        <Route path="/learning" element={<LearningLibrary />} />
-        <Route path="/learning/:categorySlug" element={<LearningCategory />} />
-        <Route path="/learning/:categorySlug/:articleSlug" element={<LearningArticle />} />
-        <Route path="/growth-tracker" element={<GrowthTracker />} />
-        <Route path="/family-plan" element={<FamilyPlan />} />
         <Route path="/safety-resources" element={<SafetyResources />} />
         <Route path="/mandated-reporter-guide" element={<MandatedReporterGuide />} />
-        <Route path="/printables" element={<PrintablesVault />} />
-        <Route path="/access-gate" element={<AccessGate />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/account" element={<AccountSettings />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+
+        {/* Requires sign-in + active subscription */}
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/kids-regulation" element={<ProtectedRoute><KidsRegulationTools /></ProtectedRoute>} />
+        <Route path="/try-again" element={<ProtectedRoute><TryAgainTool /></ProtectedRoute>} />
+        <Route path="/regulate-me" element={<ProtectedRoute><RegulateMeNow /></ProtectedRoute>} />
+        <Route path="/caregiver-support" element={<ProtectedRoute><CaregiverSupport /></ProtectedRoute>} />
+        <Route path="/scripts" element={<ProtectedRoute><ScriptsLibrary /></ProtectedRoute>} />
+        <Route path="/learning" element={<ProtectedRoute><LearningLibrary /></ProtectedRoute>} />
+        <Route path="/learning/:categorySlug" element={<ProtectedRoute><LearningCategory /></ProtectedRoute>} />
+        <Route path="/learning/:categorySlug/:articleSlug" element={<ProtectedRoute><LearningArticle /></ProtectedRoute>} />
+        <Route path="/growth-tracker" element={<ProtectedRoute><GrowthTracker /></ProtectedRoute>} />
+        <Route path="/family-plan" element={<ProtectedRoute><FamilyPlan /></ProtectedRoute>} />
+        <Route path="/printables" element={<ProtectedRoute><PrintablesVault /></ProtectedRoute>} />
+
+        {/* Requires sign-in only (billing management stays reachable if a subscription lapses) */}
+        <Route path="/account" element={<ProtectedRoute requireSubscription={false}><AccountSettings /></ProtectedRoute>} />
+        <Route path="/admin" element={<AdminDashboard />} />
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </AuthProvider>
