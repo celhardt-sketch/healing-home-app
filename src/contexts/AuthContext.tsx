@@ -25,6 +25,7 @@ interface AuthContextType {
   signOut: () => void
   acceptDisclaimer: () => void
   checkSubscription: () => Promise<void>
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>
   createCheckoutSession: () => Promise<string | null>
   openBillingPortal: () => Promise<string | null>
 }
@@ -98,6 +99,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = localStorage.getItem('auth_token')
     if (token) {
       await checkSubscriptionWithToken(token)
+    }
+  }
+
+  const changePassword = async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ ok: boolean; error?: string }> => {
+    const token = localStorage.getItem('auth_token')
+    if (!token) return { ok: false, error: 'You must be signed in' }
+    try {
+      const res = await fetch(`${API_URL}/api/me/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ current_password: currentPassword, new_password: newPassword }),
+      })
+      if (res.ok) return { ok: true }
+      const err = await res.json()
+      return { ok: false, error: err.detail || 'Could not change password' }
+    } catch {
+      return { ok: false, error: 'Network error — please check your connection' }
     }
   }
 
@@ -219,6 +243,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         signOut,
         acceptDisclaimer,
         checkSubscription,
+        changePassword,
         createCheckoutSession,
         openBillingPortal,
       }}
