@@ -11,6 +11,7 @@ interface User {
 interface SubscriptionInfo {
   status: string
   has_access: boolean
+  is_admin?: boolean
 }
 
 interface AuthContextType {
@@ -65,8 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json()
         setUser(data)
-        // Background check subscription status
-        checkSubscriptionWithToken(token)
+        // Resolve subscription/access before callers navigate into guarded routes
+        await checkSubscriptionWithToken(token)
       } else {
         localStorage.removeItem('auth_token')
       }

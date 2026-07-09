@@ -174,18 +174,21 @@ def get_user_subscription_status(user_id: int) -> dict:
     """Get the subscription status for a user."""
     with get_db() as conn:
         user = conn.execute(
-            "SELECT subscription_status, stripe_customer_id FROM users WHERE id = ?",
+            "SELECT subscription_status, stripe_customer_id, is_admin FROM users WHERE id = ?",
             (user_id,),
         ).fetchone()
 
     if not user:
-        return {"status": "none", "has_access": False}
+        return {"status": "none", "has_access": False, "is_admin": False}
 
     status = user["subscription_status"] or "none"
-    has_access = status in ("active", "trialing")
+    is_admin = bool(user["is_admin"])
+    # Admins always have full access and are never billed.
+    has_access = is_admin or status in ("active", "trialing")
 
     return {
         "status": status,
         "has_access": has_access,
+        "is_admin": is_admin,
         "stripe_customer_id": user["stripe_customer_id"],
     }
