@@ -19,7 +19,7 @@
       // this unregisters old SWs that don't have skipWaiting, reloads once,
       // and the new SW (with skipWaiting+clientsClaim) takes over cleanly.
       (function () {
-        var SW_VERSION = '5';
+        var SW_VERSION = '6';
         if (!('serviceWorker' in navigator)) return;
         var stored = localStorage.getItem('sw_version');
         if (stored === SW_VERSION) return;
