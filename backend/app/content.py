@@ -65,6 +65,8 @@ def init_content_tables() -> None:
                 category TEXT,
                 age_group TEXT,
                 author TEXT,
+                key_takeaways TEXT,
+                further_reading TEXT,
                 video_url TEXT,
                 sort_order INTEGER DEFAULT 0,
                 active INTEGER DEFAULT 1,
@@ -122,7 +124,7 @@ def init_content_tables() -> None:
 
 
 def _migrate_content_tables() -> None:
-    """Add video_url column to existing content tables if missing."""
+    """Add columns to existing content tables if missing."""
     tables_needing_video = ["articles", "scripts", "first_aid_cards"]
     with get_db() as conn:
         for table in tables_needing_video:
@@ -130,6 +132,13 @@ def _migrate_content_tables() -> None:
             existing_cols = {row[1] for row in cursor.fetchall()}
             if "video_url" not in existing_cols:
                 conn.execute(f"ALTER TABLE {table} ADD COLUMN video_url TEXT")
+
+        cursor = conn.execute("PRAGMA table_info(articles)")
+        article_cols = {row[1] for row in cursor.fetchall()}
+        if "key_takeaways" not in article_cols:
+            conn.execute("ALTER TABLE articles ADD COLUMN key_takeaways TEXT")
+        if "further_reading" not in article_cols:
+            conn.execute("ALTER TABLE articles ADD COLUMN further_reading TEXT")
         conn.commit()
 
 

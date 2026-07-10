@@ -186,12 +186,13 @@ const scriptFields: FieldDef[] = [
 
 const articleFields: FieldDef[] = [
   { name: 'title', label: 'Title', type: 'text', required: true },
-  { name: 'content', label: 'Article Content', type: 'textarea', required: true, placeholder: 'Full article text...' },
-  { name: 'summary', label: 'Summary', type: 'text', placeholder: 'Brief description shown in list view' },
-  { name: 'category', label: 'Category', type: 'text', placeholder: 'e.g., Attachment, Regulation, Trauma' },
-  { name: 'age_group', label: 'Age Group', type: 'select', options: ['All Ages', 'Early Childhood', 'Middle Childhood', 'Pre-Adolescence', 'Adolescence'] },
+  { name: 'summary', label: 'Summary / Preview', type: 'text', placeholder: 'One-line description shown in the category list' },
+  { name: 'key_takeaways', label: 'Key Takeaways (one per line)', type: 'textarea', placeholder: 'Each line becomes a bullet in the Key Takeaways box at the top of the article.' },
+  { name: 'content', label: 'Article Content', type: 'textarea', required: true, placeholder: 'Full article text. Use "## Heading" for section headings and "- " at the start of a line for bullet points. Wrap text in **stars** for bold and *stars* for italic.' },
+  { name: 'further_reading', label: 'References & Further Reading (one per line)', type: 'textarea', placeholder: 'Each line becomes an entry in the collapsible References list at the bottom.' },
+  { name: 'category', label: 'Category', type: 'text', placeholder: 'e.g., Regulation & Brain, Attachment, Caregiver Strength' },
+  { name: 'age_group', label: 'Age Group', type: 'select', options: ['All Ages', 'Ages 4-6', 'Ages 7-10', 'Ages 11-13', 'Ages 14-18'] },
   { name: 'author', label: 'Author', type: 'text' },
-  { name: 'video_url', label: 'Video Link (YouTube or MP4 URL)', type: 'text', placeholder: 'https://youtube.com/watch?v=...' },
   { name: 'sort_order', label: 'Sort Order', type: 'number' },
   { name: 'active', label: 'Active (visible to users)', type: 'checkbox' },
 ]

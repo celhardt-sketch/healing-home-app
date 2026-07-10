@@ -3,20 +3,33 @@ import { Link, useParams, Navigate } from 'react-router-dom'
 import { ArrowLeft, BookOpen, Clock, ChevronDown, ChevronUp, ArrowRight, Sparkles } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
 import RichText from '../components/RichText'
-import { learningCategories } from '../data/learningArticles'
+import ArticleBody from '../components/ArticleBody'
+import { useArticles, readingMinutes, slugify, splitLines } from '../lib/learning'
 
 export default function LearningArticle() {
   const { categorySlug, articleSlug } = useParams<{ categorySlug: string; articleSlug: string }>()
+  const { categories, loading } = useArticles()
   const [refsOpen, setRefsOpen] = useState(false)
 
-  const category = learningCategories.find((c) => c.slug === categorySlug)
-  const article = category?.articles.find((a) => a.slug === articleSlug)
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-charcoal-70">
+        Loading…
+      </div>
+    )
+  }
+
+  const category = categories.find((c) => c.slug === categorySlug)
+  const article = category?.articles.find((a) => slugify(a.title) === articleSlug)
 
   if (!category || !article) {
     return <Navigate to="/learning" replace />
   }
 
-  const idx = category.articles.findIndex((a) => a.slug === article.slug)
+  const takeaways = splitLines(article.key_takeaways)
+  const references = splitLines(article.further_reading)
+
+  const idx = category.articles.findIndex((a) => a.id === article.id)
   const nextArticle = idx >= 0 && idx < category.articles.length - 1 ? category.articles[idx + 1] : null
 
   return (
@@ -37,58 +50,33 @@ export default function LearningArticle() {
         <article>
           <h1 className="text-3xl font-bold font-heading text-charcoal leading-tight">{article.title}</h1>
           <div className="flex flex-wrap items-center gap-3 mt-3 text-sm text-charcoal-70">
-            <span>By {article.author}</span>
-            <span className="bg-sky-blue-bg text-slate-blue px-2 py-0.5 rounded-full text-xs">{article.ageTag}</span>
-            <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {article.readingMinutes} min read</span>
+            {article.author && <span>By {article.author}</span>}
+            {article.age_group && <span className="bg-sky-blue-bg text-slate-blue px-2 py-0.5 rounded-full text-xs">{article.age_group}</span>}
+            <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {readingMinutes(article.content)} min read</span>
           </div>
 
           {/* Key Takeaways strip */}
-          <div className="bg-white rounded-xl border border-healing-purple/20 shadow-sm p-5 mt-6">
-            <h2 className="text-sm font-semibold text-healing-purple flex items-center gap-2 mb-3">
-              <Sparkles className="w-4 h-4" /> Key Takeaways
-            </h2>
-            <ul className="space-y-2">
-              {article.keyTakeaways.map((tk, i) => (
-                <li key={i} className="text-sm text-charcoal-80 leading-relaxed flex items-start gap-2">
-                  <span className="text-healing-purple mt-1.5 w-1.5 h-1.5 rounded-full bg-healing-purple shrink-0" />
-                  <span><RichText text={tk} /></span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {takeaways.length > 0 && (
+            <div className="bg-white rounded-xl border border-healing-purple/20 shadow-sm p-5 mt-6">
+              <h2 className="text-sm font-semibold text-healing-purple flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4" /> Key Takeaways
+              </h2>
+              <ul className="space-y-2">
+                {takeaways.map((tk, i) => (
+                  <li key={i} className="text-sm text-charcoal-80 leading-relaxed flex items-start gap-2">
+                    <span className="text-healing-purple mt-1.5 w-1.5 h-1.5 rounded-full bg-healing-purple shrink-0" />
+                    <span><RichText text={tk} /></span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Body */}
-          <div className="mt-8 space-y-5">
-            {article.body.map((block, i) => {
-              if (block.type === 'h3') {
-                return (
-                  <h3 key={i} className="text-xl font-bold font-heading text-charcoal pt-2">
-                    {block.text}
-                  </h3>
-                )
-              }
-              if (block.type === 'ul') {
-                return (
-                  <ul key={i} className="space-y-2 pl-1">
-                    {(block.items ?? []).map((item, j) => (
-                      <li key={j} className="text-[17px] text-charcoal-80 leading-relaxed flex items-start gap-2.5">
-                        <span className="text-growth-green mt-2.5 w-1.5 h-1.5 rounded-full bg-growth-green shrink-0" />
-                        <span><RichText text={item} /></span>
-                      </li>
-                    ))}
-                  </ul>
-                )
-              }
-              return (
-                <p key={i} className="text-[17px] text-charcoal-80 leading-[1.75]">
-                  <RichText text={block.text ?? ''} />
-                </p>
-              )
-            })}
-          </div>
+          <ArticleBody content={article.content} />
 
           {/* References & Further Reading (accessible, collapsible) */}
-          {article.references.length > 0 && (
+          {references.length > 0 && (
             <div className="mt-10 bg-white rounded-xl border border-gray-100 overflow-hidden">
               <button
                 onClick={() => setRefsOpen((o) => !o)}
@@ -100,7 +88,7 @@ export default function LearningArticle() {
               </button>
               {refsOpen && (
                 <ul className="border-t border-gray-100 px-6 py-4 space-y-2 list-disc pl-9">
-                  {article.references.map((ref, i) => (
+                  {references.map((ref, i) => (
                     <li key={i} className="text-sm text-charcoal-80 leading-relaxed">
                       <RichText text={ref} />
                     </li>
@@ -113,7 +101,7 @@ export default function LearningArticle() {
 
         {nextArticle && (
           <Link
-            to={`/learning/${category.slug}/${nextArticle.slug}`}
+            to={`/learning/${category.slug}/${slugify(nextArticle.title)}`}
             className="mt-8 flex items-center justify-between gap-3 bg-white rounded-xl border border-gray-100 p-5 hover:shadow-md transition-shadow group"
           >
             <div>
