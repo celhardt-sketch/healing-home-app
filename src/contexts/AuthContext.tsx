@@ -55,9 +55,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // initializing starts false when there is no token, so only the
     // authenticated path needs to flip it once the profile resolves.
     if (token) {
-      fetchProfile(token).finally(() => setInitializing(false))
+      const sessionId = new URLSearchParams(window.location.search).get('session_id')
+      fetchProfile(token)
+        .then(() => (sessionId ? confirmCheckoutWithToken(token, sessionId) : undefined))
+        .finally(() => setInitializing(false))
     }
   }, [])
+
+  // Verify a completed Stripe checkout directly, so access does not depend on
+  // the webhook arriving first. Retries briefly while Stripe finishes the session.
+  async function confirmCheckoutWithToken(token: string, sessionId: string) {
+    for (let attempt = 0; attempt < 4; attempt++) {
+      try {
+        const res = await fetch(`${API_URL}/api/subscription/confirm`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ session_id: sessionId }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          setSubscription(data)
+          localStorage.setItem('subscription_access', data.has_access ? 'true' : 'false')
+          localStorage.setItem('subscription_status', data.status)
+          if (data.has_access) break
+        }
+      } catch {
+        // Network error — fall through to retry, then rely on cached status.
+      }
+      await new Promise((r) => setTimeout(r, 1500))
+    }
+  }
 
   async function fetchProfile(token: string): Promise<void> {
     try {
@@ -137,7 +167,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          success_url: `${window.location.origin}/dashboard?subscription=success`,
+          success_url: `${window.location.origin}/dashboard?subscription=success&session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${window.location.origin}/access-gate?subscription=canceled`,
         }),
       })
