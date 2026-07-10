@@ -5,6 +5,7 @@ Only seeds tables that are empty — won't overwrite user edits.
 """
 
 from .database import get_db
+from .article_seed_data import ARTICLES_V2
 
 
 def seed_all_content() -> None:
@@ -13,9 +14,44 @@ def seed_all_content() -> None:
     _reseed_scripts_v2()
     _seed_scripts()
     _seed_articles()
+    _reseed_articles_v2()
     _seed_crisis_steps()
     _seed_try_again_steps()
     _seed_pages()
+
+
+def _reseed_articles_v2() -> None:
+    """Upgrade Learning Library articles to rich, DB-driven content.
+
+    Adds Key Takeaways, References, and structured (markdown) body to the
+    existing seeded articles so they render fully from the database and are
+    editable from the admin dashboard. Runs once: skipped after any article
+    has key_takeaways populated, which preserves later admin edits.
+    """
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT COUNT(*) AS c FROM articles "
+            "WHERE key_takeaways IS NOT NULL AND key_takeaways != ''"
+        ).fetchone()
+        if row["c"] > 0:
+            return
+
+        # Articles were never editable before this upgrade, so the existing rows
+        # are seed-only. Replace them wholesale with the rich versions.
+        conn.execute("DELETE FROM articles")
+        for a in ARTICLES_V2:
+            conn.execute(
+                """INSERT INTO articles
+                   (title, content, summary, category, age_group, author,
+                    key_takeaways, further_reading, sort_order, active)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)""",
+                (
+                    a["title"], a["content"], a["summary"], a["category"],
+                    a["age_group"], a["author"], a["key_takeaways"],
+                    a["further_reading"], a["sort_order"],
+                ),
+            )
+        conn.commit()
 
 
 def _table_is_empty(table: str) -> bool:
