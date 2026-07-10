@@ -15,6 +15,7 @@ def seed_all_content() -> None:
     _seed_scripts()
     _seed_articles()
     _reseed_articles_v2()
+    _reseed_articles_v3_no_emdash()
     _seed_crisis_steps()
     _seed_try_again_steps()
     _seed_pages()
@@ -49,6 +50,40 @@ def _reseed_articles_v2() -> None:
                     a["title"], a["content"], a["summary"], a["category"],
                     a["age_group"], a["author"], a["key_takeaways"],
                     a["further_reading"], a["sort_order"],
+                ),
+            )
+        conn.commit()
+
+
+def _reseed_articles_v3_no_emdash() -> None:
+    """Replace em dashes in Learning Library articles with natural punctuation.
+
+    The earlier reseed ran once, so cleaning the source file alone does not touch
+    rows already in the database. This applies the cleaned content per row, but
+    only to rows that still contain an em dash, so any later admin edits without
+    em dashes are left untouched. Idempotent: once no article contains an em dash,
+    this does nothing.
+    """
+    fields = ("content", "summary", "key_takeaways", "further_reading")
+    with get_db() as conn:
+        for a in ARTICLES_V2:
+            existing = conn.execute(
+                "SELECT id, content, summary, key_takeaways, further_reading "
+                "FROM articles WHERE title = ?",
+                (a["title"],),
+            ).fetchone()
+            if not existing:
+                continue
+            has_emdash = any("\u2014" in (existing[f] or "") for f in fields)
+            if not has_emdash:
+                continue
+            conn.execute(
+                """UPDATE articles
+                   SET content = ?, summary = ?, key_takeaways = ?, further_reading = ?
+                   WHERE id = ?""",
+                (
+                    a["content"], a["summary"], a["key_takeaways"],
+                    a["further_reading"], existing["id"],
                 ),
             )
         conn.commit()
