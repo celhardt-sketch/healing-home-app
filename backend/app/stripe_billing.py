@@ -170,6 +170,51 @@ def _handle_payment_failed(invoice: dict) -> None:
         conn.commit()
 
 
+def confirm_checkout_session(session_id: str, user_id: int, user_email: str) -> dict:
+    """
+    Verify a completed Checkout Session directly with Stripe and grant access.
+
+    This does not depend on the asynchronous webhook: after the user returns from
+    hosted checkout we retrieve the session, confirm it is paid and belongs to this
+    user, and activate their subscription immediately. Idempotent with the webhook.
+    """
+    init_stripe()
+
+    session = stripe.checkout.Session.retrieve(session_id)
+
+    metadata_user_id = (session.get("metadata") or {}).get("user_id")
+    session_email = session.get("customer_email") or (session.get("customer_details") or {}).get("email")
+
+    owns_session = (
+        (metadata_user_id and str(metadata_user_id) == str(user_id))
+        or (session_email and user_email and session_email.lower() == user_email.lower())
+    )
+    if not owns_session:
+        raise ValueError("Checkout session does not belong to the current user.")
+
+    paid = session.get("payment_status") == "paid" or session.get("status") == "complete"
+    if not paid:
+        # Not paid yet — leave status unchanged so the caller can retry/poll.
+        return get_user_subscription_status(user_id)
+
+    customer_id = session.get("customer")
+    subscription_id = session.get("subscription")
+
+    with get_db() as conn:
+        conn.execute(
+            """UPDATE users
+               SET stripe_customer_id = COALESCE(?, stripe_customer_id),
+                   stripe_subscription_id = COALESCE(?, stripe_subscription_id),
+                   subscription_status = 'active',
+                   subscription_updated_at = ?
+               WHERE id = ?""",
+            (customer_id, subscription_id, datetime.now(timezone.utc).isoformat(), user_id),
+        )
+        conn.commit()
+
+    return get_user_subscription_status(user_id)
+
+
 def get_user_subscription_status(user_id: int) -> dict:
     """Get the subscription status for a user."""
     with get_db() as conn:

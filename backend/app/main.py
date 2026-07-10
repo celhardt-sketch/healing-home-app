@@ -23,6 +23,7 @@ from .stripe_billing import (
     create_billing_portal_session,
     handle_webhook_event,
     get_user_subscription_status,
+    confirm_checkout_session,
 )
 from .content import (
     init_content_tables,
@@ -395,11 +396,32 @@ class BillingPortalRequest(BaseModel):
     return_url: str
 
 
+class ConfirmCheckoutRequest(BaseModel):
+    session_id: str
+
+
 @app.get("/api/subscription/status")
 def subscription_status(current_user: dict = Depends(get_current_user)) -> dict:
     """Get the current user's subscription status."""
     user_id = int(current_user["sub"])
     return get_user_subscription_status(user_id)
+
+
+@app.post("/api/subscription/confirm")
+def confirm_subscription(body: ConfirmCheckoutRequest, current_user: dict = Depends(get_current_user)) -> dict:
+    """Verify a completed checkout session with Stripe and grant access immediately.
+
+    Used on return from hosted checkout so access does not depend on the webhook."""
+    user_id = int(current_user["sub"])
+    email = current_user["email"]
+    try:
+        return confirm_checkout_session(body.session_id, user_id, email)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Confirmation error: {str(e)}")
 
 
 @app.post("/api/subscription/checkout")
