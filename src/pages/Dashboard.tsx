@@ -3,15 +3,36 @@ import { Link, useSearchParams } from 'react-router-dom'
 import {
   Shield, BookOpen, Heart, Users,
   AlertTriangle, Sparkles, TrendingUp,
-  Settings, RefreshCw, Brain, FileText, Printer
+  Settings, RefreshCw, Brain, FileText, Printer,
+  ChevronDown,
 } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import SafetyFooter from '../components/SafetyFooter'
 import InstallAppModal from '../components/InstallAppModal'
 
-const dashboardSections = [
+interface DashboardCard {
+  title: string
+  description: string
+  icon: LucideIcon
+  href: string
+  gradient: string
+}
+
+interface DashboardSection {
+  section: string
+  blurb: string
+  icon: LucideIcon
+  gradient: string
+  cards: DashboardCard[]
+}
+
+const dashboardSections: DashboardSection[] = [
   {
     section: 'In the moment',
+    blurb: 'Right-now tools for hard moments',
+    icon: AlertTriangle,
+    gradient: 'from-red-500 to-orange-500',
     cards: [
       {
         title: 'First Aid for Big Feelings & Behaviors',
@@ -45,6 +66,9 @@ const dashboardSections = [
   },
   {
     section: 'Plan & track',
+    blurb: 'Profiles and progress for each child',
+    icon: Users,
+    gradient: 'from-sky-blue to-slate-blue',
     cards: [
       {
         title: 'My Family Plan',
@@ -64,6 +88,9 @@ const dashboardSections = [
   },
   {
     section: 'Learn',
+    blurb: 'Articles, videos, and printables',
+    icon: BookOpen,
+    gradient: 'from-healing-purple to-healing-purple-dark',
     cards: [
       {
         title: 'Learning Library',
@@ -83,6 +110,9 @@ const dashboardSections = [
   },
   {
     section: 'You',
+    blurb: 'Care and regulation for you',
+    icon: Heart,
+    gradient: 'from-healing-purple to-healing-purple-dark',
     cards: [
       {
         title: 'Caregiver Support',
@@ -95,6 +125,9 @@ const dashboardSections = [
   },
   {
     section: 'Safety',
+    blurb: 'Reporting and emergency resources',
+    icon: Shield,
+    gradient: 'from-amber-500 to-red-500',
     cards: [
       {
         title: 'Mandated Reporter Guide',
@@ -118,6 +151,11 @@ export default function Dashboard() {
   const [searchParams, setSearchParams] = useSearchParams()
   // Show the install card only after a successful Stripe payment (return from checkout).
   const [showInstall, setShowInstall] = useState(() => searchParams.get('subscription') === 'success')
+  // Accordion: sections are collapsed on open; tapping one reveals its tools.
+  const [openSection, setOpenSection] = useState<string | null>(null)
+
+  const toggleSection = (name: string) =>
+    setOpenSection((current) => (current === name ? null : name))
 
   // Strip the checkout query params so the card doesn't reappear on refresh.
   useEffect(() => {
@@ -148,32 +186,53 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Dashboard Cards, grouped so an exhausted caregiver finds the right one at a glance */}
-        <div className="space-y-8 mb-8">
-          {dashboardSections.map((group) => (
-            <section key={group.section} aria-label={group.section}>
-              <h3 className="text-xs font-bold uppercase tracking-[0.08em] text-charcoal-70 mb-3">
-                {group.section}
-              </h3>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {group.cards.map((card) => (
-                  <Link
-                    key={card.title}
-                    to={card.href}
-                    className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow group"
-                  >
-                    <div className={`w-12 h-12 bg-gradient-to-r ${card.gradient} rounded-xl flex items-center justify-center mb-4`}>
-                      <card.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <h4 className="text-lg font-bold font-heading text-charcoal group-hover:text-slate-blue transition-colors mb-1">
-                      {card.title}
-                    </h4>
-                    <p className="text-sm text-charcoal-80">{card.description}</p>
-                  </Link>
-                ))}
-              </div>
-            </section>
-          ))}
+        {/* Five collapsible sections — tap a button to reveal its tools. */}
+        <div className="space-y-4 mb-8 max-w-3xl">
+          {dashboardSections.map((group) => {
+            const isOpen = openSection === group.section
+            const panelId = `section-panel-${group.section.replace(/\s+/g, '-').toLowerCase()}`
+            return (
+              <section key={group.section}>
+                <button
+                  onClick={() => toggleSection(group.section)}
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
+                  className="w-full flex items-center gap-4 bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow text-left"
+                >
+                  <div className={`w-14 h-14 bg-gradient-to-r ${group.gradient} rounded-2xl flex items-center justify-center shrink-0`}>
+                    <group.icon className="w-7 h-7 text-white" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xl font-bold font-heading text-charcoal">{group.section}</h3>
+                    <p className="text-sm text-charcoal-80 truncate">{group.blurb}</p>
+                  </div>
+                  <ChevronDown
+                    className={`w-6 h-6 text-charcoal-70 shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                  />
+                </button>
+
+                {isOpen && (
+                  <div id={panelId} className="grid sm:grid-cols-2 gap-4 mt-4 px-1">
+                    {group.cards.map((card) => (
+                      <Link
+                        key={card.title}
+                        to={card.href}
+                        className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow group"
+                      >
+                        <div className={`w-12 h-12 bg-gradient-to-r ${card.gradient} rounded-xl flex items-center justify-center mb-4`}>
+                          <card.icon className="w-6 h-6 text-white" />
+                        </div>
+                        <h4 className="text-lg font-bold font-heading text-charcoal group-hover:text-slate-blue transition-colors mb-1">
+                          {card.title}
+                        </h4>
+                        <p className="text-sm text-charcoal-80">{card.description}</p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </section>
+            )
+          })}
         </div>
 
         {/* Account */}
