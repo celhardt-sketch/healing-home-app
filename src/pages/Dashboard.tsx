@@ -17,6 +17,8 @@ interface DashboardCard {
   icon: LucideIcon
   href: string
   gradient: string
+  // 'dark' renders the icon in charcoal for contrast on light (yellow) chips.
+  iconTone?: 'light' | 'dark'
 }
 
 interface DashboardSection {
@@ -24,6 +26,7 @@ interface DashboardSection {
   blurb: string
   icon: LucideIcon
   gradient: string
+  iconTone?: 'light' | 'dark'
   cards: DashboardCard[]
 }
 
@@ -32,14 +35,16 @@ const dashboardSections: DashboardSection[] = [
     section: 'In the moment',
     blurb: 'Right-now tools for hard moments',
     icon: AlertTriangle,
-    gradient: 'from-red-500 to-orange-500',
+    gradient: 'from-yellow-400 to-amber-500',
+    iconTone: 'dark',
     cards: [
       {
         title: 'First Aid for Big Feelings & Behaviors',
         description: 'Immediate support for challenging moments with age-appropriate guidance',
         icon: AlertTriangle,
         href: '/crisis',
-        gradient: 'from-red-500 to-orange-500',
+        gradient: 'from-yellow-400 to-amber-500',
+        iconTone: 'dark',
       },
       {
         title: 'Scripts Library',
@@ -112,7 +117,7 @@ const dashboardSections: DashboardSection[] = [
     section: 'You',
     blurb: 'Care and regulation for you',
     icon: Heart,
-    gradient: 'from-healing-purple to-healing-purple-dark',
+    gradient: 'from-growth-green to-growth-green-dark',
     cards: [
       {
         title: 'Caregiver Support',
@@ -127,7 +132,7 @@ const dashboardSections: DashboardSection[] = [
     section: 'Safety',
     blurb: 'Reporting and emergency resources',
     icon: Shield,
-    gradient: 'from-amber-500 to-red-500',
+    gradient: 'from-slate-blue to-slate-blue-dark',
     cards: [
       {
         title: 'Mandated Reporter Guide',
@@ -200,7 +205,7 @@ export default function Dashboard() {
                   className="w-full flex items-center gap-4 bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow text-left"
                 >
                   <div className={`w-14 h-14 bg-gradient-to-r ${group.gradient} rounded-2xl flex items-center justify-center shrink-0`}>
-                    <group.icon className="w-7 h-7 text-white" />
+                    <group.icon className={`w-7 h-7 ${group.iconTone === 'dark' ? 'text-charcoal' : 'text-white'}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-xl font-bold font-heading text-charcoal">{group.section}</h3>
@@ -220,7 +225,7 @@ export default function Dashboard() {
                         className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow group"
                       >
                         <div className={`w-12 h-12 bg-gradient-to-r ${card.gradient} rounded-xl flex items-center justify-center mb-4`}>
-                          <card.icon className="w-6 h-6 text-white" />
+                          <card.icon className={`w-6 h-6 ${card.iconTone === 'dark' ? 'text-charcoal' : 'text-white'}`} />
                         </div>
                         <h4 className="text-lg font-bold font-heading text-charcoal group-hover:text-slate-blue transition-colors mb-1">
                           {card.title}
