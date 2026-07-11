@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { Shield, AlertTriangle, Phone, CheckCircle } from 'lucide-react'
 
 export default function DisclaimerGate() {
-  const { acceptDisclaimer, disclaimerAccepted, signIn, register } = useAuth()
+  const { acceptDisclaimer, signIn, register } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const wantsRegister = Boolean((location.state as { register?: boolean } | null)?.register)
@@ -12,8 +12,10 @@ export default function DisclaimerGate() {
   const [password, setPassword] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [showLogin, setShowLogin] = useState(disclaimerAccepted)
   const [isRegister, setIsRegister] = useState(wantsRegister)
+  // Signup is a two-step flow: 'form' (name/email/password) then 'terms'
+  // (agree to the disclaimer) before creating the account and going to payment.
+  const [registerStep, setRegisterStep] = useState<'form' | 'terms'>('form')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -28,9 +30,16 @@ export default function DisclaimerGate() {
 
   const allChecked = Object.values(checks).every(Boolean)
 
-  const handleAccept = () => {
-    acceptDisclaimer()
-    setShowLogin(true)
+  const startRegister = () => {
+    setIsRegister(true)
+    setRegisterStep('form')
+    setError('')
+  }
+
+  const startSignIn = () => {
+    setIsRegister(false)
+    setRegisterStep('form')
+    setError('')
   }
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -48,21 +57,31 @@ export default function DisclaimerGate() {
     }
   }
 
-  const handleRegister = async (e: React.FormEvent) => {
+  // Step 1 of signup: validate details, then advance to the terms step.
+  const handleRegisterDetails = (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters')
-      return
-    }
 
     if (!firstName.trim() || !lastName.trim()) {
       setError('Please enter your first and last name')
       return
     }
 
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
+      return
+    }
+
+    setRegisterStep('terms')
+  }
+
+  // Step 2 of signup: require the disclaimer, then create the account and send
+  // the new member to payment.
+  const handleAcceptTerms = async () => {
+    if (!allChecked) return
+    setError('')
     setLoading(true)
+    acceptDisclaimer()
     const result = await register(firstName.trim(), lastName.trim(), email, password)
     setLoading(false)
 
@@ -70,10 +89,14 @@ export default function DisclaimerGate() {
       navigate('/dashboard')
     } else {
       setError(result.error || 'Registration failed')
+      setRegisterStep('form')
     }
   }
 
-  if (showLogin) {
+  // Everything except the signup terms step renders the auth card (sign in or
+  // the signup details form). The terms step falls through to the disclaimer
+  // below, which must be accepted before an account is created.
+  if (!(isRegister && registerStep === 'terms')) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/5 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
@@ -93,7 +116,7 @@ export default function DisclaimerGate() {
             </div>
           )}
 
-          <form onSubmit={isRegister ? handleRegister : handleSignIn} className="space-y-4">
+          <form onSubmit={isRegister ? handleRegisterDetails : handleSignIn} className="space-y-4">
             {isRegister && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -155,7 +178,7 @@ export default function DisclaimerGate() {
               disabled={loading}
               className="w-full bg-slate-blue text-white py-2.5 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50"
             >
-              {loading ? 'Please wait...' : isRegister ? 'Create Account' : 'Sign In'}
+              {loading ? 'Please wait...' : isRegister ? 'Continue' : 'Sign In'}
             </button>
           </form>
 
@@ -163,14 +186,14 @@ export default function DisclaimerGate() {
             {isRegister ? (
               <>
                 Already have an account?{' '}
-                <button onClick={() => { setIsRegister(false); setError('') }} className="text-slate-blue font-medium hover:underline">
+                <button onClick={startSignIn} className="text-slate-blue font-medium hover:underline">
                   Sign In
                 </button>
               </>
             ) : (
               <>
                 Don't have an account?{' '}
-                <button onClick={() => { setIsRegister(true); setError('') }} className="text-slate-blue font-medium hover:underline">
+                <button onClick={startRegister} className="text-slate-blue font-medium hover:underline">
                   Create Account
                 </button>
               </>
@@ -287,13 +310,26 @@ export default function DisclaimerGate() {
             ))}
           </div>
 
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+              {error}
+            </div>
+          )}
+
           <button
-            onClick={handleAccept}
-            disabled={!allChecked}
+            onClick={handleAcceptTerms}
+            disabled={!allChecked || loading}
             className="w-full bg-slate-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-5 h-5" />
-            I Understand and Accept
+            {loading ? 'Creating your account...' : 'I Understand and Accept — Continue to Payment'}
+          </button>
+
+          <button
+            onClick={() => { setRegisterStep('form'); setError('') }}
+            className="w-full text-sm text-charcoal-70 hover:text-slate-blue"
+          >
+            &larr; Back
           </button>
 
           <p className="text-xs text-charcoal-70 text-center">

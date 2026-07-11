@@ -274,30 +274,31 @@ def register(body: RegisterRequest, background_tasks: BackgroundTasks) -> TokenR
     if not first_name or not last_name:
         raise HTTPException(status_code=400, detail="First and last name are required")
     full_name = f"{first_name} {last_name}"
+    email = body.email.strip().lower()
 
     try:
         salt = generate_salt()
         password_hash = hash_password(body.password, salt)
 
         with get_db() as conn:
-            # Check if email already exists
+            # Check if email already exists (case-insensitive).
             existing = conn.execute(
-                "SELECT id FROM users WHERE email = ?", (body.email,)
+                "SELECT id FROM users WHERE email = ? COLLATE NOCASE", (email,)
             ).fetchone()
             if existing:
                 raise HTTPException(status_code=409, detail="Email already registered")
 
             cursor = conn.execute(
                 "INSERT INTO users (name, first_name, last_name, email, password_hash, salt) VALUES (?, ?, ?, ?, ?, ?)",
-                (full_name, first_name, last_name, body.email, password_hash, salt),
+                (full_name, first_name, last_name, email, password_hash, salt),
             )
             conn.commit()
             user_id = cursor.lastrowid
 
         # Send the welcome email out-of-band so a mail failure never blocks signup.
-        background_tasks.add_task(send_welcome_email, body.email, full_name)
+        background_tasks.add_task(send_welcome_email, email, full_name)
 
-        token = create_token(user_id, body.email)
+        token = create_token(user_id, email)
         return TokenResponse(access_token=token)
     except HTTPException:
         raise
@@ -309,10 +310,11 @@ def register(body: RegisterRequest, background_tasks: BackgroundTasks) -> TokenR
 def login(body: LoginRequest) -> TokenResponse:
     """Authenticate with email and password."""
     try:
+        email = body.email.strip().lower()
         with get_db() as conn:
             user = conn.execute(
-                "SELECT id, email, password_hash, salt FROM users WHERE email = ?",
-                (body.email,),
+                "SELECT id, email, password_hash, salt FROM users WHERE email = ? COLLATE NOCASE",
+                (email,),
             ).fetchone()
 
         if not user:
@@ -392,9 +394,10 @@ def forgot_password(body: ForgotPasswordRequest, background_tasks: BackgroundTas
         message="If an account exists for that email, a password reset link has been sent."
     )
 
+    email = body.email.strip().lower()
     with get_db() as conn:
         user = conn.execute(
-            "SELECT id FROM users WHERE email = ?", (body.email,)
+            "SELECT id FROM users WHERE email = ? COLLATE NOCASE", (email,)
         ).fetchone()
         if not user:
             return generic
@@ -410,7 +413,7 @@ def forgot_password(body: ForgotPasswordRequest, background_tasks: BackgroundTas
         conn.commit()
 
     reset_url = f"{APP_PUBLIC_URL}/reset-password?token={token}"
-    background_tasks.add_task(send_password_reset_email, body.email, reset_url)
+    background_tasks.add_task(send_password_reset_email, email, reset_url)
     return generic
 
 
