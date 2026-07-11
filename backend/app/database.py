@@ -67,6 +67,8 @@ def _migrate_add_columns(conn: sqlite3.Connection) -> None:
     existing_cols = {row[1] for row in cursor.fetchall()}
 
     new_cols = [
+        ("first_name", "TEXT"),
+        ("last_name", "TEXT"),
         ("stripe_customer_id", "TEXT"),
         ("stripe_subscription_id", "TEXT"),
         ("subscription_status", "TEXT DEFAULT 'none'"),

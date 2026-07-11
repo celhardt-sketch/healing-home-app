@@ -10,7 +10,8 @@ export default function DisclaimerGate() {
   const wantsRegister = Boolean((location.state as { register?: boolean } | null)?.register)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [name, setName] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [showLogin, setShowLogin] = useState(disclaimerAccepted)
   const [isRegister, setIsRegister] = useState(wantsRegister)
   const [error, setError] = useState('')
@@ -56,8 +57,13 @@ export default function DisclaimerGate() {
       return
     }
 
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('Please enter your first and last name')
+      return
+    }
+
     setLoading(true)
-    const result = await register(name, email, password)
+    const result = await register(firstName.trim(), lastName.trim(), email, password)
     setLoading(false)
 
     if (result.ok) {
@@ -89,15 +95,29 @@ export default function DisclaimerGate() {
 
           <form onSubmit={isRegister ? handleRegister : handleSignIn} className="space-y-4">
             {isRegister && (
-              <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Name</label>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
-                  required
-                />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-charcoal mb-1">First name</label>
+                  <input
+                    type="text"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    autoComplete="given-name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-charcoal mb-1">Last name</label>
+                  <input
+                    type="text"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    autoComplete="family-name"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    required
+                  />
+                </div>
               </div>
             )}
             <div>

@@ -23,7 +23,7 @@ interface AuthContextType {
   subscription: SubscriptionInfo
   disclaimerAccepted: boolean
   signIn: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>
-  register: (name: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>
+  register: (firstName: string, lastName: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>
   signOut: () => void
   acceptDisclaimer: () => void
   checkSubscription: () => Promise<void>
@@ -318,12 +318,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const register = async (name: string, email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
+  const register = async (firstName: string, lastName: string, email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
     try {
       const res = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password }),
+        body: JSON.stringify({ first_name: firstName, last_name: lastName, email, password }),
       })
       if (res.ok) {
         const data = await res.json()

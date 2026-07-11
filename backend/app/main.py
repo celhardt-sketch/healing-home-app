@@ -173,7 +173,8 @@ def _init_password_resets_table() -> None:
 
 
 class RegisterRequest(BaseModel):
-    name: str
+    first_name: str
+    last_name: str
     email: EmailStr
     password: str
 
@@ -260,13 +261,19 @@ def health_check() -> dict:
 @app.post("/api/auth/register", response_model=TokenResponse)
 def register(body: RegisterRequest, background_tasks: BackgroundTasks) -> TokenResponse:
     """
-    Register a new account. Collects name, email, password only.
+    Register a new account. Collects first name, last name, email, password only.
     No protected health information. No card data.
     """
     if len(body.password) < 8:
         raise HTTPException(
             status_code=400, detail="Password must be at least 8 characters"
         )
+
+    first_name = body.first_name.strip()
+    last_name = body.last_name.strip()
+    if not first_name or not last_name:
+        raise HTTPException(status_code=400, detail="First and last name are required")
+    full_name = f"{first_name} {last_name}"
 
     try:
         salt = generate_salt()
@@ -281,14 +288,14 @@ def register(body: RegisterRequest, background_tasks: BackgroundTasks) -> TokenR
                 raise HTTPException(status_code=409, detail="Email already registered")
 
             cursor = conn.execute(
-                "INSERT INTO users (name, email, password_hash, salt) VALUES (?, ?, ?, ?)",
-                (body.name, body.email, password_hash, salt),
+                "INSERT INTO users (name, first_name, last_name, email, password_hash, salt) VALUES (?, ?, ?, ?, ?, ?)",
+                (full_name, first_name, last_name, body.email, password_hash, salt),
             )
             conn.commit()
             user_id = cursor.lastrowid
 
         # Send the welcome email out-of-band so a mail failure never blocks signup.
-        background_tasks.add_task(send_welcome_email, body.email, body.name)
+        background_tasks.add_task(send_welcome_email, body.email, full_name)
 
         token = create_token(user_id, body.email)
         return TokenResponse(access_token=token)
@@ -776,12 +783,14 @@ def list_users(current_user: dict = Depends(require_admin)) -> list[dict]:
     """List all users with their subscription status."""
     with get_db() as conn:
         rows = conn.execute(
-            "SELECT id, name, email, subscription_status, created_at FROM users ORDER BY created_at DESC"
+            "SELECT id, name, first_name, last_name, email, subscription_status, created_at FROM users ORDER BY created_at DESC"
         ).fetchall()
     return [
         {
             "id": r["id"],
             "name": r["name"],
+            "first_name": r["first_name"],
+            "last_name": r["last_name"],
             "email": r["email"],
             "subscription_status": r["subscription_status"],
             "created_at": r["created_at"],
