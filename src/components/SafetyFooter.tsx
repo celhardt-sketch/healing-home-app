@@ -16,7 +16,7 @@ export default function SafetyFooter() {
 
         <div className="border-t border-white/20 pt-4">
           <div className="flex items-center justify-center gap-3 mb-3">
-            <img src="/logo.png" alt="The Healing Home Approach" className="h-8 w-auto brightness-0 invert" />
+            <img src="/logo.png" alt="The Healing Home Approach" className="h-9 w-9 rounded-md bg-white object-contain p-0.5" />
             <span className="font-heading font-bold">The Healing Home Approach&#8482;</span>
           </div>
           <p className="text-white/70 text-xs">by Elhardt Family Wellness LLC</p>
