@@ -4,7 +4,7 @@ import {
   Shield, BookOpen, Heart, Users,
   AlertTriangle, Sparkles, TrendingUp,
   Settings, RefreshCw, Brain, FileText, Printer,
-  ChevronDown,
+  ChevronDown, ExternalLink, ArrowUpRight,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import Navbar from '../components/Navbar'
@@ -239,6 +239,23 @@ export default function Dashboard() {
             )
           })}
         </div>
+
+        {/* For More Resources — external learning site */}
+        <a
+          href="https://learn.elhardtfamilywellness.com"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 max-w-3xl bg-gradient-to-r from-slate-blue to-healing-purple text-white rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow mb-6"
+        >
+          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center shrink-0">
+            <ExternalLink className="w-6 h-6 text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-bold font-heading">For More Resources</h3>
+            <p className="text-sm text-white/85">Explore courses and deeper learning at learn.elhardtfamilywellness.com</p>
+          </div>
+          <ArrowUpRight className="w-5 h-5 shrink-0" />
+        </a>
 
         {/* Account */}
         <Link

@@ -5,6 +5,15 @@ import {
 } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
 
+const PRICE = '$9.99'
+
+const included = [
+  'First Aid, Scripts, and in-the-moment tools',
+  'Learning Library, Printables, and Family Plan',
+  'Caregiver support and safety resources',
+  'New content added regularly',
+]
+
 const features = [
   {
     icon: Shield,
@@ -121,9 +130,12 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="container mx-auto px-4 py-16 md:py-24">
+      <section className="relative overflow-hidden bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/10">
+        <div className="absolute -top-24 -right-24 w-96 h-96 bg-healing-purple/10 rounded-full blur-3xl" aria-hidden="true" />
+        <div className="absolute -bottom-32 -left-24 w-96 h-96 bg-growth-green/10 rounded-full blur-3xl" aria-hidden="true" />
+        <div className="relative container mx-auto px-4 py-16 md:py-28">
         <div className="max-w-3xl">
-          <span className="inline-flex items-center gap-2 bg-sky-blue-bg text-slate-blue text-sm font-semibold px-4 py-1.5 rounded-full mb-6">
+          <span className="inline-flex items-center gap-2 bg-white/70 backdrop-blur text-slate-blue text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-slate-blue/10">
             <Sparkles className="w-4 h-4" />
             Trauma Informed Caregiver Support
           </span>
@@ -150,9 +162,14 @@ export default function LandingPage() {
               Sign In
             </button>
           </div>
+          <p className="inline-flex items-center gap-2 text-sm font-medium text-charcoal-80 bg-white/70 backdrop-blur border border-gray-100 rounded-full px-4 py-1.5 mb-6">
+            <span className="text-slate-blue font-bold">{PRICE}/month</span>
+            <span className="text-charcoal-70">&middot; cancel anytime</span>
+          </p>
           <p className="text-sm text-charcoal-70">
             Created by Courtney Snyder Elhardt, M.S., M.A. &mdash; Child Development Specialist, Therapist, and Foster/Adoptive Parent
           </p>
+        </div>
         </div>
       </section>
 
@@ -248,6 +265,41 @@ export default function LandingPage() {
                   <span key={t} className="text-xs bg-sky-blue-bg text-slate-blue px-3 py-1 rounded-full font-medium">{t}</span>
                 ))}
               </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 max-w-lg">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl md:text-4xl font-bold font-heading text-charcoal mb-3">Simple, honest pricing</h3>
+            <p className="text-charcoal-80">One membership, full access. No tiers, no surprises.</p>
+          </div>
+          <div className="rounded-2xl bg-white border border-gray-100 shadow-lg overflow-hidden">
+            <div className="bg-gradient-to-r from-slate-blue to-healing-purple p-8 text-center text-white">
+              <div className="flex items-end justify-center gap-1">
+                <span className="text-5xl font-bold font-heading">{PRICE}</span>
+                <span className="text-lg text-white/85 mb-1">/month</span>
+              </div>
+              <p className="text-sm text-white/85 mt-1">Cancel anytime</p>
+            </div>
+            <div className="p-8">
+              <ul className="space-y-3 mb-8">
+                {included.map((item) => (
+                  <li key={item} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-growth-green shrink-0 mt-0.5" />
+                    <span className="text-sm text-charcoal-80">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => navigate('/disclaimer', { state: { register: true } })}
+                className="w-full inline-flex items-center justify-center gap-2 bg-slate-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors"
+              >
+                Sign Up <ArrowRight className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
