@@ -5,8 +5,39 @@ import { useAuth } from '../contexts/AuthContext'
 import SafetyFooter from '../components/SafetyFooter'
 
 export default function AccountSettings() {
-  const { user, signOut, subscription, openBillingPortal, changePassword } = useAuth()
+  const { user, signOut, subscription, openBillingPortal, changePassword, cancelSubscription, resumeSubscription } = useAuth()
   const navigate = useNavigate()
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [subLoading, setSubLoading] = useState(false)
+  const [subError, setSubError] = useState('')
+
+  const formatEndsAt = (iso?: string | null) => {
+    if (!iso) return null
+    const d = new Date(iso)
+    return isNaN(d.getTime()) ? null : d.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+
+  const handleCancel = async () => {
+    setSubError('')
+    setSubLoading(true)
+    const result = await cancelSubscription()
+    setSubLoading(false)
+    if (result.ok) {
+      setShowCancelConfirm(false)
+    } else {
+      setSubError(result.error || 'Could not cancel membership')
+    }
+  }
+
+  const handleResume = async () => {
+    setSubError('')
+    setSubLoading(true)
+    const result = await resumeSubscription()
+    setSubLoading(false)
+    if (!result.ok) {
+      setSubError(result.error || 'Could not resume membership')
+    }
+  }
   const [name, setName] = useState(user?.name || '')
   const [email, setEmail] = useState(user?.email || '')
   const [notifications, setNotifications] = useState(true)
@@ -136,17 +167,81 @@ export default function AccountSettings() {
                    subscription.status === 'canceled' ? 'Canceled' : 'None'}
                 </span>
               </div>
-              {subscription.has_access && (
-                <button
-                  onClick={async () => {
-                    const url = await openBillingPortal()
-                    if (url) window.location.href = url
-                  }}
-                  className="w-full bg-gray-50 text-charcoal py-2.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors border border-gray-200"
-                >
-                  Manage Billing
-                </button>
+
+              {subError && (
+                <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+                  {subError}
+                </div>
               )}
+
+              {subscription.has_access && !subscription.is_admin && subscription.cancel_at_period_end && (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                  Your membership is set to cancel
+                  {formatEndsAt(subscription.ends_at) ? ` on ${formatEndsAt(subscription.ends_at)}` : ' at the end of your billing period'}.
+                  You'll keep full access until then.
+                </div>
+              )}
+
+              {subscription.is_admin && (
+                <p className="text-sm text-charcoal-70">
+                  You have admin access. No membership or billing applies to your account.
+                </p>
+              )}
+
+              {subscription.has_access && !subscription.is_admin && (
+                <>
+                  <button
+                    onClick={async () => {
+                      const url = await openBillingPortal()
+                      if (url) window.location.href = url
+                    }}
+                    className="w-full bg-gray-50 text-charcoal py-2.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors border border-gray-200"
+                  >
+                    Manage Billing
+                  </button>
+
+                  {subscription.cancel_at_period_end ? (
+                    <button
+                      onClick={handleResume}
+                      disabled={subLoading}
+                      className="w-full bg-slate-blue text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50"
+                    >
+                      {subLoading ? 'Working...' : 'Resume Membership'}
+                    </button>
+                  ) : !showCancelConfirm ? (
+                    <button
+                      onClick={() => { setShowCancelConfirm(true); setSubError('') }}
+                      className="w-full text-red-600 py-2.5 rounded-lg text-sm font-medium hover:bg-red-50 transition-colors border border-red-200"
+                    >
+                      Cancel Membership
+                    </button>
+                  ) : (
+                    <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
+                      <p className="text-sm text-charcoal-80">
+                        Cancel your membership? You'll keep full access until the end of your
+                        current billing period, then it won't renew.
+                      </p>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={handleCancel}
+                          disabled={subLoading}
+                          className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-red-700 transition-colors disabled:opacity-50"
+                        >
+                          {subLoading ? 'Canceling...' : 'Yes, cancel'}
+                        </button>
+                        <button
+                          onClick={() => setShowCancelConfirm(false)}
+                          disabled={subLoading}
+                          className="text-sm text-charcoal-70 hover:text-charcoal font-medium"
+                        >
+                          Keep membership
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
               {!subscription.has_access && (
                 <Link
                   to="/access-gate"

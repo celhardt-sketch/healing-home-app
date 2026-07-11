@@ -12,6 +12,8 @@ interface SubscriptionInfo {
   status: string
   has_access: boolean
   is_admin?: boolean
+  cancel_at_period_end?: boolean
+  ends_at?: string | null
 }
 
 interface AuthContextType {
@@ -28,6 +30,8 @@ interface AuthContextType {
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>
   createCheckoutSession: () => Promise<string | null>
   openBillingPortal: () => Promise<string | null>
+  cancelSubscription: () => Promise<{ ok: boolean; error?: string }>
+  resumeSubscription: () => Promise<{ ok: boolean; error?: string }>
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -206,6 +210,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  const applySubscription = (data: SubscriptionInfo) => {
+    setSubscription(data)
+    localStorage.setItem('subscription_access', data.has_access ? 'true' : 'false')
+    localStorage.setItem('subscription_status', data.status)
+  }
+
+  const cancelSubscription = async (): Promise<{ ok: boolean; error?: string }> => {
+    const token = localStorage.getItem('auth_token')
+    if (!token) return { ok: false, error: 'You must be signed in' }
+    try {
+      const res = await fetch(`${API_URL}/api/subscription/cancel`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        applySubscription(await res.json())
+        return { ok: true }
+      }
+      const err = await res.json().catch(() => ({}))
+      return { ok: false, error: err.detail || 'Could not cancel membership' }
+    } catch {
+      return { ok: false, error: 'Network error — please check your connection' }
+    }
+  }
+
+  const resumeSubscription = async (): Promise<{ ok: boolean; error?: string }> => {
+    const token = localStorage.getItem('auth_token')
+    if (!token) return { ok: false, error: 'You must be signed in' }
+    try {
+      const res = await fetch(`${API_URL}/api/subscription/resume`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      if (res.ok) {
+        applySubscription(await res.json())
+        return { ok: true }
+      }
+      const err = await res.json().catch(() => ({}))
+      return { ok: false, error: err.detail || 'Could not resume membership' }
+    } catch {
+      return { ok: false, error: 'Network error — please check your connection' }
+    }
+  }
+
   const signIn = async (email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
     try {
       const res = await fetch(`${API_URL}/api/auth/login`, {
@@ -276,6 +324,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         changePassword,
         createCheckoutSession,
         openBillingPortal,
+        cancelSubscription,
+        resumeSubscription,
       }}
     >
       {children}

@@ -24,6 +24,8 @@ from .stripe_billing import (
     handle_webhook_event,
     get_user_subscription_status,
     confirm_checkout_session,
+    cancel_subscription,
+    resume_subscription,
 )
 from .content import (
     init_content_tables,
@@ -437,6 +439,34 @@ def checkout(body: CheckoutRequest, current_user: dict = Depends(get_current_use
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Checkout error: {str(e)}")
+
+
+@app.post("/api/subscription/cancel")
+def cancel_membership(current_user: dict = Depends(get_current_user)) -> dict:
+    """Cancel the current user's membership at the end of the billing period."""
+    user_id = int(current_user["sub"])
+    try:
+        return cancel_subscription(user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Cancellation error: {str(e)}")
+
+
+@app.post("/api/subscription/resume")
+def resume_membership(current_user: dict = Depends(get_current_user)) -> dict:
+    """Undo a scheduled cancellation so the membership renews normally."""
+    user_id = int(current_user["sub"])
+    try:
+        return resume_subscription(user_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except RuntimeError as e:
+        raise HTTPException(status_code=503, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Resume error: {str(e)}")
 
 
 @app.post("/api/subscription/billing-portal")
