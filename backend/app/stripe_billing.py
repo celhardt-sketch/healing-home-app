@@ -4,12 +4,23 @@ Handles checkout session creation, webhook processing, and billing portal.
 Card data never touches our server — all handled by Stripe hosted checkout.
 """
 
+import json
 import os
 from datetime import datetime, timezone
 
 import stripe
 
 from .database import get_db
+
+
+def _as_dict(stripe_obj) -> dict:
+    """Convert a StripeObject to a plain nested dict.
+
+    StripeObject is not a dict subclass in stripe-python v15, so calling .get() on
+    values returned by the API (retrieve/modify/list) raises AttributeError. Round
+    tripping through its JSON serialization yields plain, nested dicts.
+    """
+    return json.loads(str(stripe_obj))
 
 
 def get_stripe_secret_key() -> str:
@@ -75,12 +86,16 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict:
     webhook_secret = get_stripe_webhook_secret()
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+        # Verify the signature; the returned StripeObject is not a dict subclass in
+        # stripe-python v15, so we read the event from the raw JSON payload below to
+        # give every handler plain dicts that support .get().
+        stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
     except stripe.error.SignatureVerificationError:
         raise ValueError("Invalid webhook signature")
     except Exception as e:
         raise ValueError(f"Webhook error: {str(e)}")
 
+    event = json.loads(payload)
     event_type = event["type"]
     data = event["data"]["object"]
 
@@ -205,7 +220,7 @@ def confirm_checkout_session(session_id: str, user_id: int, user_email: str) -> 
     """
     init_stripe()
 
-    session = stripe.checkout.Session.retrieve(session_id)
+    session = _as_dict(stripe.checkout.Session.retrieve(session_id))
 
     metadata_user_id = (session.get("metadata") or {}).get("user_id")
     session_email = session.get("customer_email") or (session.get("customer_details") or {}).get("email")
@@ -256,7 +271,7 @@ def cancel_subscription(user_id: int) -> dict:
     if not subscription_id:
         raise ValueError("No active membership to cancel.")
 
-    subscription = stripe.Subscription.modify(subscription_id, cancel_at_period_end=True)
+    subscription = _as_dict(stripe.Subscription.modify(subscription_id, cancel_at_period_end=True))
     ends_at = _period_end_iso(subscription)
 
     with get_db() as conn:
@@ -311,11 +326,14 @@ def find_live_subscription_for_email(email: str):
     paid user is never bounced (and never charged twice) when a webhook is missed."""
     init_stripe()
     for customer in stripe.Customer.list(email=email, limit=20).auto_paging_iter():
+        customer_id = customer["id"]
         for sub in stripe.Subscription.list(
-            customer=customer.id, status="all", limit=20
+            customer=customer_id, status="all", limit=20
         ).auto_paging_iter():
+            # StripeObject is not a dict subclass in v15; convert so .get() works.
+            sub = _as_dict(sub)
             if sub.get("status") in _LIVE_STRIPE_STATUSES:
-                return customer.id, sub
+                return customer_id, sub
     return None, None
 
 
