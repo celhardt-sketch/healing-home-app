@@ -2,13 +2,17 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Menu, X, LogOut, Settings } from 'lucide-react'
 import { useState } from 'react'
+import InstallAppModal from './InstallAppModal'
 
 export default function Navbar() {
   const { isAuthenticated, signOut } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
+  const [showInstall, setShowInstall] = useState(false)
 
   return (
+    <>
+    <InstallAppModal open={showInstall} onClose={() => setShowInstall(false)} />
     <nav className="bg-white/90 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <Link to={isAuthenticated ? '/dashboard' : '/'} className="flex items-center gap-3">
@@ -73,6 +77,9 @@ export default function Navbar() {
               <Link to="/learning" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Learning Library</Link>
               <Link to="/family-plan" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">My Family Plan</Link>
               <Link to="/account" onClick={() => setMenuOpen(false)} className="block text-sm font-medium text-charcoal">Account Settings</Link>
+              <button onClick={() => { setShowInstall(true); setMenuOpen(false); }} className="block text-sm font-medium text-charcoal">
+                Install App
+              </button>
               <button onClick={() => { signOut(); navigate('/'); setMenuOpen(false); }} className="block text-sm font-medium text-charcoal">
                 Sign Out
               </button>
@@ -90,5 +97,6 @@ export default function Navbar() {
         </div>
       )}
     </nav>
+    </>
   )
 }
