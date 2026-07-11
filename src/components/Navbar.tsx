@@ -31,11 +31,13 @@ export default function Navbar() {
               <Link to="/dashboard" className="text-sm font-medium text-charcoal hover:text-slate-blue transition-colors">
                 Dashboard
               </Link>
-              <Link to="/account" className="text-sm font-medium text-charcoal hover:text-slate-blue transition-colors">
+              <Link to="/account" aria-label="Account settings" title="Account settings" className="text-sm font-medium text-charcoal hover:text-slate-blue transition-colors">
                 <Settings className="w-4 h-4" />
               </Link>
               <button
                 onClick={() => { signOut(); navigate('/'); }}
+                aria-label="Sign out"
+                title="Sign out"
                 className="text-sm font-medium text-charcoal hover:text-slate-blue transition-colors"
               >
                 <LogOut className="w-4 h-4" />
@@ -61,6 +63,8 @@ export default function Navbar() {
 
         <button
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+          aria-expanded={menuOpen}
           className="md:hidden text-charcoal"
         >
           {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

@@ -291,7 +291,7 @@ export default function CrisisMode() {
       <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
         <div className="bg-white border-b shadow-sm">
           <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-            <Link to="/dashboard" className="text-charcoal hover:text-slate-blue">
+            <Link to="/dashboard" aria-label="Back to dashboard" className="text-charcoal hover:text-slate-blue">
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
