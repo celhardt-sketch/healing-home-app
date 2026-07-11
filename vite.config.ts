@@ -82,6 +82,24 @@ export default defineConfig({
               },
             },
           },
+          // In-the-moment content (First Aid cards + Scripts): a caregiver mid-
+          // meltdown may have bad signal. StaleWhileRevalidate serves the cached
+          // copy instantly (and offline once seen) while refreshing in the
+          // background. Matches the content API on any origin (VITE_API_URL).
+          {
+            urlPattern: /\/api\/content\/(first_aid_cards|scripts)(\?.*)?$/i,
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'in-the-moment-content',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
         ],
         // SPA: navigate to index.html for all routes, EXCEPT API calls and
         // real static files (e.g. /printables/*.pdf). Without the file-extension
