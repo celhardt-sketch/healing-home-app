@@ -56,7 +56,7 @@ def create_checkout_session(user_email: str, user_id: int, success_url: str, can
     session = stripe.checkout.Session.create(
         mode="subscription",
         payment_method_types=["card"],
-        customer_email=user_email,
+        customer_email=user_email.strip().lower(),
         line_items=[{"price": price_id, "quantity": 1}],
         success_url=success_url,
         cancel_url=cancel_url,
@@ -335,6 +335,7 @@ def find_live_subscription_for_email(email: str):
     this email, or (None, None). Used to reconcile our DB with Stripe directly so a
     paid user is never bounced (and never charged twice) when a webhook is missed."""
     init_stripe()
+    email = (email or "").strip().lower()
     for customer in stripe.Customer.list(email=email, limit=20).auto_paging_iter():
         customer_id = customer["id"]
         for sub in stripe.Subscription.list(
