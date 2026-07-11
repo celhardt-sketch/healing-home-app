@@ -699,6 +699,32 @@ def revoke_access(email: str, current_user: dict = Depends(require_admin)) -> Me
     return MessageResponse(message=f"Access revoked from {email}")
 
 
+@app.delete("/api/admin/users/{user_id}")
+def delete_user(user_id: int, current_user: dict = Depends(require_admin)) -> MessageResponse:
+    """Permanently delete a user and all of their data (admin only).
+
+    Frees the email so the person can sign up again. This does not touch Stripe;
+    any active Stripe subscription should be canceled/refunded separately.
+    """
+    if int(current_user["sub"]) == user_id:
+        raise HTTPException(status_code=400, detail="You cannot delete your own account.")
+
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT id, email FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Remove the user's owned data first, then the account itself.
+        for table in ("gratitude_journal", "regulation_plans", "growth_moments", "password_resets"):
+            conn.execute(f"DELETE FROM {table} WHERE user_id = ?", (user_id,))
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+        conn.commit()
+
+    return MessageResponse(message=f"Deleted {user['email']}. They can sign up again with this email.")
+
+
 @app.post("/api/admin/pre-authorize")
 def pre_authorize_email(email: str, current_user: dict = Depends(require_admin)) -> MessageResponse:
     """Pre-authorize an email for access before they sign up."""

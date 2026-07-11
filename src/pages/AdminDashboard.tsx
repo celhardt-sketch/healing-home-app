@@ -554,6 +554,15 @@ function UsersTab() {
     } catch { setActionMsg('Failed to reset password (is the email correct?)') }
   }
 
+  async function deleteUser(u: { id: number; email: string }) {
+    if (!confirm(`Permanently delete ${u.email}?\n\nThis removes their account and all of their saved data. They will be able to sign up again with this email. This cannot be undone.\n\nNote: this does not cancel any Stripe subscription — cancel/refund that in Stripe separately.`)) return
+    try {
+      const res = await apiDelete(`/api/admin/users/${u.id}`)
+      setActionMsg(res.message || `Deleted ${u.email}`)
+      apiGet('/api/admin/users').then(setUsers)
+    } catch { setActionMsg(`Failed to delete ${u.email}`) }
+  }
+
   return (
     <div>
       <h3 className="text-lg font-bold text-charcoal mb-4">User Access Management</h3>
@@ -584,6 +593,7 @@ function UsersTab() {
                 <th className="text-left p-3 font-semibold">Email</th>
                 <th className="text-left p-3 font-semibold">Status</th>
                 <th className="text-left p-3 font-semibold">Created</th>
+                <th className="text-right p-3 font-semibold">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -600,9 +610,17 @@ function UsersTab() {
                     }`}>{u.subscription_status || 'none'}</span>
                   </td>
                   <td className="p-3 text-charcoal-70">{new Date(u.created_at).toLocaleDateString()}</td>
+                  <td className="p-3 text-right">
+                    <button
+                      onClick={() => deleteUser(u)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 bg-red-500 text-white rounded text-xs font-medium hover:bg-red-600"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" /> Delete
+                    </button>
+                  </td>
                 </tr>
               ))}
-              {users.length === 0 && <tr><td colSpan={4} className="p-3 text-center text-charcoal-70">No users yet</td></tr>}
+              {users.length === 0 && <tr><td colSpan={5} className="p-3 text-center text-charcoal-70">No users yet</td></tr>}
             </tbody>
           </table>
         </div>
