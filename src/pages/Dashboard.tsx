@@ -39,7 +39,7 @@ const dashboardSections: DashboardSection[] = [
     iconTone: 'dark',
     cards: [
       {
-        title: 'First Aid for Big Feelings & Behaviors',
+        title: 'Behavioral & Emotional First Aid',
         description: 'Immediate support for challenging moments with age-appropriate guidance',
         icon: AlertTriangle,
         href: '/crisis',
