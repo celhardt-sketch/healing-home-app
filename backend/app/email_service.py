@@ -138,3 +138,42 @@ The Healing Home Approach - Elhardt Family Wellness LLC
 """
 
     return _send_email(to_email, subject, html, text)
+
+
+def send_password_reset_email(to_email: str, reset_url: str) -> bool:
+    """Send a password reset link. The link is valid for a limited time."""
+    subject = "Reset your Healing Home Approach password"
+
+    html = f"""\
+<div style="font-family:Arial,Helvetica,sans-serif;color:#2d3142;line-height:1.5;max-width:560px;margin:0 auto;">
+  <h1 style="color:#4f6d8e;font-size:22px;">Reset your password</h1>
+  <p>We received a request to reset the password for your
+  <strong>The Healing Home Approach</strong> account. Click the button below to choose a new
+  password. This link expires in 1 hour.</p>
+  <p style="margin:24px 0;">
+    <a href="{reset_url}" style="background:#4f6d8e;color:#ffffff;text-decoration:none;padding:12px 20px;border-radius:8px;font-weight:bold;display:inline-block;">Reset Password</a>
+  </p>
+  <p style="font-size:13px;color:#6b7280;">Or paste this link into your browser:<br>
+  <a href="{reset_url}" style="color:#4f6d8e;">{reset_url}</a></p>
+  <p style="font-size:13px;color:#6b7280;margin-top:20px;">If you did not request this, you can safely
+  ignore this email; your password will not change.</p>
+  <p style="font-size:12px;color:#6b7280;margin-top:28px;">
+    The Healing Home Approach&trade; &middot; Elhardt Family Wellness LLC
+  </p>
+</div>"""
+
+    text = f"""\
+Reset your password
+
+We received a request to reset the password for your The Healing Home Approach
+account. Open the link below to choose a new password. This link expires in 1 hour.
+
+{reset_url}
+
+If you did not request this, you can safely ignore this email; your password will
+not change.
+
+The Healing Home Approach - Elhardt Family Wellness LLC
+"""
+
+    return _send_email(to_email, subject, html, text)

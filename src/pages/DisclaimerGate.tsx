@@ -127,8 +127,14 @@ export default function DisclaimerGate() {
                 required
                 minLength={8}
               />
-              {isRegister && (
+              {isRegister ? (
                 <p className="text-xs text-charcoal-70 mt-1">Minimum 8 characters</p>
+              ) : (
+                <div className="text-right mt-1">
+                  <Link to="/forgot-password" className="text-xs text-slate-blue hover:underline">
+                    Forgot password?
+                  </Link>
+                </div>
               )}
             </div>
             <button
