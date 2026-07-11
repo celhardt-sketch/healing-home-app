@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   Shield, BookOpen, Heart, Users,
   AlertTriangle, Sparkles, TrendingUp,
@@ -6,6 +7,7 @@ import {
 } from 'lucide-react'
 import Navbar from '../components/Navbar'
 import SafetyFooter from '../components/SafetyFooter'
+import InstallAppModal from '../components/InstallAppModal'
 
 const dashboardCards = [
   {
@@ -88,8 +90,27 @@ const dashboardCards = [
 ]
 
 export default function Dashboard() {
+  const [searchParams, setSearchParams] = useSearchParams()
+  // Show the install card only after a successful Stripe payment (return from checkout).
+  const [showInstall, setShowInstall] = useState(() => searchParams.get('subscription') === 'success')
+
+  // Strip the checkout query params so the card doesn't reappear on refresh.
+  useEffect(() => {
+    if (searchParams.get('subscription') === 'success') {
+      searchParams.delete('subscription')
+      searchParams.delete('session_id')
+      setSearchParams(searchParams, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/5 flex flex-col">
+      <InstallAppModal
+        open={showInstall}
+        closeLabel="Continue to app"
+        onClose={() => setShowInstall(false)}
+      />
       <Navbar />
 
       <main className="flex-1 container mx-auto px-4 py-8">

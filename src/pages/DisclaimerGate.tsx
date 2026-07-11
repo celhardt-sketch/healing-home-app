@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Shield, AlertTriangle, Phone, CheckCircle } from 'lucide-react'
-import InstallAppModal from '../components/InstallAppModal'
 
 export default function DisclaimerGate() {
   const { acceptDisclaimer, disclaimerAccepted, signIn, register } = useAuth()
@@ -16,7 +15,6 @@ export default function DisclaimerGate() {
   const [isRegister, setIsRegister] = useState(wantsRegister)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  const [showInstall, setShowInstall] = useState(false)
 
   const [checks, setChecks] = useState({
     psychoeducational: false,
@@ -63,7 +61,7 @@ export default function DisclaimerGate() {
     setLoading(false)
 
     if (result.ok) {
-      setShowInstall(true)
+      navigate('/dashboard')
     } else {
       setError(result.error || 'Registration failed')
     }
@@ -72,11 +70,6 @@ export default function DisclaimerGate() {
   if (showLogin) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/5 flex items-center justify-center p-4">
-        <InstallAppModal
-          open={showInstall}
-          closeLabel="Continue to app"
-          onClose={() => { setShowInstall(false); navigate('/dashboard') }}
-        />
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <div className="text-center mb-6">
             <img src="/logo.png" alt="The Healing Home Approach" className="h-16 w-auto mx-auto mb-4" />
