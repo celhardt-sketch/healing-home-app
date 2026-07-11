@@ -169,8 +169,16 @@ def _handle_subscription_upsert(subscription: dict) -> None:
 
 
 def _period_end_iso(subscription: dict) -> str | None:
-    """Convert a Stripe subscription current_period_end (unix) to ISO, if present."""
+    """Convert a Stripe subscription current_period_end (unix) to ISO, if present.
+
+    Newer Stripe API versions moved current_period_end off the subscription and onto
+    each subscription item, so fall back to the first item when the top-level field
+    is absent (otherwise the cancellation end date would never be shown)."""
     ts = subscription.get("current_period_end")
+    if not ts:
+        items = (subscription.get("items") or {}).get("data") or []
+        if items:
+            ts = items[0].get("current_period_end")
     if not ts:
         return None
     return datetime.fromtimestamp(int(ts), tz=timezone.utc).isoformat()
