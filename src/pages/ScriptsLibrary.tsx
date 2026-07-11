@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, FileText, Search, Copy, Check, Filter, Video, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
+import { ArrowLeft, FileText, Search, Copy, Check, Filter, Video, AlertTriangle, ChevronDown, ChevronUp, Star } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+import { useFavorites } from '../lib/useFavorites'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -27,6 +28,8 @@ export default function ScriptsLibrary() {
   const [copiedId, setCopiedId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [showDisclaimer, setShowDisclaimer] = useState(false)
+  const [favoritesOnly, setFavoritesOnly] = useState(false)
+  const { isFavorite, toggleFavorite } = useFavorites('scripts')
 
   useEffect(() => {
     fetch(`${API_URL}/api/content/scripts`)
@@ -47,7 +50,8 @@ export default function ScriptsLibrary() {
       s.content.toLowerCase().includes(search.toLowerCase())
     const matchCategory = category === 'All' || s.category === category
     const matchAge = ageGroup === 'All Ages' || s.age_group === ageGroup || s.age_group === 'All Ages'
-    return matchSearch && matchCategory && matchAge
+    const matchFavorite = !favoritesOnly || isFavorite(s.id)
+    return matchSearch && matchCategory && matchAge && matchFavorite
   })
 
   const copyScript = (id: number, text: string) => {
@@ -126,6 +130,17 @@ export default function ScriptsLibrary() {
               className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
             />
           </div>
+          <div className="mb-3">
+            <button
+              onClick={() => setFavoritesOnly(!favoritesOnly)}
+              aria-pressed={favoritesOnly}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                favoritesOnly ? 'bg-amber-400 text-white' : 'bg-gray-100 text-charcoal-70 hover:bg-gray-200'
+              }`}
+            >
+              <Star className={`w-3.5 h-3.5 ${favoritesOnly ? 'fill-white' : ''}`} /> Favorites
+            </button>
+          </div>
           <div className="flex flex-wrap gap-2 mb-3">
             <Filter className="w-4 h-4 text-charcoal-70 mt-1.5" />
             {categories.map((c) => (
@@ -159,7 +174,12 @@ export default function ScriptsLibrary() {
           <p className="text-sm text-charcoal-70">Loading scripts...</p>
         ) : (
           <>
-            <p className="text-sm text-charcoal-70 mb-4">{filtered.length} scripts found</p>
+            <p className="text-sm text-charcoal-70 mb-4">
+              {filtered.length} script{filtered.length !== 1 ? 's' : ''} {favoritesOnly ? 'favorited' : 'found'}
+            </p>
+            {favoritesOnly && filtered.length === 0 && (
+              <p className="text-sm text-charcoal-70 mb-4">No favorites yet. Tap the star on any script to save it here.</p>
+            )}
 
             <div className="space-y-4">
               {filtered.map((s) => (
@@ -173,13 +193,25 @@ export default function ScriptsLibrary() {
                         {s.video_url && <span className="text-xs text-slate-blue flex items-center gap-0.5"><Video className="w-3 h-3" /> Video</span>}
                       </div>
                     </div>
-                    <button
-                      onClick={() => copyScript(s.id, s.content)}
-                      className="text-charcoal-70 hover:text-slate-blue transition-colors"
-                      title="Copy script"
-                    >
-                      {copiedId === s.id ? <Check className="w-4 h-4 text-growth-green" /> : <Copy className="w-4 h-4" />}
-                    </button>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => toggleFavorite(s.id)}
+                        aria-pressed={isFavorite(s.id)}
+                        aria-label={isFavorite(s.id) ? `Remove ${s.title} from favorites` : `Add ${s.title} to favorites`}
+                        className="text-charcoal-70 hover:text-amber-500 transition-colors"
+                        title={isFavorite(s.id) ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        <Star className={`w-4 h-4 ${isFavorite(s.id) ? 'fill-amber-400 text-amber-400' : ''}`} />
+                      </button>
+                      <button
+                        onClick={() => copyScript(s.id, s.content)}
+                        className="text-charcoal-70 hover:text-slate-blue transition-colors"
+                        title="Copy script"
+                        aria-label={`Copy ${s.title}`}
+                      >
+                        {copiedId === s.id ? <Check className="w-4 h-4 text-growth-green" /> : <Copy className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                   <blockquote className="text-charcoal-80 bg-sky-blue-bg rounded-lg p-4 italic text-sm leading-relaxed mb-3">
                     {s.content}
