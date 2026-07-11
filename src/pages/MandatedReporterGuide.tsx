@@ -81,11 +81,28 @@ export default function MandatedReporterGuide() {
                 <span className="text-[13px] font-medium opacity-90">{hotline.label}</span>
               </a>
             ) : (
-              <div className="basis-full flex flex-col justify-center rounded-xl px-3.5 py-3 min-h-[60px] bg-white text-[#2E3A33] border-[1.5px] border-[#E4DCCE]">
-                <span className="text-[19px] font-bold text-[#4E6B5B]">Your state's Child Abuse Hotline / CPS</span>
-                <span className="text-[13px] font-medium opacity-90">
-                  Look up and call your state's hotline — know your state's law.
-                </span>
+              <div className="basis-full flex flex-col gap-2">
+                <a
+                  href="tel:18004224453"
+                  aria-label="Call the Childhelp National Child Abuse Hotline, 1 800 422 4453"
+                  className="flex flex-col justify-center rounded-xl px-3.5 py-3 min-h-[60px] bg-white text-[#2E3A33] border-[1.5px] border-[#E4DCCE] active:scale-[0.98] transition-transform"
+                >
+                  <span className="text-[19px] font-bold text-[#4E6B5B]">1-800-422-4453</span>
+                  <span className="text-[13px] font-medium opacity-90">
+                    Childhelp National Child Abuse Hotline (1-800-4-A-CHILD) · 24/7, all states
+                  </span>
+                </a>
+                <a
+                  href="https://www.childwelfare.gov/topics/responding/reporting/how/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex flex-col justify-center rounded-xl px-3.5 py-3 bg-white text-[#2E3A33] border-[1.5px] border-[#E4DCCE] active:scale-[0.98] transition-transform"
+                >
+                  <span className="text-[15px] font-bold text-[#4E6B5B]">Find your state's reporting number</span>
+                  <span className="text-[13px] font-medium opacity-90">
+                    Official state-by-state directory (Child Welfare Information Gateway)
+                  </span>
+                </a>
               </div>
             )}
           </div>
@@ -137,10 +154,6 @@ export default function MandatedReporterGuide() {
               make the report, and let professionals investigate.
             </li>
           </ul>
-          <p className="text-[12.5px] text-[#55635B] mt-3 mb-0">
-            The detailed guidance below is pending review by a licensed attorney and a mandated
-            reporting expert before launch.
-          </p>
         </div>
 
         {/* TODO(legal-review): The substantive body content below (all sections through

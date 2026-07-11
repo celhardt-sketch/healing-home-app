@@ -83,9 +83,11 @@ export default defineConfig({
             },
           },
         ],
-        // SPA: navigate to index.html for all routes
+        // SPA: navigate to index.html for all routes, EXCEPT API calls and
+        // real static files (e.g. /printables/*.pdf). Without the file-extension
+        // denylist, the SW would answer a PDF download with index.html.
         navigateFallback: 'index.html',
-        navigateFallbackDenylist: [/^\/api\//],
+        navigateFallbackDenylist: [/^\/api\//, /^\/printables\//, /\.[a-zA-Z0-9]+$/],
       },
     }),
   ],
