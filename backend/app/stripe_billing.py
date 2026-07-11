@@ -4,12 +4,23 @@ Handles checkout session creation, webhook processing, and billing portal.
 Card data never touches our server — all handled by Stripe hosted checkout.
 """
 
+import json
 import os
 from datetime import datetime, timezone
 
 import stripe
 
 from .database import get_db
+
+
+def _as_dict(stripe_obj) -> dict:
+    """Convert a StripeObject to a plain nested dict.
+
+    StripeObject is not a dict subclass in stripe-python v15, so calling .get() on
+    values returned by the API (retrieve/modify/list) raises AttributeError. Round
+    tripping through its JSON serialization yields plain, nested dicts.
+    """
+    return json.loads(str(stripe_obj))
 
 
 def get_stripe_secret_key() -> str:
@@ -75,12 +86,16 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict:
     webhook_secret = get_stripe_webhook_secret()
 
     try:
-        event = stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
+        # Verify the signature; the returned StripeObject is not a dict subclass in
+        # stripe-python v15, so we read the event from the raw JSON payload below to
+        # give every handler plain dicts that support .get().
+        stripe.Webhook.construct_event(payload, sig_header, webhook_secret)
     except stripe.error.SignatureVerificationError:
         raise ValueError("Invalid webhook signature")
     except Exception as e:
         raise ValueError(f"Webhook error: {str(e)}")
 
+    event = json.loads(payload)
     event_type = event["type"]
     data = event["data"]["object"]
 
@@ -205,7 +220,7 @@ def confirm_checkout_session(session_id: str, user_id: int, user_email: str) -> 
     """
     init_stripe()
 
-    session = stripe.checkout.Session.retrieve(session_id)
+    session = _as_dict(stripe.checkout.Session.retrieve(session_id))
 
     metadata_user_id = (session.get("metadata") or {}).get("user_id")
     session_email = session.get("customer_email") or (session.get("customer_details") or {}).get("email")
@@ -256,7 +271,7 @@ def cancel_subscription(user_id: int) -> dict:
     if not subscription_id:
         raise ValueError("No active membership to cancel.")
 
-    subscription = stripe.Subscription.modify(subscription_id, cancel_at_period_end=True)
+    subscription = _as_dict(stripe.Subscription.modify(subscription_id, cancel_at_period_end=True))
     ends_at = _period_end_iso(subscription)
 
     with get_db() as conn:
@@ -294,6 +309,61 @@ def resume_subscription(user_id: int) -> dict:
                    subscription_updated_at = ?
                WHERE id = ?""",
             (datetime.now(timezone.utc).isoformat(), user_id),
+        )
+        conn.commit()
+
+    return get_user_subscription_status(user_id)
+
+
+# Stripe subscription statuses that mean the customer is (or will be) billed and
+# therefore must not be sent through checkout again.
+_LIVE_STRIPE_STATUSES = {"active", "trialing", "past_due"}
+
+
+def find_live_subscription_for_email(email: str):
+    """Return (customer_id, subscription) for any live Stripe subscription owned by
+    this email, or (None, None). Used to reconcile our DB with Stripe directly so a
+    paid user is never bounced (and never charged twice) when a webhook is missed."""
+    init_stripe()
+    for customer in stripe.Customer.list(email=email, limit=20).auto_paging_iter():
+        customer_id = customer["id"]
+        for sub in stripe.Subscription.list(
+            customer=customer_id, status="all", limit=20
+        ).auto_paging_iter():
+            # StripeObject is not a dict subclass in v15; convert so .get() works.
+            sub = _as_dict(sub)
+            if sub.get("status") in _LIVE_STRIPE_STATUSES:
+                return customer_id, sub
+    return None, None
+
+
+def reconcile_subscription_from_stripe(user_id: int, email: str) -> dict:
+    """Self-heal: if Stripe shows a live subscription for this user but our DB does
+    not, activate the account. Safe no-op when Stripe has nothing live. Returns the
+    resulting subscription status dict."""
+    customer_id, sub = find_live_subscription_for_email(email)
+    if not sub:
+        return get_user_subscription_status(user_id)
+
+    with get_db() as conn:
+        conn.execute(
+            """UPDATE users
+               SET stripe_customer_id = COALESCE(?, stripe_customer_id),
+                   stripe_subscription_id = COALESCE(?, stripe_subscription_id),
+                   subscription_status = ?,
+                   subscription_cancel_at_period_end = ?,
+                   subscription_ends_at = ?,
+                   subscription_updated_at = ?
+               WHERE id = ?""",
+            (
+                customer_id,
+                sub.get("id"),
+                sub.get("status"),
+                1 if sub.get("cancel_at_period_end") else 0,
+                _period_end_iso(sub),
+                datetime.now(timezone.utc).isoformat(),
+                user_id,
+            ),
         )
         conn.commit()
 

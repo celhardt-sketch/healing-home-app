@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Lock, CreditCard, ArrowRight } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import SafetyFooter from '../components/SafetyFooter'
 
 export default function AccessGate() {
   const { user, createCheckoutSession } = useAuth()
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -13,7 +14,12 @@ export default function AccessGate() {
     setLoading(true)
     setError('')
 
-    const url = await createCheckoutSession()
+    const { url, alreadySubscribed } = await createCheckoutSession()
+    if (alreadySubscribed) {
+      // Already paying — don't charge again; send them into the app.
+      navigate('/dashboard')
+      return
+    }
     if (url) {
       window.location.href = url
     } else {
