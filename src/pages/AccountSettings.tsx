@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ArrowLeft, Settings, User, Bell, Shield, LogOut, Save, Mail, Lock, CreditCard } from 'lucide-react'
+import { ArrowLeft, Settings, User, Bell, Shield, LogOut, Save, Mail, Lock, CreditCard, Smartphone } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import SafetyFooter from '../components/SafetyFooter'
+import InstallAppModal from '../components/InstallAppModal'
 
 export default function AccountSettings() {
   const { user, signOut, subscription, openBillingPortal, changePassword, cancelSubscription, resumeSubscription } = useAuth()
   const navigate = useNavigate()
+  const [showInstall, setShowInstall] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [subLoading, setSubLoading] = useState(false)
   const [subError, setSubError] = useState('')
@@ -103,8 +105,27 @@ export default function AccountSettings() {
         </div>
       </div>
 
+      <InstallAppModal open={showInstall} onClose={() => setShowInstall(false)} />
+
       <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
         <div className="space-y-6">
+          {/* Install App */}
+          <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+            <h3 className="font-bold text-charcoal flex items-center gap-2 mb-2">
+              <Smartphone className="w-5 h-5 text-slate-blue" />
+              Install App
+            </h3>
+            <p className="text-sm text-charcoal-70 mb-4">
+              Add The Healing Home Approach to your phone's Home Screen for quick access.
+            </p>
+            <button
+              onClick={() => setShowInstall(true)}
+              className="w-full bg-slate-blue text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors"
+            >
+              Add to Home Screen
+            </button>
+          </div>
+
           {/* Profile */}
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
             <h3 className="font-bold text-charcoal flex items-center gap-2 mb-4">

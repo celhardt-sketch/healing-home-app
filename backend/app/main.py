@@ -2,7 +2,7 @@ import os
 import secrets
 import traceback
 
-from fastapi import FastAPI, HTTPException, Depends, Header, Request
+from fastapi import FastAPI, HTTPException, Depends, Header, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
@@ -40,6 +40,7 @@ from .content import (
     upsert_page_content,
 )
 from .seed import seed_all_content
+from .email_service import send_welcome_email
 
 app = FastAPI(
     title="The Healing Home Approach API",
@@ -216,7 +217,7 @@ def health_check() -> dict:
 
 
 @app.post("/api/auth/register", response_model=TokenResponse)
-def register(body: RegisterRequest) -> TokenResponse:
+def register(body: RegisterRequest, background_tasks: BackgroundTasks) -> TokenResponse:
     """
     Register a new account. Collects name, email, password only.
     No protected health information. No card data.
@@ -244,6 +245,9 @@ def register(body: RegisterRequest) -> TokenResponse:
             )
             conn.commit()
             user_id = cursor.lastrowid
+
+        # Send the welcome email out-of-band so a mail failure never blocks signup.
+        background_tasks.add_task(send_welcome_email, body.email, body.name)
 
         token = create_token(user_id, body.email)
         return TokenResponse(access_token=token)
