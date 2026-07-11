@@ -1,10 +1,14 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle, Shield, Heart, Phone, Video, X } from 'lucide-react'
+import { ArrowLeft, AlertTriangle, Shield, Heart, Phone, Video, X, Save, Check, Users } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
 import CrisisBanner from '../components/CrisisBanner'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
+
+function getToken(): string {
+  return localStorage.getItem('auth_token') || ''
+}
 
 interface FirstAidCard {
   id: number
@@ -14,6 +18,26 @@ interface FirstAidCard {
   category: string
   video_url: string | null
   active: number
+}
+
+// Mirror of the Family Plan storage shape. saved_items is persisted nested
+// inside plan_data; firstAidCards holds card titles saved from the crisis flow.
+interface SavedPlan {
+  child_name: string
+  plan_data: Record<string, string[]>
+  saved_items: { firstAidCards: string[]; [k: string]: string[] }
+}
+
+function parsePlan(raw: { child_name: string; plan_data: Record<string, unknown> }): SavedPlan {
+  const { saved_items, ...planFields } = raw.plan_data as Record<string, unknown> & {
+    saved_items?: Record<string, string[]>
+  }
+  const si = saved_items || {}
+  return {
+    child_name: raw.child_name,
+    plan_data: planFields as Record<string, string[]>,
+    saved_items: { firstAidCards: [], scripts: [], regulationTools: [], articles: [], printables: [], ...si },
+  }
 }
 
 type FlowStep =
@@ -117,6 +141,115 @@ export default function CrisisMode() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [cards, setCards] = useState<FirstAidCard[]>([])
   const [viewingCardIndex, setViewingCardIndex] = useState(0)
+  const [savePlanCard, setSavePlanCard] = useState<FirstAidCard | null>(null)
+  const [plans, setPlans] = useState<SavedPlan[] | null>(null)
+  const [saveStatus, setSaveStatus] = useState<{ name: string } | 'saving' | 'error' | null>(null)
+
+  const openSaveToPlan = (card: FirstAidCard) => {
+    setSavePlanCard(card)
+    setSaveStatus(null)
+    const token = getToken()
+    if (!token) { setPlans([]); return }
+    fetch(`${API_URL}/api/regulation-plan/list`, { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then((data: { child_name: string; plan_data: Record<string, unknown> }[]) => setPlans(data.map(parsePlan)))
+      .catch(() => setPlans([]))
+  }
+
+  const saveCardToPlan = async (plan: SavedPlan) => {
+    if (!savePlanCard) return
+    setSaveStatus('saving')
+    const existing = plan.saved_items.firstAidCards || []
+    const firstAidCards = existing.includes(savePlanCard.title) ? existing : [...existing, savePlanCard.title]
+    const saved_items = { ...plan.saved_items, firstAidCards }
+    try {
+      const res = await fetch(`${API_URL}/api/regulation-plan/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${getToken()}` },
+        body: JSON.stringify({ child_name: plan.child_name, plan_data: { ...plan.plan_data, saved_items } }),
+      })
+      if (!res.ok) { setSaveStatus('error'); return }
+      setSaveStatus({ name: plan.child_name })
+    } catch {
+      setSaveStatus('error')
+    }
+  }
+
+  const closeSaveToPlan = () => {
+    setSavePlanCard(null)
+    setPlans(null)
+    setSaveStatus(null)
+  }
+
+  const renderSaveToPlan = () => {
+    if (!savePlanCard) return null
+    const saved = typeof saveStatus === 'object' && saveStatus !== null
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-label="Save to Family Plan">
+        <div className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-charcoal">Save to a child&rsquo;s plan</h3>
+            <button onClick={closeSaveToPlan} className="text-charcoal-70 hover:text-charcoal" aria-label="Close">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          <p className="text-sm text-charcoal-80 mb-4">
+            Save <strong>{savePlanCard.title}</strong> to a child&rsquo;s Family Plan so it&rsquo;s easy to find later.
+          </p>
+
+          {saved ? (
+            <div className="text-center py-4">
+              <Check className="w-10 h-10 text-growth-green mx-auto mb-2" />
+              <p className="text-sm text-charcoal-80 mb-4">
+                Saved to <strong>{(saveStatus as { name: string }).name}</strong>&rsquo;s plan.
+              </p>
+              <div className="flex gap-2 justify-center">
+                <Link to="/family-plan" className="px-4 py-2 text-sm font-semibold bg-slate-blue text-white rounded-lg hover:bg-slate-blue-dark transition-colors">
+                  View in Family Plan
+                </Link>
+                <button onClick={closeSaveToPlan} className="px-4 py-2 text-sm font-medium text-charcoal-70 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                  Done
+                </button>
+              </div>
+            </div>
+          ) : plans === null ? (
+            <p className="text-sm text-charcoal-70">Loading your plans&hellip;</p>
+          ) : plans.length === 0 ? (
+            <div className="text-center py-4">
+              <Users className="w-10 h-10 text-slate-blue/30 mx-auto mb-2" />
+              <p className="text-sm text-charcoal-80 mb-4">You don&rsquo;t have a Family Plan yet. Create one, then save cards to it.</p>
+              <Link to="/family-plan" className="inline-block px-4 py-2 text-sm font-semibold bg-slate-blue text-white rounded-lg hover:bg-slate-blue-dark transition-colors">
+                Go to Family Plan
+              </Link>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {plans.map((plan) => {
+                const already = (plan.saved_items.firstAidCards || []).includes(savePlanCard.title)
+                return (
+                  <button
+                    key={plan.child_name}
+                    onClick={() => saveCardToPlan(plan)}
+                    disabled={saveStatus === 'saving'}
+                    className="w-full flex items-center justify-between px-4 py-3 border border-gray-200 rounded-lg text-left hover:bg-gray-50 disabled:opacity-50 transition-colors"
+                  >
+                    <span className="font-medium text-charcoal">{plan.child_name}</span>
+                    {already
+                      ? <span className="text-xs text-growth-green flex items-center gap-1"><Check className="w-3.5 h-3.5" /> Already saved</span>
+                      : <Save className="w-4 h-4 text-slate-blue" />}
+                  </button>
+                )
+              })}
+              {saveStatus === 'error' && (
+                <p className="text-xs text-red-600 mt-2">Could not save. Please try again.</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
 
   useEffect(() => {
     fetch(`${API_URL}/api/content/first_aid_cards`)
@@ -674,16 +807,17 @@ export default function CrisisMode() {
                 Back to Options
               </button>
 
-              <Link
-                to="/family-plan"
-                className="w-full bg-growth-green text-white px-6 py-3 rounded-xl font-semibold hover:bg-growth-green-dark transition-colors block text-center"
+              <button
+                onClick={() => openSaveToPlan(card)}
+                className="w-full flex items-center justify-center gap-2 bg-growth-green text-white px-6 py-3 rounded-xl font-semibold hover:bg-growth-green-dark transition-colors"
               >
-                Save to Plan
-              </Link>
+                <Save className="w-4 h-4" /> Save to Plan
+              </button>
             </div>
           </div>
         </main>
 
+        {renderSaveToPlan()}
         <SafetyFooter />
       </div>
     )
