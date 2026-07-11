@@ -300,6 +300,58 @@ def resume_subscription(user_id: int) -> dict:
     return get_user_subscription_status(user_id)
 
 
+# Stripe subscription statuses that mean the customer is (or will be) billed and
+# therefore must not be sent through checkout again.
+_LIVE_STRIPE_STATUSES = {"active", "trialing", "past_due"}
+
+
+def find_live_subscription_for_email(email: str):
+    """Return (customer_id, subscription) for any live Stripe subscription owned by
+    this email, or (None, None). Used to reconcile our DB with Stripe directly so a
+    paid user is never bounced (and never charged twice) when a webhook is missed."""
+    init_stripe()
+    for customer in stripe.Customer.list(email=email, limit=20).auto_paging_iter():
+        for sub in stripe.Subscription.list(
+            customer=customer.id, status="all", limit=20
+        ).auto_paging_iter():
+            if sub.get("status") in _LIVE_STRIPE_STATUSES:
+                return customer.id, sub
+    return None, None
+
+
+def reconcile_subscription_from_stripe(user_id: int, email: str) -> dict:
+    """Self-heal: if Stripe shows a live subscription for this user but our DB does
+    not, activate the account. Safe no-op when Stripe has nothing live. Returns the
+    resulting subscription status dict."""
+    customer_id, sub = find_live_subscription_for_email(email)
+    if not sub:
+        return get_user_subscription_status(user_id)
+
+    with get_db() as conn:
+        conn.execute(
+            """UPDATE users
+               SET stripe_customer_id = COALESCE(?, stripe_customer_id),
+                   stripe_subscription_id = COALESCE(?, stripe_subscription_id),
+                   subscription_status = ?,
+                   subscription_cancel_at_period_end = ?,
+                   subscription_ends_at = ?,
+                   subscription_updated_at = ?
+               WHERE id = ?""",
+            (
+                customer_id,
+                sub.get("id"),
+                sub.get("status"),
+                1 if sub.get("cancel_at_period_end") else 0,
+                _period_end_iso(sub),
+                datetime.now(timezone.utc).isoformat(),
+                user_id,
+            ),
+        )
+        conn.commit()
+
+    return get_user_subscription_status(user_id)
+
+
 def get_user_subscription_status(user_id: int) -> dict:
     """Get the subscription status for a user."""
     with get_db() as conn:

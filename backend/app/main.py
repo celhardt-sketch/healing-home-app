@@ -26,6 +26,7 @@ from .stripe_billing import (
     confirm_checkout_session,
     cancel_subscription,
     resume_subscription,
+    reconcile_subscription_from_stripe,
 )
 from .content import (
     init_content_tables,
@@ -408,9 +409,20 @@ class ConfirmCheckoutRequest(BaseModel):
 
 @app.get("/api/subscription/status")
 def subscription_status(current_user: dict = Depends(get_current_user)) -> dict:
-    """Get the current user's subscription status."""
+    """Get the current user's subscription status.
+
+    When our record shows no access, reconcile against Stripe first: a user who paid
+    but whose activation was missed (webhook/confirm race) is self-healed here, so
+    they are never stranded on the paywall (and never tempted to pay again)."""
     user_id = int(current_user["sub"])
-    return get_user_subscription_status(user_id)
+    status = get_user_subscription_status(user_id)
+    if not status.get("has_access"):
+        try:
+            status = reconcile_subscription_from_stripe(user_id, current_user["email"])
+        except Exception:
+            # Never let a Stripe lookup failure break the status check.
+            pass
+    return status
 
 
 @app.post("/api/subscription/confirm")
@@ -437,8 +449,14 @@ def checkout(body: CheckoutRequest, current_user: dict = Depends(get_current_use
     email = current_user["email"]
 
     try:
+        # Guard against duplicate charges: if the user already has a live subscription
+        # in Stripe, do not start a second checkout — reconcile and tell the client.
+        reconciled = reconcile_subscription_from_stripe(user_id, email)
+        if reconciled.get("has_access"):
+            return {"checkout_url": None, "already_subscribed": True}
+
         url = create_checkout_session(email, user_id, body.success_url, body.cancel_url)
-        return {"checkout_url": url}
+        return {"checkout_url": url, "already_subscribed": False}
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:

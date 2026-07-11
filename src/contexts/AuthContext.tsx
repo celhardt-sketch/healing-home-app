@@ -28,7 +28,7 @@ interface AuthContextType {
   acceptDisclaimer: () => void
   checkSubscription: () => Promise<void>
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>
-  createCheckoutSession: () => Promise<string | null>
+  createCheckoutSession: () => Promise<{ url: string | null; alreadySubscribed: boolean }>
   openBillingPortal: () => Promise<string | null>
   cancelSubscription: () => Promise<{ ok: boolean; error?: string }>
   resumeSubscription: () => Promise<{ ok: boolean; error?: string }>
@@ -159,9 +159,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const createCheckoutSession = async (): Promise<string | null> => {
+  const createCheckoutSession = async (): Promise<{ url: string | null; alreadySubscribed: boolean }> => {
     const token = localStorage.getItem('auth_token')
-    if (!token) return null
+    if (!token) return { url: null, alreadySubscribed: false }
 
     try {
       const res = await fetch(`${API_URL}/api/subscription/checkout`, {
@@ -177,11 +177,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       if (res.ok) {
         const data = await res.json()
-        return data.checkout_url
+        // The user already has a live subscription — refresh local state so the
+        // guarded routes open instead of sending them through checkout again.
+        if (data.already_subscribed) {
+          await checkSubscriptionWithToken(token)
+          return { url: null, alreadySubscribed: true }
+        }
+        return { url: data.checkout_url, alreadySubscribed: false }
       }
-      return null
+      return { url: null, alreadySubscribed: false }
     } catch {
-      return null
+      return { url: null, alreadySubscribed: false }
     }
   }
 
