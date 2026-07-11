@@ -21,6 +21,8 @@ import AccountSettings from './pages/AccountSettings'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import TermsOfService from './pages/TermsOfService'
 import AccessGate from './pages/AccessGate'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import AdminDashboard from './pages/AdminDashboard'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -33,6 +35,8 @@ export default function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/disclaimer" element={<DisclaimerGate />} />
         <Route path="/access-gate" element={<AccessGate />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/crisis" element={<CrisisMode />} />
         <Route path="/safety-resources" element={<SafetyResources />} />
         <Route path="/mandated-reporter-guide" element={<MandatedReporterGuide />} />

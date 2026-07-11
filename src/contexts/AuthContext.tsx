@@ -28,6 +28,8 @@ interface AuthContextType {
   acceptDisclaimer: () => void
   checkSubscription: () => Promise<void>
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>
+  requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string }>
+  resetPassword: (token: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>
   createCheckoutSession: () => Promise<{ url: string | null; alreadySubscribed: boolean }>
   openBillingPortal: () => Promise<string | null>
   cancelSubscription: () => Promise<{ ok: boolean; error?: string }>
@@ -133,6 +135,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const token = localStorage.getItem('auth_token')
     if (token) {
       await checkSubscriptionWithToken(token)
+    }
+  }
+
+  const requestPasswordReset = async (
+    email: string
+  ): Promise<{ ok: boolean; error?: string }> => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      if (res.ok) return { ok: true }
+      const err = await res.json()
+      return { ok: false, error: err.detail || 'Could not send reset email' }
+    } catch {
+      return { ok: false, error: 'Network error — please check your connection' }
+    }
+  }
+
+  const resetPassword = async (
+    token: string,
+    newPassword: string
+  ): Promise<{ ok: boolean; error?: string }> => {
+    try {
+      const res = await fetch(`${API_URL}/api/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, new_password: newPassword }),
+      })
+      if (res.ok) return { ok: true }
+      const err = await res.json()
+      return { ok: false, error: err.detail || 'Could not reset password' }
+    } catch {
+      return { ok: false, error: 'Network error — please check your connection' }
     }
   }
 
@@ -328,6 +365,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         acceptDisclaimer,
         checkSubscription,
         changePassword,
+        requestPasswordReset,
+        resetPassword,
         createCheckoutSession,
         openBillingPortal,
         cancelSubscription,

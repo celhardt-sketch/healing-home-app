@@ -1,3 +1,4 @@
+import hashlib
 import os
 import secrets
 import traceback
@@ -6,7 +7,7 @@ from fastapi import FastAPI, HTTPException, Depends, Header, Request, Background
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 
 from .auth import (
     create_token,
@@ -41,7 +42,11 @@ from .content import (
     upsert_page_content,
 )
 from .seed import seed_all_content
-from .email_service import send_welcome_email
+from .email_service import (
+    send_welcome_email,
+    send_password_reset_email,
+    APP_PUBLIC_URL,
+)
 
 app = FastAPI(
     title="The Healing Home Approach API",
@@ -68,6 +73,7 @@ def startup() -> None:
     _init_journal_table()
     _init_regulation_plans_table()
     _init_growth_moments_table()
+    _init_password_resets_table()
 
 
 def _init_journal_table() -> None:
@@ -138,6 +144,30 @@ def _init_growth_moments_table() -> None:
         conn.commit()
 
 
+def _init_password_resets_table() -> None:
+    """Create the password reset tokens table if it doesn't exist.
+
+    Only a hash of each token is stored, never the token itself.
+    """
+    with get_db() as conn:
+        conn.execute("""
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                token_hash TEXT NOT NULL UNIQUE,
+                expires_at TEXT NOT NULL,
+                used INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL DEFAULT (datetime('now')),
+                FOREIGN KEY (user_id) REFERENCES users(id)
+            )
+        """)
+        conn.execute("""
+            CREATE INDEX IF NOT EXISTS idx_password_resets_token
+            ON password_resets(token_hash)
+        """)
+        conn.commit()
+
+
 # --- Request/Response models ---
 
 
@@ -154,6 +184,15 @@ class LoginRequest(BaseModel):
 
 class ChangePasswordRequest(BaseModel):
     current_password: str
+    new_password: str
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
     new_password: str
 
 
@@ -327,6 +366,74 @@ def change_password(
         )
         conn.commit()
     return MessageResponse(message="Password updated")
+
+
+def _hash_reset_token(token: str) -> str:
+    """Hash a reset token for storage/lookup (never store the raw token)."""
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+@app.post("/api/auth/forgot-password", response_model=MessageResponse)
+def forgot_password(body: ForgotPasswordRequest, background_tasks: BackgroundTasks) -> MessageResponse:
+    """Start a self-service password reset.
+
+    Emails a time-limited reset link if the account exists. Always returns the same
+    response so the endpoint cannot be used to discover which emails are registered.
+    """
+    generic = MessageResponse(
+        message="If an account exists for that email, a password reset link has been sent."
+    )
+
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT id FROM users WHERE email = ?", (body.email,)
+        ).fetchone()
+        if not user:
+            return generic
+
+        token = secrets.token_urlsafe(32)
+        expires_at = (datetime.now(timezone.utc) + timedelta(hours=1)).isoformat()
+        # Invalidate any outstanding tokens for this user, then store the new one.
+        conn.execute("DELETE FROM password_resets WHERE user_id = ?", (user["id"],))
+        conn.execute(
+            "INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (?, ?, ?)",
+            (user["id"], _hash_reset_token(token), expires_at),
+        )
+        conn.commit()
+
+    reset_url = f"{APP_PUBLIC_URL}/reset-password?token={token}"
+    background_tasks.add_task(send_password_reset_email, body.email, reset_url)
+    return generic
+
+
+@app.post("/api/auth/reset-password", response_model=MessageResponse)
+def reset_password(body: ResetPasswordRequest) -> MessageResponse:
+    """Complete a password reset using a token from the emailed link."""
+    if len(body.new_password) < 8:
+        raise HTTPException(status_code=400, detail="New password must be at least 8 characters")
+
+    token_hash = _hash_reset_token(body.token)
+    with get_db() as conn:
+        row = conn.execute(
+            "SELECT id, user_id, expires_at, used FROM password_resets WHERE token_hash = ?",
+            (token_hash,),
+        ).fetchone()
+
+        if not row or row["used"]:
+            raise HTTPException(status_code=400, detail="This reset link is invalid or has already been used.")
+        if datetime.fromisoformat(row["expires_at"]) < datetime.now(timezone.utc):
+            raise HTTPException(status_code=400, detail="This reset link has expired. Please request a new one.")
+
+        salt = generate_salt()
+        password_hash = hash_password(body.new_password, salt)
+        conn.execute(
+            "UPDATE users SET password_hash = ?, salt = ? WHERE id = ?",
+            (password_hash, salt, row["user_id"]),
+        )
+        conn.execute("UPDATE password_resets SET used = 1 WHERE id = ?", (row["id"],))
+        conn.commit()
+
+    return MessageResponse(message="Your password has been reset. You can now sign in.")
 
 
 @app.get("/api/me/admin-status")
