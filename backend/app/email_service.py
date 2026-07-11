@@ -45,6 +45,9 @@ def _send_email(to_email: str, subject: str, html: str, text: str) -> bool:
         headers={
             "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json",
+            # A real User-Agent is required: the default "Python-urllib" is
+            # blocked by Resend's Cloudflare edge (HTTP 403, error code 1010).
+            "User-Agent": "healing-home-app/1.0",
         },
         method="POST",
     )
