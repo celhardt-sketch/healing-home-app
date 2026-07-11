@@ -9,83 +9,108 @@ import Navbar from '../components/Navbar'
 import SafetyFooter from '../components/SafetyFooter'
 import InstallAppModal from '../components/InstallAppModal'
 
-const dashboardCards = [
+const dashboardSections = [
   {
-    title: 'First Aid for Big Feelings & Behaviors',
-    description: 'Immediate support for challenging moments with age-appropriate guidance',
-    icon: AlertTriangle,
-    href: '/crisis',
-    gradient: 'from-red-500 to-orange-500',
+    section: 'In the moment',
+    cards: [
+      {
+        title: 'First Aid for Big Feelings & Behaviors',
+        description: 'Immediate support for challenging moments with age-appropriate guidance',
+        icon: AlertTriangle,
+        href: '/crisis',
+        gradient: 'from-red-500 to-orange-500',
+      },
+      {
+        title: 'Scripts Library',
+        description: 'Trauma-informed response templates for everyday situations',
+        icon: FileText,
+        href: '/scripts',
+        gradient: 'from-slate-blue to-slate-blue-dark',
+      },
+      {
+        title: 'The Try Again Reset',
+        description: 'A calm-time tool for practicing repair, building body awareness, and reinforcing identity',
+        icon: RefreshCw,
+        href: '/try-again',
+        gradient: 'from-growth-green to-growth-green-dark',
+      },
+      {
+        title: 'Kids Regulation Tools',
+        description: 'Short guided regulation videos your child can use with you',
+        icon: Brain,
+        href: '/kids-regulation',
+        gradient: 'from-cyan-500 to-blue-500',
+      },
+    ],
   },
   {
-    title: 'Caregiver Support',
-    description: 'When you need support, self-care, and regulation tools',
-    icon: Heart,
-    href: '/caregiver-support',
-    gradient: 'from-healing-purple to-healing-purple-dark',
+    section: 'Plan & track',
+    cards: [
+      {
+        title: 'My Family Plan',
+        description: 'Personalized profiles and strategies for each child',
+        icon: Users,
+        href: '/family-plan',
+        gradient: 'from-sky-blue to-slate-blue',
+      },
+      {
+        title: 'Growth Tracker',
+        description: 'Log and celebrate your child\'s growth moments with positive reinforcement and weekly reflections',
+        icon: TrendingUp,
+        href: '/growth-tracker',
+        gradient: 'from-growth-green to-growth-green-dark',
+      },
+    ],
   },
   {
-    title: 'My Family Plan',
-    description: 'Personalized profiles and strategies for each child',
-    icon: Users,
-    href: '/family-plan',
-    gradient: 'from-sky-blue to-slate-blue',
+    section: 'Learn',
+    cards: [
+      {
+        title: 'Learning Library',
+        description: 'Psychoeducational content on trauma, attachment, and regulation',
+        icon: BookOpen,
+        href: '/learning',
+        gradient: 'from-healing-purple to-healing-purple-dark',
+      },
+      {
+        title: 'Printables Vault',
+        description: 'Downloadable visual schedules, charts, and tools',
+        icon: Printer,
+        href: '/printables',
+        gradient: 'from-orange-500 to-amber-500',
+      },
+    ],
   },
   {
-    title: 'The Try Again Reset',
-    description: 'A calm-time tool for practicing repair, building body awareness, and reinforcing identity',
-    icon: RefreshCw,
-    href: '/try-again',
-    gradient: 'from-growth-green to-growth-green-dark',
+    section: 'You',
+    cards: [
+      {
+        title: 'Caregiver Support',
+        description: 'When you need support, self-care, and regulation tools',
+        icon: Heart,
+        href: '/caregiver-support',
+        gradient: 'from-healing-purple to-healing-purple-dark',
+      },
+    ],
   },
   {
-    title: 'Growth Tracker',
-    description: 'Log and celebrate your child\'s growth moments with positive reinforcement and weekly reflections',
-    icon: TrendingUp,
-    href: '/growth-tracker',
-    gradient: 'from-growth-green to-growth-green-dark',
-  },
-  {
-    title: 'Kids Regulation Tools',
-    description: 'Short guided regulation videos your child can use with you',
-    icon: Brain,
-    href: '/kids-regulation',
-    gradient: 'from-cyan-500 to-blue-500',
-  },
-  {
-    title: 'Scripts Library',
-    description: 'Trauma-informed response templates for everyday situations',
-    icon: FileText,
-    href: '/scripts',
-    gradient: 'from-slate-blue to-slate-blue-dark',
-  },
-  {
-    title: 'Printables Vault',
-    description: 'Downloadable visual schedules, charts, and tools',
-    icon: Printer,
-    href: '/printables',
-    gradient: 'from-orange-500 to-amber-500',
-  },
-  {
-    title: 'Learning Library',
-    description: 'Psychoeducational content on trauma, attachment, and regulation',
-    icon: BookOpen,
-    href: '/learning',
-    gradient: 'from-healing-purple to-healing-purple-dark',
-  },
-  {
-    title: 'Mandated Reporter Guide',
-    description: 'Essential guidance for responding to disclosures legally and safely',
-    icon: Shield,
-    href: '/mandated-reporter-guide',
-    gradient: 'from-amber-500 to-red-500',
-  },
-  {
-    title: 'Safety & Help',
-    description: 'Emergency resources and when to seek professional support',
-    icon: Sparkles,
-    href: '/safety-resources',
-    gradient: 'from-red-500 to-red-600',
+    section: 'Safety',
+    cards: [
+      {
+        title: 'Mandated Reporter Guide',
+        description: 'Essential guidance for responding to disclosures legally and safely',
+        icon: Shield,
+        href: '/mandated-reporter-guide',
+        gradient: 'from-amber-500 to-red-500',
+      },
+      {
+        title: 'Safety & Help',
+        description: 'Emergency resources and when to seek professional support',
+        icon: Sparkles,
+        href: '/safety-resources',
+        gradient: 'from-red-500 to-red-600',
+      },
+    ],
   },
 ]
 
@@ -123,22 +148,31 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Dashboard Cards */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {dashboardCards.map((card) => (
-            <Link
-              key={card.title}
-              to={card.href}
-              className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow group"
-            >
-              <div className={`w-12 h-12 bg-gradient-to-r ${card.gradient} rounded-xl flex items-center justify-center mb-4`}>
-                <card.icon className="w-6 h-6 text-white" />
-              </div>
-              <h3 className="text-lg font-bold font-heading text-charcoal group-hover:text-slate-blue transition-colors mb-1">
-                {card.title}
+        {/* Dashboard Cards, grouped so an exhausted caregiver finds the right one at a glance */}
+        <div className="space-y-8 mb-8">
+          {dashboardSections.map((group) => (
+            <section key={group.section} aria-label={group.section}>
+              <h3 className="text-xs font-bold uppercase tracking-[0.08em] text-charcoal-70 mb-3">
+                {group.section}
               </h3>
-              <p className="text-sm text-charcoal-80">{card.description}</p>
-            </Link>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {group.cards.map((card) => (
+                  <Link
+                    key={card.title}
+                    to={card.href}
+                    className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-md transition-shadow group"
+                  >
+                    <div className={`w-12 h-12 bg-gradient-to-r ${card.gradient} rounded-xl flex items-center justify-center mb-4`}>
+                      <card.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h4 className="text-lg font-bold font-heading text-charcoal group-hover:text-slate-blue transition-colors mb-1">
+                      {card.title}
+                    </h4>
+                    <p className="text-sm text-charcoal-80">{card.description}</p>
+                  </Link>
+                ))}
+              </div>
+            </section>
           ))}
         </div>
 
