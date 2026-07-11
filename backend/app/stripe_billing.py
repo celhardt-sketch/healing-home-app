@@ -126,16 +126,29 @@ def _handle_subscription_updated(subscription: dict) -> None:
     subscription_id = subscription.get("id")
     status = subscription.get("status")  # active, past_due, canceled, unpaid
     customer_id = subscription.get("customer")
+    cancel_at_period_end = 1 if subscription.get("cancel_at_period_end") else 0
+    ends_at = _period_end_iso(subscription)
 
     with get_db() as conn:
         conn.execute(
             """UPDATE users
                SET subscription_status = ?,
+                   subscription_cancel_at_period_end = ?,
+                   subscription_ends_at = ?,
                    subscription_updated_at = ?
                WHERE stripe_customer_id = ? OR stripe_subscription_id = ?""",
-            (status, datetime.now(timezone.utc).isoformat(), customer_id, subscription_id),
+            (status, cancel_at_period_end, ends_at,
+             datetime.now(timezone.utc).isoformat(), customer_id, subscription_id),
         )
         conn.commit()
+
+
+def _period_end_iso(subscription: dict) -> str | None:
+    """Convert a Stripe subscription current_period_end (unix) to ISO, if present."""
+    ts = subscription.get("current_period_end")
+    if not ts:
+        return None
+    return datetime.fromtimestamp(int(ts), tz=timezone.utc).isoformat()
 
 
 def _handle_subscription_deleted(subscription: dict) -> None:
@@ -147,6 +160,8 @@ def _handle_subscription_deleted(subscription: dict) -> None:
         conn.execute(
             """UPDATE users
                SET subscription_status = 'canceled',
+                   subscription_cancel_at_period_end = 0,
+                   subscription_ends_at = NULL,
                    subscription_updated_at = ?
                WHERE stripe_customer_id = ? OR stripe_subscription_id = ?""",
             (datetime.now(timezone.utc).isoformat(), customer_id, subscription_id),
@@ -215,16 +230,84 @@ def confirm_checkout_session(session_id: str, user_id: int, user_email: str) -> 
     return get_user_subscription_status(user_id)
 
 
+def cancel_subscription(user_id: int) -> dict:
+    """Cancel the user's subscription at the end of the current billing period.
+
+    Access is retained until the paid period ends (cancel_at_period_end), which is
+    the expected behavior for a paid membership.
+    """
+    init_stripe()
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT stripe_subscription_id FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+
+    subscription_id = user["stripe_subscription_id"] if user else None
+    if not subscription_id:
+        raise ValueError("No active membership to cancel.")
+
+    subscription = stripe.Subscription.modify(subscription_id, cancel_at_period_end=True)
+    ends_at = _period_end_iso(subscription)
+
+    with get_db() as conn:
+        conn.execute(
+            """UPDATE users
+               SET subscription_cancel_at_period_end = 1,
+                   subscription_ends_at = ?,
+                   subscription_updated_at = ?
+               WHERE id = ?""",
+            (ends_at, datetime.now(timezone.utc).isoformat(), user_id),
+        )
+        conn.commit()
+
+    return get_user_subscription_status(user_id)
+
+
+def resume_subscription(user_id: int) -> dict:
+    """Undo a scheduled cancellation so the membership renews as normal."""
+    init_stripe()
+    with get_db() as conn:
+        user = conn.execute(
+            "SELECT stripe_subscription_id FROM users WHERE id = ?", (user_id,)
+        ).fetchone()
+
+    subscription_id = user["stripe_subscription_id"] if user else None
+    if not subscription_id:
+        raise ValueError("No membership to resume.")
+
+    stripe.Subscription.modify(subscription_id, cancel_at_period_end=False)
+
+    with get_db() as conn:
+        conn.execute(
+            """UPDATE users
+               SET subscription_cancel_at_period_end = 0,
+                   subscription_updated_at = ?
+               WHERE id = ?""",
+            (datetime.now(timezone.utc).isoformat(), user_id),
+        )
+        conn.commit()
+
+    return get_user_subscription_status(user_id)
+
+
 def get_user_subscription_status(user_id: int) -> dict:
     """Get the subscription status for a user."""
     with get_db() as conn:
         user = conn.execute(
-            "SELECT subscription_status, stripe_customer_id, is_admin FROM users WHERE id = ?",
+            """SELECT subscription_status, stripe_customer_id, is_admin,
+                      subscription_cancel_at_period_end, subscription_ends_at
+               FROM users WHERE id = ?""",
             (user_id,),
         ).fetchone()
 
     if not user:
-        return {"status": "none", "has_access": False, "is_admin": False}
+        return {
+            "status": "none",
+            "has_access": False,
+            "is_admin": False,
+            "cancel_at_period_end": False,
+            "ends_at": None,
+        }
 
     status = user["subscription_status"] or "none"
     is_admin = bool(user["is_admin"])
@@ -236,4 +319,6 @@ def get_user_subscription_status(user_id: int) -> dict:
         "has_access": has_access,
         "is_admin": is_admin,
         "stripe_customer_id": user["stripe_customer_id"],
+        "cancel_at_period_end": bool(user["subscription_cancel_at_period_end"]),
+        "ends_at": user["subscription_ends_at"],
     }
