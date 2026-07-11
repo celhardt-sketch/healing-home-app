@@ -212,13 +212,21 @@ export default function AccountSettings() {
               {subscription.has_access && !subscription.is_admin && (
                 <>
                   <button
+                    disabled={subLoading}
                     onClick={async () => {
-                      const url = await openBillingPortal()
-                      if (url) window.location.href = url
+                      setSubError('')
+                      setSubLoading(true)
+                      const result = await openBillingPortal()
+                      setSubLoading(false)
+                      if (result.url) {
+                        window.location.href = result.url
+                      } else {
+                        setSubError(result.error || 'Could not open billing portal')
+                      }
                     }}
-                    className="w-full bg-gray-50 text-charcoal py-2.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors border border-gray-200"
+                    className="w-full bg-gray-50 text-charcoal py-2.5 rounded-lg text-sm font-medium hover:bg-gray-100 transition-colors border border-gray-200 disabled:opacity-50"
                   >
-                    Manage Billing
+                    {subLoading ? 'Opening…' : 'Manage Billing'}
                   </button>
 
                   {subscription.cancel_at_period_end ? (

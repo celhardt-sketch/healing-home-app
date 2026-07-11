@@ -31,7 +31,7 @@ interface AuthContextType {
   requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string }>
   resetPassword: (token: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>
   createCheckoutSession: () => Promise<{ url: string | null; alreadySubscribed: boolean }>
-  openBillingPortal: () => Promise<string | null>
+  openBillingPortal: () => Promise<{ url: string | null; error?: string }>
   cancelSubscription: () => Promise<{ ok: boolean; error?: string }>
   resumeSubscription: () => Promise<{ ok: boolean; error?: string }>
 }
@@ -228,9 +228,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const openBillingPortal = async (): Promise<string | null> => {
+  const openBillingPortal = async (): Promise<{ url: string | null; error?: string }> => {
     const token = localStorage.getItem('auth_token')
-    if (!token) return null
+    if (!token) return { url: null, error: 'You must be signed in' }
 
     try {
       const res = await fetch(`${API_URL}/api/subscription/billing-portal`, {
@@ -245,11 +245,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       if (res.ok) {
         const data = await res.json()
-        return data.portal_url
+        return { url: data.portal_url }
       }
-      return null
+      const err = await res.json().catch(() => ({}))
+      return { url: null, error: err.detail || 'Could not open billing portal' }
     } catch {
-      return null
+      return { url: null, error: 'Network error — please check your connection' }
     }
   }
 

@@ -3,6 +3,7 @@ import os
 import secrets
 import traceback
 
+import stripe
 from fastapi import FastAPI, HTTPException, Depends, Header, Request, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr
@@ -523,7 +524,12 @@ def subscription_status(current_user: dict = Depends(get_current_user)) -> dict:
     they are never stranded on the paywall (and never tempted to pay again)."""
     user_id = int(current_user["sub"])
     status = get_user_subscription_status(user_id)
-    if not status.get("has_access"):
+    # Self-heal when our record is incomplete: no access at all, or a scheduled
+    # cancellation whose end date is missing (e.g. stored before the date fix).
+    needs_reconcile = not status.get("has_access") or (
+        status.get("cancel_at_period_end") and not status.get("ends_at")
+    )
+    if needs_reconcile:
         try:
             status = reconcile_subscription_from_stripe(user_id, current_user["email"])
         except Exception:
@@ -604,12 +610,30 @@ def billing_portal(body: BillingPortalRequest, current_user: dict = Depends(get_
     user_id = int(current_user["sub"])
     sub_info = get_user_subscription_status(user_id)
 
+    # A user who paid but whose webhook was missed may not have a stored customer id
+    # yet; reconcile directly with Stripe so Manage Billing still works for them.
+    if not sub_info.get("stripe_customer_id"):
+        try:
+            sub_info = reconcile_subscription_from_stripe(user_id, current_user["email"])
+        except Exception:
+            pass
+
     if not sub_info.get("stripe_customer_id"):
         raise HTTPException(status_code=400, detail="No billing account found. Subscribe first.")
 
     try:
         url = create_billing_portal_session(sub_info["stripe_customer_id"], body.return_url)
         return {"portal_url": url}
+    except stripe.error.InvalidRequestError as e:
+        # Most commonly: the Stripe Customer Portal has not been activated for this
+        # (live) account yet. Surface an actionable message instead of a raw 500.
+        message = str(getattr(e, "user_message", None) or e)
+        if "configuration" in message.lower() or "portal" in message.lower():
+            message = (
+                "Billing portal is not enabled yet. Activate the Customer Portal in "
+                "your Stripe dashboard (Settings > Billing > Customer portal), then try again."
+            )
+        raise HTTPException(status_code=503, detail=message)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Billing portal error: {str(e)}")
 
