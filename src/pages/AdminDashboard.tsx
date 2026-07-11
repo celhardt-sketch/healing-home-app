@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowLeft, Users, Bell, Video, Mail, Webhook, FileText, BookOpen, Printer, Heart, Plus, Trash2, Edit2, X } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
@@ -300,6 +300,13 @@ function ContentTab({ table, label, fields, previewType }: { table: string; labe
   const [formData, setFormData] = useState<Record<string, unknown>>({})
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
+  const formRef = useRef<HTMLDivElement | null>(null)
+
+  // The edit/create form renders at the top of the list; scroll to it so
+  // clicking a card's pencil doesn't look like nothing happened.
+  useEffect(() => {
+    if (showForm) formRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [showForm, editingId])
 
   const fetchItems = useCallback(() => {
     apiGet(`/api/content/${table}`).then(setItems).catch(() => {}).finally(() => setLoading(false))
@@ -394,7 +401,7 @@ function ContentTab({ table, label, fields, previewType }: { table: string; labe
       {msg && <p className="text-sm text-growth-green mb-4">{msg}</p>}
 
       {showForm && (
-        <div className="bg-gray-50 rounded-xl p-6 mb-6 border border-gray-200">
+        <div ref={formRef} className="bg-gray-50 rounded-xl p-6 mb-6 border border-gray-200 scroll-mt-4">
           <div className="flex justify-between items-center mb-4">
             <h4 className="font-semibold text-charcoal">{editingId ? 'Edit' : 'New'} {label}</h4>
             <button onClick={() => setShowForm(false)} className="text-charcoal-70 hover:text-charcoal"><X className="w-5 h-5" /></button>
