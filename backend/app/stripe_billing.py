@@ -86,8 +86,8 @@ def handle_webhook_event(payload: bytes, sig_header: str) -> dict:
 
     if event_type == "checkout.session.completed":
         _handle_checkout_completed(data)
-    elif event_type == "customer.subscription.updated":
-        _handle_subscription_updated(data)
+    elif event_type in ("customer.subscription.created", "customer.subscription.updated"):
+        _handle_subscription_upsert(data)
     elif event_type == "customer.subscription.deleted":
         _handle_subscription_deleted(data)
     elif event_type == "invoice.payment_failed":
@@ -121,24 +121,34 @@ def _handle_checkout_completed(session: dict) -> None:
         conn.commit()
 
 
-def _handle_subscription_updated(subscription: dict) -> None:
-    """Update subscription status (active, past_due, canceled, etc.)."""
+def _handle_subscription_upsert(subscription: dict) -> None:
+    """Create or update a user's subscription status (active, past_due, canceled, etc.).
+
+    Handles both customer.subscription.created and .updated. A brand-new subscriber
+    has no stripe_customer_id stored yet, so matching only on customer/subscription id
+    would miss them; we link by the user_id stamped on the subscription metadata at
+    checkout, which also persists the Stripe ids for future events.
+    """
     subscription_id = subscription.get("id")
     status = subscription.get("status")  # active, past_due, canceled, unpaid
     customer_id = subscription.get("customer")
     cancel_at_period_end = 1 if subscription.get("cancel_at_period_end") else 0
     ends_at = _period_end_iso(subscription)
+    user_id = (subscription.get("metadata") or {}).get("user_id")
 
     with get_db() as conn:
         conn.execute(
             """UPDATE users
-               SET subscription_status = ?,
+               SET stripe_customer_id = COALESCE(?, stripe_customer_id),
+                   stripe_subscription_id = COALESCE(?, stripe_subscription_id),
+                   subscription_status = ?,
                    subscription_cancel_at_period_end = ?,
                    subscription_ends_at = ?,
                    subscription_updated_at = ?
-               WHERE stripe_customer_id = ? OR stripe_subscription_id = ?""",
-            (status, cancel_at_period_end, ends_at,
-             datetime.now(timezone.utc).isoformat(), customer_id, subscription_id),
+               WHERE id = ? OR stripe_customer_id = ? OR stripe_subscription_id = ?""",
+            (customer_id, subscription_id, status, cancel_at_period_end, ends_at,
+             datetime.now(timezone.utc).isoformat(),
+             int(user_id) if user_id else -1, customer_id, subscription_id),
         )
         conn.commit()
 
