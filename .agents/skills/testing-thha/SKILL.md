@@ -28,21 +28,29 @@ Auth is **real**: salted PBKDF2-HMAC-SHA256 password hashes in SQLite, JWT beare
 credentials do not work — register an account first.
 
 1. Navigate to `/disclaimer` — this page is both the login and register form
-2. Register: fill first name, last name, email, password → continue to the terms step → accept → `/dashboard`
-3. Log in: enter the email + password you registered with → `/dashboard`
+2. Register: fill first name, last name, email, password → continue to the terms step (6 checkboxes, all
+   required) → accept. The code navigates to `/dashboard`, but a brand-new account has no subscription, so
+   `ProtectedRoute` immediately bounces it to `/access-gate`. That is the expected landing page after signup.
+3. Log in: enter the email + password you registered with → `/dashboard` if the account has access, otherwise
+   `/access-gate`
 
 `ProtectedRoute` redirects unauthenticated users to `/disclaimer`, and authenticated users **without a
 subscription** to `/access-gate`. So a freshly registered account cannot reach the tool pages. To test them
 locally, grant yourself access via the backend rather than going through Stripe:
 
+Both endpoints take **query parameters**, not a JSON body — a JSON body returns HTTP 422:
+
 ```bash
 # promote to admin (needs ADMIN_SETUP_KEY set on the backend process)
-curl -X POST localhost:8000/api/setup/make-admin -H 'content-type: application/json' \
-  -d '{"email":"dev@example.com","key":"<ADMIN_SETUP_KEY>"}'
-# then grant access with the resulting admin token
-curl -X POST localhost:8000/api/admin/grant-access -H "Authorization: Bearer <token>" \
-  -H 'content-type: application/json' -d '{"email":"dev@example.com"}'
+curl -X POST "localhost:8000/api/setup/make-admin?email=dev@example.com&setup_key=$ADMIN_SETUP_KEY"
+# log in again to get a token that carries admin rights, then grant access
+TOKEN=$(curl -s -X POST localhost:8000/api/auth/login -H 'content-type: application/json' \
+  -d '{"email":"dev@example.com","password":"devpass123"}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["access_token"])')
+curl -X POST "localhost:8000/api/admin/grant-access?email=dev@example.com" \
+  -H "Authorization: Bearer $TOKEN"
 ```
+
+Reload the browser tab afterwards so `AuthContext` re-fetches `/api/subscription/status`.
 
 `/account` is the exception — it uses `requireSubscription={false}` and is reachable while logged out of a plan.
 
@@ -57,7 +65,7 @@ Source of truth is the `<Route>` list in `src/App.tsx`. Public: `/`, `/disclaime
 | Route | What to Verify |
 |-------|----------------|
 | `/` | Landing page: logo, hero heading, feature cards, SafetyFooter with 911/988 |
-| `/disclaimer` | Register (2-step, terms gate) and login both reach `/dashboard` |
+| `/disclaimer` | Register (2-step, terms gate) and login both authenticate; landing page depends on subscription |
 | `/access-gate` | Subscribed-only redirect target for accounts without access |
 | `/dashboard` | Quick action cards + tool cards, all links resolve |
 | `/crisis` | Multi-step de-escalation guide with Next/Previous navigation |
@@ -88,6 +96,9 @@ seed/admin edits in the database you are pointing at. Verify behaviour, not hard
 - The app is a PWA with `registerType: 'autoUpdate'`. A stale service worker can serve old assets — hard-reload
   or unregister the SW in DevTools when a change does not appear.
 - Disclaimer/terms acceptance and favorites use localStorage; clear it or use incognito to re-test those gates.
+- `/family-plan` and `/growth-tracker` open behind a one-time "Before you use ..." data notice (`DataNoticeGate`):
+  tick "I have read this notice" and click Continue before the tool UI appears. It is localStorage-backed, so it
+  does not reappear after a reload.
 - The SafetyFooter appears on authenticated pages with 911 and 988 crisis numbers.
 - Check the browser console and the uvicorn log together — a blank page is usually a failed API call (CORS,
   wrong `VITE_API_URL`, or a 401 from an expired token), not a render bug.

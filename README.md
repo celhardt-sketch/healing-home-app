@@ -12,7 +12,7 @@ The frontend talks to the backend over absolute URLs built from `VITE_API_URL`. 
 
 | Tool | Version | Notes |
 |------|---------|-------|
-| Node | `>=22.12.0` (see `.nvmrc`) | Vite 8 / rolldown needs this. Node 20.18 fails the build with a `MODULE_NOT_FOUND` on the rolldown native binding. |
+| Node | `>=22.12.0` (see `.nvmrc`) | Vite 8 / rolldown needs this. A fresh `npm install` + `npm run build` on Node 20.18 fails with `MODULE_NOT_FOUND` on the rolldown native binding. (An existing `node_modules` installed under Node 22 will still build under Node 20 — the floor bites on install, so it is the clean-clone case that breaks.) |
 | Python | `>=3.11` | Declared in `backend/pyproject.toml`. |
 | uv | any recent | Used below to create the backend venv; `python -m venv` + `pip` works too. |
 
@@ -28,11 +28,14 @@ uv venv --python 3.12 .venv
 uv pip install -e .
 
 mkdir -p ~/efw-data
-DATA_DIR=~/efw-data JWT_SECRET=local-dev-secret .venv/bin/uvicorn app.main:app --reload --port 8000
+DATA_DIR=~/efw-data JWT_SECRET=local-dev-secret ADMIN_SETUP_KEY=local-admin-key \
+  .venv/bin/uvicorn app.main:app --reload --port 8000
 ```
 
 `DATA_DIR` is where the SQLite file lives. It defaults to `/data` (the Railway persistent volume), which is not
 writable locally — always override it. `JWT_SECRET` has no default and the app refuses to start without it.
+`ADMIN_SETUP_KEY` is optional but you will want it — without it you cannot reach the subscription-gated pages
+locally (see below).
 
 Check it came up: `curl localhost:8000/api/health` → `{"status":"healthy", ... "jwt_configured":true}`.
 Interactive API docs are at http://localhost:8000/docs.
@@ -57,9 +60,30 @@ curl -X POST localhost:8000/api/auth/register -H 'content-type: application/json
   -d '{"email":"dev@example.com","password":"devpass123","first_name":"Dev","last_name":"Tester"}'
 ```
 
-That returns `{"access_token": ...}`. Most app routes are wrapped in `ProtectedRoute` and additionally require a
-subscription; to reach them locally without Stripe, promote yourself to admin with `POST /api/setup/make-admin`
-(guarded by `ADMIN_SETUP_KEY`) and grant access via `POST /api/admin/grant-access`.
+That returns `{"access_token": ...}`.
+
+Registering does **not** get you to `/dashboard`, despite the redirect the UI performs. Every tool route is
+wrapped in `ProtectedRoute`, which bounces an account without a subscription to `/access-gate` — so a brand-new
+local account lands there. To reach the gated pages without going through Stripe, start the backend with an
+`ADMIN_SETUP_KEY` and grant yourself access. Both endpoints take **query parameters, not a JSON body**:
+
+```bash
+# 1. promote to admin
+curl -X POST "localhost:8000/api/setup/make-admin?email=dev@example.com&setup_key=$ADMIN_SETUP_KEY"
+
+# 2. log in again — the token issued before promotion carries no admin claim
+TOKEN=$(curl -s -X POST localhost:8000/api/auth/login -H 'content-type: application/json' \
+  -d '{"email":"dev@example.com","password":"devpass123"}' | python3 -c 'import json,sys; print(json.load(sys.stdin)["access_token"])')
+
+# 3. grant access
+curl -X POST "localhost:8000/api/admin/grant-access?email=dev@example.com" -H "Authorization: Bearer $TOKEN"
+```
+
+Reload the app and the tool routes render. `/account` is reachable without any of this — it is the one route
+declared `requireSubscription={false}`.
+
+`/family-plan` and `/growth-tracker` show a one-time "Before you use…" data-notice checkbox (`DataNoticeGate`)
+before the tool UI appears; it is remembered in localStorage.
 
 ## Checks
 
