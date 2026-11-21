@@ -34,7 +34,7 @@ export default function LearningCategory() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-3xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-3xl">
         <div className="mb-6">
           <h2 className="text-2xl font-bold font-heading text-charcoal">
             {category.name} <span className="text-charcoal-70 font-normal text-lg">&middot; {category.articles.length} article{category.articles.length !== 1 ? 's' : ''}</span>

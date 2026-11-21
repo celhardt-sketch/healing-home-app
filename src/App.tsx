@@ -1,4 +1,5 @@
-import { Routes, Route } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import LandingPage from './pages/LandingPage'
 import DisclaimerGate from './pages/DisclaimerGate'
@@ -27,9 +28,38 @@ import AdminDashboard from './pages/AdminDashboard'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/ProtectedRoute'
 
+function SkipToContent() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    const main = document.getElementById('main-content') ?? document.querySelector('main')
+    if (!main) return
+    if (!main.id) main.id = 'main-content'
+    if (!main.hasAttribute('tabindex')) main.tabIndex = -1
+  }, [pathname])
+
+  return (
+    <a
+      href="#main-content"
+      className="skip-link"
+      onClick={(event) => {
+        const main = document.getElementById('main-content') ?? document.querySelector('main')
+        if (!main) return
+        if (!main.id) main.id = 'main-content'
+        main.tabIndex = -1
+        main.focus()
+        event.preventDefault()
+      }}
+    >
+      Skip to content
+    </a>
+  )
+}
+
 export default function App() {
   return (
     <AuthProvider>
+      <SkipToContent />
       <Routes>
         {/* Public: landing, gates, legal, and safety-critical crisis pages */}
         <Route path="/" element={<LandingPage />} />

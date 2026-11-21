@@ -72,7 +72,7 @@ const SECTIONS: SectionDef[] = [
     instruction: 'What skill are we currently building?',
     presets: ['Asking for space', 'Using words instead of hitting', 'Staying in the room', 'Truth-telling', 'Safe body choices'],
     color: 'bg-white border-gray-200 text-charcoal-70',
-    selectedColor: 'bg-growth-green/10 border-growth-green/20 text-growth-green-dark',
+    selectedColor: 'bg-growth-green/10 border-growth-green/20 text-growth-green-ink',
   },
 ]
 
@@ -446,7 +446,7 @@ export default function FamilyPlan() {
             value={editing.child_name}
             onChange={(e) => setEditing({ ...editing, child_name: e.target.value })}
             placeholder="First name or nickname only"
-            className="w-full max-w-xs px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+            className="w-full max-w-xs px-3 py-2 border border-gray-200 rounded-lg"
           />
         </div>
 
@@ -504,7 +504,7 @@ export default function FamilyPlan() {
                         onChange={(e) => setCustomInputs({ ...customInputs, [section.key]: e.target.value })}
                         onKeyDown={(e) => { if (e.key === 'Enter') addCustomChip(section.key) }}
                         placeholder="Add your own - please don't include identifying details"
-                        className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                        className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm"
                       />
                       <button
                         onClick={() => addCustomChip(section.key)}
@@ -652,7 +652,7 @@ export default function FamilyPlan() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <DataNoticeGate featureKey="family_plan" title="My Family Plan">
         {/* Page intro */}
         <div className="text-center mb-4">

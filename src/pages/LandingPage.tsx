@@ -32,7 +32,7 @@ const features = [
     icon: BookOpen,
     title: 'Learning Library',
     description: 'Psychoeducational content on trauma, attachment, and regulation that translates clinical insights into practical understanding.',
-    color: 'bg-healing-purple/10 text-healing-purple',
+    color: 'bg-healing-purple/10 text-healing-purple-ink',
   },
   {
     icon: Users,
@@ -44,7 +44,7 @@ const features = [
     icon: Heart,
     title: 'Caregiver Support',
     description: 'Self-care tools and regulation exercises for when you need to fill your own cup before you can pour into others.',
-    color: 'bg-growth-green/10 text-growth-green-dark',
+    color: 'bg-growth-green/10 text-growth-green-ink',
   },
   {
     icon: ClipboardList,
@@ -135,6 +135,7 @@ export default function LandingPage() {
         </div>
       </nav>
 
+      <main id="main-content" tabIndex={-1}>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/10">
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-healing-purple/10 rounded-full blur-3xl" aria-hidden="true" />
@@ -177,7 +178,7 @@ export default function LandingPage() {
             )}
           </p>
           {familyTrial && (
-            <p className="text-sm text-charcoal-80 mb-6 max-w-xl leading-relaxed">
+            <p className="text-sm text-growth-green-ink mb-6 max-w-xl leading-relaxed">
               Start your {trialDays}-day free trial. Your card is saved today and charged when the trial ends unless you cancel.
             </p>
           )}
@@ -324,7 +325,7 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-8">
             <h3 className="text-3xl md:text-4xl font-bold font-heading text-charcoal mb-3">Simple, honest pricing</h3>
-            <p className="text-charcoal-80 max-w-2xl mx-auto">
+            <p className={`max-w-2xl mx-auto ${familyTrial ? 'text-growth-green-ink' : 'text-charcoal-80'}`}>
               {familyTrial
                 ? `New families get one ${trialDays}-day free trial on a family plan. Your card is saved today and charged when the trial ends unless you cancel.`
                 : 'Every plan includes the full app. Cancel anytime.'}
@@ -399,6 +400,7 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      </main>
 
       <SafetyFooter />
     </div>

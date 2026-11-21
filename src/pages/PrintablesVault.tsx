@@ -44,7 +44,7 @@ export default function PrintablesVault() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-5xl mx-auto px-4 py-8 w-full">
+      <main id="main-content" tabIndex={-1} className="flex-1 max-w-5xl mx-auto px-4 py-8 w-full">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold font-heading text-charcoal mb-2">
             Downloadable Resources
@@ -62,7 +62,7 @@ export default function PrintablesVault() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search printables..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-400 focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg"
             />
           </div>
           <div className="flex flex-wrap gap-2">

@@ -25,7 +25,7 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/5 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+      <main id="main-content" tabIndex={-1} className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
         <div className="text-center mb-6">
           <img src="/logo.png" alt="The Healing Home Approach" className="h-16 w-auto mx-auto mb-4" />
           <h2 className="text-2xl font-bold font-heading text-slate-blue">Reset your password</h2>
@@ -56,12 +56,14 @@ export default function ForgotPassword() {
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Email</label>
+                <label htmlFor="reset-email" className="block text-sm font-medium text-charcoal mb-1">Email</label>
                 <input
+                  id="reset-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                  autoComplete="email"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   required
                 />
               </div>
@@ -81,7 +83,7 @@ export default function ForgotPassword() {
             </p>
           </>
         )}
-      </div>
+      </main>
     </div>
   )
 }
