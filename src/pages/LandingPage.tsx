@@ -19,13 +19,13 @@ const features = [
   {
     icon: Shield,
     title: 'Behavioral & Emotional First Aid',
-    description: 'Immediate, step by step support during challenging moments, with age appropriate guidance tailored to your child\'s needs.',
+    description: 'Immediate, step-by-step support during challenging moments, with age-appropriate guidance tailored to your child\'s needs.',
     color: 'bg-red-50 text-red-600',
   },
   {
     icon: FileText,
     title: 'Scripts Library',
-    description: 'Trauma informed response templates for everyday situations, so you always know what to say when it matters most.',
+    description: 'Trauma-informed response templates for everyday situations, so you always know what to say when it matters most.',
     color: 'bg-slate-blue/10 text-slate-blue',
   },
   {
@@ -43,13 +43,13 @@ const features = [
   {
     icon: Heart,
     title: 'Caregiver Support',
-    description: 'Self care tools and regulation exercises for when you need to fill your own cup before you can pour into others.',
+    description: 'Self-care tools and regulation exercises for when you need to fill your own cup before you can pour into others.',
     color: 'bg-growth-green/10 text-growth-green-ink',
   },
   {
     icon: ClipboardList,
     title: 'Mandated Reporter Guide',
-    description: 'Clear, compassionate guidance for responding to disclosures legally and safely, with step by step protocols.',
+    description: 'Clear, compassionate guidance for responding to disclosures legally and safely, with step-by-step protocols.',
     color: 'bg-amber-50 text-amber-700',
   },
   {
@@ -69,7 +69,7 @@ const features = [
 const audiences = [
   {
     icon: Users,
-    title: 'Foster & Adoptive Parents',
+    title: 'Foster & Adoptive Caregivers',
     description: 'Navigating the complexities of caring for children with trauma histories, attachment challenges, and behavioral needs that traditional parenting advice does not address.',
     color: 'bg-slate-blue',
   },
@@ -82,7 +82,7 @@ const audiences = [
   {
     icon: Sparkles,
     title: 'Professionals & Advocates',
-    description: 'Therapists, caseworkers, teachers, and medical providers who serve these families and want clinically grounded resources to recommend and use alongside their work.',
+    description: 'Therapists, caseworkers, teachers, and medical providers who support caregivers and want clinically grounded resources to recommend and use alongside their work.',
     color: 'bg-healing-purple',
   },
 ]
@@ -91,8 +91,8 @@ const reasons = [
   'Clinically informed tools created by a child development specialist and therapist',
   'Designed specifically for foster, adoptive, and kinship caregivers',
   'Practical, actionable strategies you can use in real time',
-  'Grounded in attachment theory and trauma informed principles',
-  'Created by someone who has walked this path as a foster and adoptive parent',
+  'Grounded in attachment theory and trauma-informed principles',
+  'Created by someone who has walked this path as a foster and adoptive caregiver',
   'Continuously updated with new content and resources',
 ]
 
@@ -100,7 +100,9 @@ export default function LandingPage() {
   const navigate = useNavigate()
   const plans = usePublicPlans()
   const classic = isClassicMonthly(plans)
-  const familyTrial = plans.some((plan) => plan.trial_days > 0)
+  const trialPlan = plans.find((plan) => plan.trial_days > 0)
+  const familyTrial = Boolean(trialPlan)
+  const trialDays = trialPlan?.trial_days ?? 0
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -142,7 +144,7 @@ export default function LandingPage() {
         <div className="max-w-3xl">
           <span className="inline-flex items-center gap-2 bg-white/70 backdrop-blur text-slate-blue text-sm font-semibold px-4 py-1.5 rounded-full mb-6 border border-slate-blue/10">
             <Sparkles className="w-4 h-4" />
-            Trauma Informed Caregiver Support
+            Trauma-Informed Caregiver Support
           </span>
           <h2 className="text-4xl md:text-6xl font-bold font-heading text-charcoal leading-tight mb-6">
             Breaking Cycles.{' '}
@@ -150,7 +152,7 @@ export default function LandingPage() {
           </h2>
           <p className="text-lg text-charcoal-80 mb-8 max-w-2xl leading-relaxed">
             A comprehensive digital companion for foster, adoptive, and kinship caregivers.
-            Practical tools and trauma informed guidance to help you navigate the beautiful,
+            Practical tools and trauma-informed guidance to help you navigate the beautiful,
             complex journey of caring for children who have experienced adversity.
           </p>
           <div className="flex flex-wrap gap-4 mb-8">
@@ -167,16 +169,21 @@ export default function LandingPage() {
               Sign In
             </button>
           </div>
-          <p className="inline-flex items-center gap-2 text-sm font-medium text-charcoal-80 bg-white/70 backdrop-blur border border-gray-100 rounded-full px-4 py-1.5 mb-6">
+          <p className={`inline-flex items-center gap-2 text-sm font-medium text-charcoal-80 bg-white/70 backdrop-blur border border-gray-100 rounded-full px-4 py-1.5 ${familyTrial ? 'mb-3' : 'mb-6'}`}>
             <span className="text-slate-blue font-bold">
               {classic || plans.some((plan) => plan.id === 'monthly') ? `${PRICE}/month` : `${plans[0].amount_display}/${planIntervalLabel(plans[0])}`}
             </span>
-            <span className="text-charcoal-70">
-              {familyTrial ? <>&middot; 7-day free trial for new families</> : <>&middot; cancel anytime</>}
-            </span>
+            {!familyTrial && (
+              <span className="text-charcoal-70">&middot; cancel anytime</span>
+            )}
           </p>
+          {familyTrial && (
+            <p className="text-sm text-growth-green-ink mb-6 max-w-xl leading-relaxed">
+              Start your {trialDays}-day free trial. Your card is saved today and charged when the trial ends unless you cancel.
+            </p>
+          )}
           <p className="text-sm text-charcoal-70">
-            Created by Courtney Snyder Elhardt, M.S., M.A. &mdash; Child Development Specialist, Therapist, and Foster/Adoptive Parent
+            Created by Courtney Snyder Elhardt, MS, MA, LPC. Child Development Specialist, Therapist, and Foster/Adoptive Caregiver
           </p>
         </div>
         </div>
@@ -243,7 +250,7 @@ export default function LandingPage() {
               </h3>
               <p className="text-charcoal-80 mb-8 leading-relaxed">
                 This is not another generic parenting app. Every tool, script, and resource was created
-                from the intersection of clinical expertise and lived experience as a foster and adoptive parent.
+                from the intersection of clinical expertise and lived experience as a foster and adoptive caregiver.
                 We understand the weight you carry, and we built this to lighten it.
               </p>
               <ul className="space-y-3">
@@ -260,8 +267,7 @@ export default function LandingPage() {
                 <div className="w-20 h-20 bg-sky-blue-bg rounded-full flex items-center justify-center mx-auto mb-4">
                   <Heart className="w-10 h-10 text-slate-blue" />
                 </div>
-                <h4 className="font-heading font-bold text-charcoal">Courtney Snyder Elhardt</h4>
-                <p className="text-sm text-charcoal-70">M.S., M.A.</p>
+                <h4 className="font-heading font-bold text-charcoal">Courtney Snyder Elhardt, MS, MA, LPC</h4>
               </div>
               <blockquote className="text-charcoal-80 text-sm italic leading-relaxed border-l-2 border-growth-green pl-4">
                 "I created this app because I know what it is like to be in the thick of it, holding
@@ -270,7 +276,7 @@ export default function LandingPage() {
                 This is the resource I wish I had from day one."
               </blockquote>
               <div className="flex flex-wrap gap-2 mt-4 justify-center">
-                {['Child Development Specialist', 'Therapist', 'Psychoeducator', 'Foster/Adoptive Parent'].map((t) => (
+                {['Child Development Specialist', 'Therapist', 'Psychoeducator', 'Foster/Adoptive Caregiver'].map((t) => (
                   <span key={t} className="text-xs bg-sky-blue-bg text-slate-blue px-3 py-1 rounded-full font-medium">{t}</span>
                 ))}
               </div>
@@ -319,9 +325,9 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 max-w-5xl">
           <div className="text-center mb-8">
             <h3 className="text-3xl md:text-4xl font-bold font-heading text-charcoal mb-3">Simple, honest pricing</h3>
-            <p className="text-charcoal-80 max-w-2xl mx-auto">
+            <p className={`max-w-2xl mx-auto ${familyTrial ? 'text-growth-green-ink' : 'text-charcoal-80'}`}>
               {familyTrial
-                ? 'New families get one 7-day free trial on a family plan. Your card is saved now and is not charged until the trial ends.'
+                ? `New families get one ${trialDays}-day free trial on a family plan. Your card is saved today and charged when the trial ends unless you cancel.`
                 : 'Every plan includes the full app. Cancel anytime.'}
             </p>
           </div>
@@ -338,7 +344,7 @@ export default function LandingPage() {
                     <span className="text-lg text-white/85 mb-1">/{planIntervalLabel(plan)}</span>
                   </div>
                   <p className="text-sm text-white/85 mt-2">
-                    {plan.trial_days > 0 ? `${plan.trial_days}-day free trial for new families` : plan.group === 'professional' ? 'Billed once a year' : 'Cancel anytime'}
+                    {plan.trial_days > 0 ? `${plan.trial_days}-day free trial. Card saved today, charged when the trial ends unless you cancel.` : plan.group === 'professional' ? 'Billed once a year' : 'Cancel anytime'}
                   </p>
                 </div>
                 <div className="p-8 flex-1 flex flex-col">
@@ -375,8 +381,8 @@ export default function LandingPage() {
             You Don't Have to Do This Alone
           </h3>
           <p className="text-charcoal-80 mb-8 leading-relaxed">
-            The children in your care need you at your best. The Healing Home Approach gives you the tools,
-            scripts, and knowledge to show up with confidence and compassion, even on the hardest days.
+            The Healing Home Approach gives you the tools, scripts, and knowledge to show up with
+            confidence and compassion, even on the hardest days.
           </p>
           <div className="flex flex-wrap gap-4 justify-center">
             <button
