@@ -53,10 +53,13 @@ function CrisisHelpStrip({ className = '' }: { className?: string }) {
   )
 }
 
+const bannerButtonClass =
+  'inline-flex items-center justify-center min-h-[44px] px-3.5 rounded-lg bg-white text-[#B23A32] text-sm font-bold hover:brightness-95 transition whitespace-nowrap'
+
 /**
- * Reusable crisis banner. Renders the 911 / 988 crisis line with tappable
- * tel: / sms: links so a caregiver in a hard moment can reach help immediately.
- * White text on the brand red band meets WCAG AA contrast for normal text.
+ * Reusable crisis banner. 911 and 988 are real buttons so a caregiver
+ * can reach help with a comfortable tap. White text on the brick band,
+ * and brick text on the white buttons, both meet WCAG AA.
  */
 export default function CrisisBanner({ className = '', variant = 'card' }: CrisisBannerProps) {
   if (variant === 'strip') {
@@ -67,37 +70,39 @@ export default function CrisisBanner({ className = '', variant = 'card' }: Crisi
     <div
       role="region"
       aria-label="Crisis support contacts"
-      className={`bg-[#B23A32] text-white rounded-xl px-4 py-3.5 shadow-sm ${className}`}
+      className={`bg-[#B23A32] text-white rounded-xl px-4 py-3 shadow-sm ${className}`}
     >
       <div className="flex items-start gap-2.5">
         <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
-        <p className="text-sm leading-relaxed m-0">
-          If someone is in immediate danger, call{' '}
-          <a
-            href="tel:911"
-            aria-label="Call 9 1 1 for immediate danger"
-            className="font-bold text-white underline underline-offset-2 whitespace-nowrap"
-          >
-            911
-          </a>
-          . For crisis support,{' '}
-          <a
-            href="tel:988"
-            aria-label="Call 9 8 8 Suicide and Crisis Lifeline"
-            className="font-bold text-white underline underline-offset-2"
-          >
-            call
-          </a>{' '}
-          or{' '}
-          <a
-            href="sms:988"
-            aria-label="Text 9 8 8 Suicide and Crisis Lifeline"
-            className="font-bold text-white underline underline-offset-2"
-          >
-            text
-          </a>{' '}
-          <span className="font-bold whitespace-nowrap">988</span> (Suicide &amp; Crisis Lifeline).
-        </p>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm leading-snug m-0">
+            If someone is in immediate danger, call 911. For crisis support, call or text 988
+            (Suicide &amp; Crisis Lifeline).
+          </p>
+          <div className="flex flex-wrap gap-2 mt-2.5">
+            <a
+              href="tel:911"
+              aria-label="Call 9 1 1 for immediate danger"
+              className={bannerButtonClass}
+            >
+              Call 911
+            </a>
+            <a
+              href="tel:988"
+              aria-label="Call 9 8 8 Suicide and Crisis Lifeline"
+              className={bannerButtonClass}
+            >
+              Call 988
+            </a>
+            <a
+              href="sms:988"
+              aria-label="Text 9 8 8 Suicide and Crisis Lifeline"
+              className={bannerButtonClass}
+            >
+              Text 988
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, Shield, Heart, Phone, Video, X, Save, Check, Users } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+import PublicBackLink from '../components/PublicBackLink'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -241,7 +242,7 @@ export default function CrisisMode() {
                 )
               })}
               {saveStatus === 'error' && (
-                <p className="text-xs text-red-600 mt-2">Could not save. Please try again.</p>
+                <p className="text-xs text-[#B23A32] mt-2">Could not save. Please try again.</p>
               )}
             </div>
           )}
@@ -287,52 +288,48 @@ export default function CrisisMode() {
   // --- SCREEN: Safety Check ---
   if (flowStep === 'safety-check') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
+      <div className="min-h-screen bg-[#FBEDEB] flex flex-col">
         <div className="bg-white border-b shadow-sm">
-          <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-            <Link to="/dashboard" aria-label="Back to dashboard" className="text-charcoal hover:text-slate-blue">
-              <ArrowLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
-              <AlertTriangle className="w-6 h-6 text-red-500" />
+          <div className="container mx-auto px-4 py-2 flex items-center gap-2">
+            <PublicBackLink />
+            <h1 className="text-lg font-bold font-heading text-charcoal flex items-center gap-2 leading-tight">
+              <AlertTriangle className="w-5 h-5 text-[#B23A32] shrink-0" />
               Behavioral &amp; Emotional First Aid
             </h1>
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
-          <p className="text-sm text-charcoal-70 text-center mb-6 leading-relaxed">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 pt-3 pb-4 max-w-2xl">
+          <p className="text-sm text-charcoal-70 text-center mb-3 leading-snug">
             This is in-the-moment psychoeducational support, not treatment or a crisis service. If you
             need urgent help, use the numbers above.
           </p>
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Shield className="w-8 h-8 text-red-600" />
-            </div>
-            <h2 className="text-2xl font-bold font-heading text-charcoal mb-4">
+          <div className="bg-white rounded-2xl shadow-lg p-4 sm:p-6">
+            <h2 className="text-xl font-bold font-heading text-charcoal mb-1 leading-tight">
               First: Is Anyone in Immediate Danger?
             </h2>
-            <p className="text-charcoal-80 mb-8 leading-relaxed">
+            <p className="text-sm text-charcoal-70 mb-2">Take your time.</p>
+            <p className="text-base text-charcoal-80 mb-4 leading-snug">
               Before we go further, we need to make sure everyone is safe right now.
               If someone is at risk of hurting themselves or others, or if there is a medical emergency,
               please contact emergency services first. Everything else can wait.
             </p>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
               <button
                 onClick={() => setFlowStep('emergency')}
-                className="w-full bg-red-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-red-700 transition-colors text-left"
+                className="w-full bg-[#B23A32] text-white px-4 py-3 rounded-xl font-semibold hover:brightness-95 transition-colors text-left"
               >
-                <div className="font-bold text-lg">Yes, someone may be in danger</div>
-                <div className="text-red-100 text-sm mt-1">There is a safety concern or emergency right now</div>
+                <div className="font-bold text-base">Yes, someone may be in danger</div>
+                <div className="text-white text-sm mt-0.5">There is a safety concern or emergency right now</div>
               </button>
 
               <button
                 onClick={() => setFlowStep('caregiver-checkin')}
-                className="w-full bg-slate-blue text-white px-6 py-4 rounded-xl font-semibold hover:bg-slate-blue-dark transition-colors text-left"
+                className="w-full bg-slate-blue text-white px-4 py-3 rounded-xl font-semibold hover:bg-slate-blue-dark transition-colors text-left"
               >
-                <div className="font-bold text-lg">No, everyone is physically safe</div>
-                <div className="text-sky-blue text-sm mt-1">The situation is difficult but no one is in immediate danger</div>
+                <div className="font-bold text-base">No, everyone is physically safe</div>
+                <div className="text-[#BFC9DA] text-sm mt-0.5">The situation is difficult but no one is in immediate danger</div>
               </button>
             </div>
           </div>
@@ -346,24 +343,24 @@ export default function CrisisMode() {
   // --- SCREEN: Emergency Services ---
   if (flowStep === 'emergency') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
+      <div className="min-h-screen bg-[#FBEDEB] flex flex-col">
         <div className="bg-white border-b shadow-sm">
           <div className="container mx-auto px-4 py-4 flex items-center gap-3">
             <button onClick={startOver} className="text-charcoal hover:text-slate-blue">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
-              <Phone className="w-6 h-6 text-red-500" />
+              <Phone className="w-6 h-6 text-[#B23A32]" />
               Contact Emergency Services
             </h1>
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Phone className="w-8 h-8 text-red-600" />
+              <div className="w-16 h-16 bg-[#FBEDEB] rounded-full flex items-center justify-center mx-auto mb-4">
+                <Phone className="w-8 h-8 text-[#B23A32]" />
               </div>
               <p className="text-charcoal-80 leading-relaxed">
                 You are doing the right thing by seeking help. Safety comes first, always.
@@ -371,26 +368,29 @@ export default function CrisisMode() {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-red-50 rounded-xl p-6 border border-red-200">
-                <h3 className="font-bold font-heading text-charcoal text-lg mb-1">Emergency Services:</h3>
-                <a href="tel:911" className="text-2xl font-bold text-red-600 hover:underline">Call 911</a>
-                <p className="text-charcoal-70 text-sm mt-1">If anyone is in immediate physical danger</p>
+              <div className="bg-[#FBEDEB] rounded-xl p-5">
+                <h3 className="font-bold font-heading text-charcoal text-lg mb-3">Emergency Services:</h3>
+                <a href="tel:911" aria-label="Call 9 1 1 for immediate danger" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-[#B23A32] text-white text-base font-bold hover:brightness-95 transition">Call 911</a>
+                <p className="text-charcoal-70 text-sm mt-2">If anyone is in immediate physical danger</p>
               </div>
 
-              <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-                <h3 className="font-bold font-heading text-charcoal text-lg mb-1">Suicide &amp; Crisis Lifeline:</h3>
-                <a href="tel:988" className="text-2xl font-bold text-blue-600 hover:underline">Call or text 988</a>
-                <p className="text-charcoal-70 text-sm mt-1">24/7 support for suicidal thoughts, self-harm, or emotional crisis</p>
+              <div className="bg-[#FBEDEB] rounded-xl p-5">
+                <h3 className="font-bold font-heading text-charcoal text-lg mb-3">Suicide &amp; Crisis Lifeline:</h3>
+                <div className="flex flex-col gap-2">
+                  <a href="tel:988" aria-label="Call 9 8 8 Suicide and Crisis Lifeline" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-[#B23A32] text-white text-base font-bold hover:brightness-95 transition">Call 988</a>
+                  <a href="sms:988" aria-label="Text 9 8 8 Suicide and Crisis Lifeline" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-white text-[#B23A32] border-2 border-[#B23A32] text-base font-bold hover:bg-[#FBEDEB] transition">Text 988</a>
+                </div>
+                <p className="text-charcoal-70 text-sm mt-2">24/7 support for suicidal thoughts, self-harm, or emotional crisis</p>
               </div>
 
-              <div className="bg-green-50 rounded-xl p-6 border border-green-200">
-                <h3 className="font-bold font-heading text-charcoal text-lg mb-1">Crisis Text Line:</h3>
-                <p className="text-2xl font-bold text-green-700">Text HOME to 741741</p>
-                <p className="text-charcoal-70 text-sm mt-1">Free, 24/7 crisis support via text message</p>
+              <div className="bg-white rounded-xl p-5 border border-slate-blue/20">
+                <h3 className="font-bold font-heading text-charcoal text-lg mb-3">Crisis Text Line:</h3>
+                <a href="sms:741741?&body=HOME" aria-label="Text HOME to 7 4 1 7 4 1" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-slate-blue text-white text-base font-bold hover:bg-slate-blue-dark transition text-center">Text HOME to 741741</a>
+                <p className="text-charcoal-70 text-sm mt-2">Free, 24/7 crisis support via text message</p>
               </div>
             </div>
 
-            <div className="mt-8 p-4 bg-amber-50 rounded-xl border border-amber-200 text-center">
+            <div className="mt-8 p-4 bg-sky-blue-bg rounded-xl text-center">
               <p className="text-charcoal-80 text-sm leading-relaxed">
                 Once everyone is safe, you can return here for guidance on what happened.
                 There is no rush. Take care of safety first.
@@ -424,7 +424,7 @@ export default function CrisisMode() {
   // --- SCREEN: Caregiver Check-in ---
   if (flowStep === 'caregiver-checkin') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
+      <div className="min-h-screen bg-[#FBEDEB] flex flex-col">
         <div className="bg-white border-b shadow-sm">
           <div className="container mx-auto px-4 py-4 flex items-center gap-3">
             <button onClick={startOver} className="text-charcoal hover:text-slate-blue">
@@ -437,7 +437,7 @@ export default function CrisisMode() {
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="w-16 h-16 bg-healing-purple/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <Heart className="w-8 h-8 text-healing-purple" />
@@ -459,10 +459,10 @@ export default function CrisisMode() {
             <div className="space-y-3">
               <button
                 onClick={() => setFlowStep('first-aid')}
-                className="w-full bg-growth-green text-white px-6 py-4 rounded-xl font-semibold hover:bg-growth-green-dark transition-colors text-left"
+                className="w-full bg-[#DCFCE7] text-[#14532D] px-6 py-4 rounded-xl font-semibold hover:brightness-95 transition-colors text-left"
               >
                 <div className="font-bold text-lg">Calm &amp; Grounded</div>
-                <div className="text-green-100 text-sm mt-1">I&apos;m regulated and ready to support my child</div>
+                <div className="text-[#14532D] text-sm mt-1">I&apos;m regulated and ready to support my child</div>
               </button>
 
               <button
@@ -470,23 +470,23 @@ export default function CrisisMode() {
                 className="w-full bg-slate-blue text-white px-6 py-4 rounded-xl font-semibold hover:bg-slate-blue-dark transition-colors text-left"
               >
                 <div className="font-bold text-lg">Stressed but Managing</div>
-                <div className="text-sky-blue text-sm mt-1">I&apos;m feeling the pressure but can stay present</div>
+                <div className="text-[#BFC9DA] text-sm mt-1">I&apos;m feeling the pressure but can stay present</div>
               </button>
 
               <button
                 onClick={() => setFlowStep('overwhelmed')}
-                className="w-full bg-amber-500 text-white px-6 py-4 rounded-xl font-semibold hover:bg-amber-600 transition-colors text-left"
+                className="w-full bg-[#FFEDD5] text-[#7C2D12] px-6 py-4 rounded-xl font-semibold hover:brightness-95 transition-colors text-left"
               >
                 <div className="font-bold text-lg">Overwhelmed</div>
-                <div className="text-amber-100 text-sm mt-1">I&apos;m struggling to stay calm myself</div>
+                <div className="text-[#7C2D12] text-sm mt-1">I&apos;m struggling to stay calm myself</div>
               </button>
 
               <button
                 onClick={() => setFlowStep('crisis-support')}
-                className="w-full bg-red-600 text-white px-6 py-4 rounded-xl font-semibold hover:bg-red-700 transition-colors text-left"
+                className="w-full bg-[#B23A32] text-white px-6 py-4 rounded-xl font-semibold hover:brightness-95 transition-colors text-left"
               >
                 <div className="font-bold text-lg">In Crisis</div>
-                <div className="text-red-100 text-sm mt-1">I need immediate support or the situation is unsafe</div>
+                <div className="text-white text-sm mt-1">I need immediate support or the situation is unsafe</div>
               </button>
             </div>
           </div>
@@ -500,20 +500,20 @@ export default function CrisisMode() {
   // --- SCREEN: Overwhelmed ---
   if (flowStep === 'overwhelmed') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
+      <div className="min-h-screen bg-[#FBEDEB] flex flex-col">
         <div className="bg-white border-b shadow-sm">
           <div className="container mx-auto px-4 py-4 flex items-center gap-3">
             <button onClick={() => setFlowStep('caregiver-checkin')} className="text-charcoal hover:text-slate-blue">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
-              <Heart className="w-6 h-6 text-amber-500" />
+              <Heart className="w-6 h-6 text-healing-purple" />
               You Need Support Too
             </h1>
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="text-center mb-6">
               <p className="text-charcoal-80 leading-relaxed">
@@ -526,35 +526,38 @@ export default function CrisisMode() {
               <h3 className="font-bold font-heading text-charcoal text-lg mb-4">Next steps:</h3>
               <ul className="space-y-3">
                 <li className="flex items-start gap-3 text-charcoal-80">
-                  <span className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold text-amber-700">1</span>
+                  <span className="w-6 h-6 bg-sky-blue-bg rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold text-slate-blue">1</span>
                   Contact your child&apos;s therapist or case worker
                 </li>
                 <li className="flex items-start gap-3 text-charcoal-80">
-                  <span className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold text-amber-700">2</span>
+                  <span className="w-6 h-6 bg-sky-blue-bg rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold text-slate-blue">2</span>
                   Reach out to your support network
                 </li>
                 <li className="flex items-start gap-3 text-charcoal-80">
-                  <span className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold text-amber-700">3</span>
+                  <span className="w-6 h-6 bg-sky-blue-bg rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold text-slate-blue">3</span>
                   Consider respite care if available
                 </li>
                 <li className="flex items-start gap-3 text-charcoal-80">
-                  <span className="w-6 h-6 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold text-amber-700">4</span>
+                  <span className="w-6 h-6 bg-sky-blue-bg rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-sm font-bold text-slate-blue">4</span>
                   Return to this app when you&apos;re more regulated
                 </li>
               </ul>
             </div>
 
             <div className="space-y-4">
-              <div className="bg-blue-50 rounded-xl p-5 border border-blue-200">
-                <h3 className="font-bold font-heading text-charcoal mb-1">Immediate Crisis Support:</h3>
-                <a href="tel:988" className="text-xl font-bold text-blue-600 hover:underline">Call or text 988</a>
-                <p className="text-charcoal-70 text-sm mt-1">Suicide &amp; Crisis Lifeline</p>
+              <div className="bg-[#FBEDEB] rounded-xl p-5">
+                <h3 className="font-bold font-heading text-charcoal mb-3">Immediate Crisis Support:</h3>
+                <div className="flex flex-col gap-2">
+                  <a href="tel:988" aria-label="Call 9 8 8 Suicide and Crisis Lifeline" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-[#B23A32] text-white text-base font-bold hover:brightness-95 transition">Call 988</a>
+                  <a href="sms:988" aria-label="Text 9 8 8 Suicide and Crisis Lifeline" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-white text-[#B23A32] border-2 border-[#B23A32] text-base font-bold hover:bg-[#FBEDEB] transition">Text 988</a>
+                </div>
+                <p className="text-charcoal-70 text-sm mt-2">Suicide &amp; Crisis Lifeline</p>
               </div>
 
-              <div className="bg-red-50 rounded-xl p-5 border border-red-200">
-                <h3 className="font-bold font-heading text-charcoal mb-1">Emergency Services:</h3>
-                <a href="tel:911" className="text-xl font-bold text-red-600 hover:underline">Call 911</a>
-                <p className="text-charcoal-70 text-sm mt-1">If anyone is in immediate danger</p>
+              <div className="bg-[#FBEDEB] rounded-xl p-5">
+                <h3 className="font-bold font-heading text-charcoal mb-3">Emergency Services:</h3>
+                <a href="tel:911" aria-label="Call 9 1 1 for immediate danger" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-[#B23A32] text-white text-base font-bold hover:brightness-95 transition">Call 911</a>
+                <p className="text-charcoal-70 text-sm mt-2">If anyone is in immediate danger</p>
               </div>
             </div>
 
@@ -577,32 +580,35 @@ export default function CrisisMode() {
   // --- SCREEN: In Crisis ---
   if (flowStep === 'crisis-support') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
+      <div className="min-h-screen bg-[#FBEDEB] flex flex-col">
         <div className="bg-white border-b shadow-sm">
           <div className="container mx-auto px-4 py-4 flex items-center gap-3">
             <button onClick={() => setFlowStep('caregiver-checkin')} className="text-charcoal hover:text-slate-blue">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
-              <Phone className="w-6 h-6 text-red-500" />
+              <Phone className="w-6 h-6 text-[#B23A32]" />
               Immediate Crisis Support
             </h1>
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="space-y-6">
-              <div className="bg-blue-50 rounded-xl p-6 border border-blue-200">
-                <h3 className="font-bold font-heading text-charcoal text-lg mb-1">Immediate Crisis Support:</h3>
-                <a href="tel:988" className="text-2xl font-bold text-blue-600 hover:underline">Call or text 988</a>
-                <p className="text-charcoal-70 text-sm mt-1">Suicide &amp; Crisis Lifeline</p>
+              <div className="bg-[#FBEDEB] rounded-xl p-5">
+                <h3 className="font-bold font-heading text-charcoal text-lg mb-3">Immediate Crisis Support:</h3>
+                <div className="flex flex-col gap-2">
+                  <a href="tel:988" aria-label="Call 9 8 8 Suicide and Crisis Lifeline" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-[#B23A32] text-white text-base font-bold hover:brightness-95 transition">Call 988</a>
+                  <a href="sms:988" aria-label="Text 9 8 8 Suicide and Crisis Lifeline" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-white text-[#B23A32] border-2 border-[#B23A32] text-base font-bold hover:bg-[#FBEDEB] transition">Text 988</a>
+                </div>
+                <p className="text-charcoal-70 text-sm mt-2">Suicide &amp; Crisis Lifeline</p>
               </div>
 
-              <div className="bg-red-50 rounded-xl p-6 border border-red-200">
-                <h3 className="font-bold font-heading text-charcoal text-lg mb-1">Emergency Services:</h3>
-                <a href="tel:911" className="text-2xl font-bold text-red-600 hover:underline">Call 911</a>
-                <p className="text-charcoal-70 text-sm mt-1">If anyone is in immediate danger</p>
+              <div className="bg-[#FBEDEB] rounded-xl p-5">
+                <h3 className="font-bold font-heading text-charcoal text-lg mb-3">Emergency Services:</h3>
+                <a href="tel:911" aria-label="Call 9 1 1 for immediate danger" className="flex w-full items-center justify-center min-h-[44px] px-4 py-3 rounded-xl bg-[#B23A32] text-white text-base font-bold hover:brightness-95 transition">Call 911</a>
+                <p className="text-charcoal-70 text-sm mt-2">If anyone is in immediate danger</p>
               </div>
             </div>
 
@@ -628,7 +634,7 @@ export default function CrisisMode() {
     const parsed = parseCardContent(card.content)
 
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
+      <div className="min-h-screen bg-[#FBEDEB] flex flex-col">
         <div className="bg-white border-b shadow-sm">
           <div className="container mx-auto px-4 py-4 flex items-center gap-3">
             <button onClick={() => setFlowStep('first-aid')} className="text-charcoal hover:text-slate-blue">
@@ -645,7 +651,7 @@ export default function CrisisMode() {
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-6 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-6 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             {/* Card Header */}
             <div className="bg-gradient-to-r from-slate-blue to-healing-purple p-6 text-white">
@@ -657,19 +663,20 @@ export default function CrisisMode() {
 
             <div className="p-6 space-y-6">
               {/* Disclaimer */}
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                <p className="text-xs text-amber-800 leading-relaxed">
+              <div className="bg-[#FBEDEB] rounded-xl p-4">
+                <p className="text-sm text-charcoal leading-relaxed">
                   <strong>Reminder:</strong> This is general psychoeducational guidance, not a clinical recommendation.
                   Always defer to your child&apos;s treating mental health professional.
                   If anyone is in immediate danger, call 911.
                 </p>
+                <a href="tel:911" aria-label="Call 9 1 1 for immediate danger" className="mt-3 inline-flex items-center justify-center min-h-[44px] px-4 rounded-xl bg-[#B23A32] text-white text-base font-bold hover:brightness-95 transition">Call 911</a>
               </div>
 
               {/* What You're Seeing */}
               {parsed.whatYoureSeing && (
                 <div>
                   <h3 className="text-lg font-bold font-heading text-charcoal mb-2 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-red-500 rounded-full" />
+                    <span className="w-2 h-2 bg-[#B23A32] rounded-full" />
                     What You&apos;re Seeing:
                   </h3>
                   <p className="text-charcoal-80 leading-relaxed">{parsed.whatYoureSeing}</p>
@@ -731,15 +738,15 @@ export default function CrisisMode() {
 
               {/* What NOT to Do */}
               {parsed.whatNotToDo.length > 0 && (
-                <div className="bg-red-50 rounded-xl p-5">
+                <div className="bg-[#FBEDEB] rounded-xl p-5">
                   <h3 className="text-lg font-bold font-heading text-charcoal mb-3 flex items-center gap-2">
-                    <X className="w-5 h-5 text-red-500" />
+                    <X className="w-5 h-5 text-[#B23A32]" />
                     What NOT to Do:
                   </h3>
                   <ul className="space-y-2">
                     {parsed.whatNotToDo.map((item, i) => (
                       <li key={i} className="flex items-start gap-2 text-charcoal-80">
-                        <span className="text-red-400 mt-1">&bull;</span>
+                        <span className="text-[#B23A32] mt-1">&bull;</span>
                         <span className="leading-relaxed">{item}</span>
                       </li>
                     ))}
@@ -751,7 +758,7 @@ export default function CrisisMode() {
               {parsed.repair && (
                 <div>
                   <h3 className="text-lg font-bold font-heading text-charcoal mb-2 flex items-center gap-2">
-                    <span className="w-2 h-2 bg-amber-500 rounded-full" />
+                    <span className="w-2 h-2 bg-healing-purple rounded-full" />
                     After the Storm (Repair):
                   </h3>
                   <p className="text-charcoal-80 leading-relaxed">{parsed.repair}</p>
@@ -760,9 +767,9 @@ export default function CrisisMode() {
 
               {/* Safety Limits */}
               {parsed.safetyLimits && (
-                <div className="bg-red-50 border border-red-200 rounded-xl p-5">
+                <div className="bg-[#FBEDEB] rounded-xl p-5">
                   <h3 className="text-lg font-bold font-heading text-charcoal mb-2 flex items-center gap-2">
-                    <Shield className="w-5 h-5 text-red-500" />
+                    <Shield className="w-5 h-5 text-[#B23A32]" />
                     Safety Limits:
                   </h3>
                   <p className="text-charcoal-80 leading-relaxed">{parsed.safetyLimits}</p>
@@ -823,20 +830,20 @@ export default function CrisisMode() {
 
   // --- SCREEN: First Aid Card Selection (age + behavior) ---
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
+    <div className="min-h-screen bg-[#FBEDEB] flex flex-col">
       <div className="bg-white border-b shadow-sm">
         <div className="container mx-auto px-4 py-4 flex items-center gap-3">
           <button onClick={() => setFlowStep('caregiver-checkin')} className="text-charcoal hover:text-slate-blue">
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
-            <AlertTriangle className="w-6 h-6 text-red-500" />
+            <AlertTriangle className="w-6 h-6 text-[#B23A32]" />
             Behavioral &amp; Emotional First Aid
           </h1>
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
         <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
           {/* Age Group Selection */}
           <div className="mb-8">
@@ -920,11 +927,13 @@ export default function CrisisMode() {
         </div>
 
         {/* Emergency info footer */}
-        <div className="mt-6 bg-red-100 rounded-xl p-4 text-center">
-          <p className="text-sm text-red-800 flex items-center justify-center gap-2">
-            <Phone className="w-4 h-4" />
-            If someone is in immediate danger, call <a href="tel:911" className="font-bold underline">911</a>
+        <div className="mt-6 bg-white rounded-xl p-4 text-center border border-[#B23A32]/15">
+          <p className="text-sm text-charcoal mb-3">
+            If someone is in immediate danger, call 911.
           </p>
+          <a href="tel:911" aria-label="Call 9 1 1 for immediate danger" className="inline-flex items-center justify-center min-h-[44px] px-5 rounded-xl bg-[#B23A32] text-white font-bold hover:brightness-95 transition">
+            Call 911
+          </a>
         </div>
       </main>
 

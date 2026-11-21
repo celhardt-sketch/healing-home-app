@@ -1,14 +1,44 @@
-import { Link } from 'react-router-dom'
-import { ArrowLeft, Phone, ExternalLink, Shield, AlertTriangle, Heart } from 'lucide-react'
+import { Phone, ExternalLink, Shield, AlertTriangle, Heart } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+import PublicBackLink from '../components/PublicBackLink'
 
-const emergencyNumbers = [
-  { name: 'Emergency Services', number: '911', description: 'For immediate danger to life' },
-  { name: 'Suicide & Crisis Lifeline', number: '988', description: 'Call or text 24/7' },
-  { name: 'Crisis Text Line', number: 'Text HOME to 741741', description: 'Free 24/7 text-based support' },
-  { name: 'Childhelp National Abuse Hotline', number: '1-800-422-4453', description: '24/7 professional crisis counselors' },
-  { name: 'National Domestic Violence Hotline', number: '1-800-799-7233', description: '24/7 advocacy, safety planning' },
-  { name: 'SAMHSA Helpline', number: '1-800-662-4357', description: 'Substance abuse and mental health referrals' },
+const urgentContacts = [
+  {
+    name: 'Emergency Services',
+    description: 'For immediate danger to life',
+    actions: [{ label: 'Call 911', href: 'tel:911', aria: 'Call 9 1 1 for immediate danger' }],
+  },
+  {
+    name: 'Suicide & Crisis Lifeline',
+    description: 'Call or text 24/7',
+    actions: [
+      { label: 'Call 988', href: 'tel:988', aria: 'Call 9 8 8 Suicide and Crisis Lifeline' },
+      { label: 'Text 988', href: 'sms:988', aria: 'Text 9 8 8 Suicide and Crisis Lifeline' },
+    ],
+  },
+]
+
+const otherHotlines = [
+  {
+    name: 'Crisis Text Line',
+    description: 'Free 24/7 text-based support',
+    actions: [{ label: 'Text HOME to 741741', href: 'sms:741741?&body=HOME', aria: 'Text HOME to 7 4 1 7 4 1' }],
+  },
+  {
+    name: 'Childhelp National Abuse Hotline',
+    description: '24/7 professional crisis counselors',
+    actions: [{ label: '1-800-422-4453', href: 'tel:18004224453', aria: 'Call 1 800 422 4453 Childhelp National Abuse Hotline' }],
+  },
+  {
+    name: 'National Domestic Violence Hotline',
+    description: '24/7 advocacy, safety planning',
+    actions: [{ label: '1-800-799-7233', href: 'tel:18007997233', aria: 'Call 1 800 799 7233 National Domestic Violence Hotline' }],
+  },
+  {
+    name: 'SAMHSA Helpline',
+    description: 'Substance abuse and mental health referrals',
+    actions: [{ label: '1-800-662-4357', href: 'tel:18006624357', aria: 'Call 1 800 662 4357 SAMHSA Helpline' }],
+  },
 ]
 
 const seekHelp = [
@@ -20,68 +50,92 @@ const seekHelp = [
   'You or your child are experiencing a psychiatric emergency',
 ]
 
+const actionButtonClass =
+  'inline-flex w-full items-center justify-center gap-2 min-h-[44px] px-4 py-2.5 rounded-xl text-base font-bold text-center transition hover:brightness-95'
+
 export default function SafetyResources() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-orange-50 to-amber-50 flex flex-col">
+    <div className="min-h-screen bg-[#FBEDEB] flex flex-col">
       <div className="bg-white border-b shadow-sm">
-        <div className="max-w-4xl mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/dashboard" aria-label="Back to dashboard" className="text-charcoal hover:text-slate-blue">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
-            <Phone className="w-5 h-5 text-red-500" />
+        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center gap-3">
+          <PublicBackLink />
+          <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 leading-tight">
+            <Phone className="w-5 h-5 text-[#B23A32] shrink-0" />
             Safety &amp; Help Resources
           </h1>
         </div>
       </div>
 
-      <main className="flex-1 max-w-4xl mx-auto px-4 py-8 w-full">
-        <div className="bg-red-100 rounded-xl p-6 mb-8">
-          <h2 className="text-lg font-bold font-heading text-red-800 flex items-center gap-2 mb-2">
-            <AlertTriangle className="w-5 h-5" />
-            If someone is in immediate danger, call 911
-          </h2>
-          <p className="text-sm text-red-800">
-            This app is not a crisis intervention tool or substitute for emergency services.
-          </p>
-        </div>
+      <main id="main-content" tabIndex={-1} className="flex-1 max-w-4xl mx-auto px-4 py-6 w-full">
 
-        <h3 className="text-xl font-bold font-heading text-charcoal mb-4">Emergency &amp; Crisis Contacts</h3>
+        <h2 className="text-xl font-bold font-heading text-charcoal mb-4">Emergency &amp; Crisis Contacts</h2>
         <div className="grid sm:grid-cols-2 gap-4 mb-8">
-          {emergencyNumbers.map((contact) => (
-            <div key={contact.name} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
-              <h4 className="font-bold text-charcoal mb-1">{contact.name}</h4>
-              <a href={`tel:${contact.number.replace(/[^0-9]/g, '')}`} className="text-lg font-bold text-red-600 hover:text-red-700 flex items-center gap-2 mb-1">
-                <Phone className="w-4 h-4" /> {contact.number}
-              </a>
-              <p className="text-sm text-charcoal-70">{contact.description}</p>
+          {urgentContacts.map((contact) => (
+            <div key={contact.name} className="bg-white rounded-xl p-5 border border-[#B23A32]/15 shadow-sm">
+              <h3 className="font-bold font-heading text-charcoal mb-1">{contact.name}</h3>
+              <p className="text-sm text-charcoal-70 mb-3">{contact.description}</p>
+              <div className="flex flex-col gap-2">
+                {contact.actions.map((action) => (
+                  <a
+                    key={action.href}
+                    href={action.href}
+                    aria-label={action.aria}
+                    className={`${actionButtonClass} bg-[#B23A32] text-white`}
+                  >
+                    <Phone className="w-4 h-4 shrink-0" aria-hidden="true" />
+                    {action.label}
+                  </a>
+                ))}
+              </div>
             </div>
           ))}
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-8">
-          <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-4">
-            <Shield className="w-5 h-5 text-amber-600" />
+        <h2 className="text-xl font-bold font-heading text-charcoal mb-4">More support lines</h2>
+        <div className="grid sm:grid-cols-2 gap-4 mb-8">
+          {otherHotlines.map((contact) => (
+            <div key={contact.name} className="bg-white rounded-xl p-5 border border-slate-blue/15 shadow-sm">
+              <h3 className="font-bold font-heading text-charcoal mb-1">{contact.name}</h3>
+              <p className="text-sm text-charcoal-70 mb-3">{contact.description}</p>
+              <div className="flex flex-col gap-2">
+                {contact.actions.map((action) => (
+                  <a
+                    key={action.href}
+                    href={action.href}
+                    aria-label={action.aria}
+                    className={`${actionButtonClass} bg-slate-blue text-white hover:bg-slate-blue-dark`}
+                  >
+                    {action.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-white rounded-xl p-6 border border-slate-blue/10 shadow-sm mb-8">
+          <h2 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-4">
+            <Shield className="w-5 h-5 text-slate-blue" />
             When to Seek Professional Help
-          </h3>
+          </h2>
           <p className="text-sm text-charcoal-80 mb-4">
             This app provides psychoeducational support, not clinical treatment. Contact a mental health professional when:
           </p>
           <ul className="space-y-3">
             {seekHelp.map((item) => (
               <li key={item} className="flex items-start gap-3 text-sm text-charcoal-80">
-                <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <AlertTriangle className="w-4 h-4 text-slate-blue shrink-0 mt-0.5" />
                 {item}
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-8">
-          <h3 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-4">
+        <div className="bg-white rounded-xl p-6 border border-slate-blue/10 shadow-sm mb-8">
+          <h2 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2 mb-4">
             <Heart className="w-5 h-5 text-healing-purple" />
             Finding the Right Therapist
-          </h3>
+          </h2>
           <p className="text-sm text-charcoal-80 mb-4">
             When looking for a therapist for your child or family, consider these specializations:
           </p>
@@ -92,14 +146,14 @@ export default function SafetyResources() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
-          <h3 className="text-xl font-bold font-heading text-charcoal mb-4">Helpful Links</h3>
+        <div className="bg-white rounded-xl p-6 border border-slate-blue/10 shadow-sm">
+          <h2 className="text-xl font-bold font-heading text-charcoal mb-4">Helpful Links</h2>
           <div className="space-y-3">
             {[
               { name: 'Child Welfare Information Gateway', url: 'https://www.childwelfare.gov' },
               { name: 'National Child Traumatic Stress Network', url: 'https://www.nctsn.org' },
             ].map((link) => (
-              <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-slate-blue hover:text-slate-blue-dark transition-colors text-sm">
+              <a key={link.name} href={link.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 min-h-[44px] text-slate-blue hover:text-slate-blue-dark transition-colors text-sm">
                 <ExternalLink className="w-4 h-4" /> {link.name}
               </a>
             ))}
