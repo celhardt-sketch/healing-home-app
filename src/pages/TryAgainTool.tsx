@@ -99,7 +99,7 @@ export default function TryAgainTool() {
   if (completed) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-growth-green/10 to-white flex flex-col">
-        <div className="flex-1 flex items-center justify-center p-4">
+        <main id="main-content" tabIndex={-1} className="flex-1 flex items-center justify-center p-4">
           <div className="max-w-lg mx-auto bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="w-20 h-20 bg-growth-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-10 h-10 text-growth-green" />
@@ -111,7 +111,7 @@ export default function TryAgainTool() {
               You showed courage by working through this. Remember: mistakes are not identity.
               Every try-again is proof that you are growing.
             </p>
-            <p className="text-healing-purple italic font-heading mb-8">
+            <p className="text-healing-purple-ink italic font-heading mb-8">
               "You are more than your hardest moment."
             </p>
             <div className="flex gap-4 justify-center">
@@ -123,7 +123,7 @@ export default function TryAgainTool() {
               </Link>
             </div>
           </div>
-        </div>
+        </main>
         <SafetyFooter />
       </div>
     )
@@ -154,11 +154,11 @@ export default function TryAgainTool() {
         </div>
       </div>
 
-      <main className="flex-1 flex items-center justify-center p-4">
+      <main id="main-content" tabIndex={-1} className="flex-1 flex items-center justify-center p-4">
         <div className="max-w-lg w-full">
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="w-16 h-16 bg-growth-green/10 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-2xl font-bold text-growth-green">{currentStep + 1}</span>
+              <span className="text-2xl font-bold text-growth-green-ink">{currentStep + 1}</span>
             </div>
             <h2 className="text-xl font-bold font-heading text-charcoal mb-4">{step.title}</h2>
             <p className="text-charcoal-80 mb-6 leading-relaxed">{step.instruction}</p>
@@ -168,7 +168,7 @@ export default function TryAgainTool() {
               </div>
             )}
             {step.affirmation && (
-              <p className="text-sm text-growth-green italic">{step.affirmation}</p>
+              <p className="text-sm text-growth-green-ink italic">{step.affirmation}</p>
             )}
           </div>
 

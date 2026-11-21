@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Lock, CreditCard, ArrowRight } from 'lucide-react'
+import { Heart, CreditCard, ArrowRight } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import SafetyFooter from '../components/SafetyFooter'
 import { usePublicPlans, isClassicMonthly, planIntervalLabel } from '../lib/plans'
@@ -18,6 +18,12 @@ export default function AccessGate() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [error, setError] = useState('')
   const returning = Boolean(subscription.trial_used) || (subscription.status !== 'none' && subscription.status !== '')
+  const trialForVisitor = familyTrial && !returning
+  const cancelNote = !trialForVisitor
+    ? 'Cancel anytime from Account Settings.'
+    : plans.every((plan) => plan.trial_days > 0)
+      ? "Cancel anytime in Account Settings before your trial ends and you won't be charged."
+      : "On a family plan, cancel anytime in Account Settings before your trial ends and you won't be charged."
 
   const handleSubscribe = async (planId?: string) => {
     setLoadingPlan(planId || 'monthly')
@@ -56,11 +62,11 @@ export default function AccessGate() {
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8 text-center">
           <div className="w-16 h-16 bg-sky-blue-bg rounded-full flex items-center justify-center mx-auto mb-6">
-            <Lock className="w-8 h-8 text-slate-blue" />
+            <Heart className="w-8 h-8 text-slate-blue" />
           </div>
 
           <h2 className="text-2xl font-bold font-heading text-charcoal mb-2">
-            Access Required
+            Choose your family plan
           </h2>
           <p className="text-charcoal-80 mb-6">
             This application requires an active subscription through Elhardt Family Wellness.
@@ -110,8 +116,11 @@ export default function AccessGate() {
                 {loadingPlan ? 'Redirecting to checkout...' : 'Subscribe to The Healing Home Approach'}
               </button>
 
-              <p className="text-xs text-charcoal-70 mt-3">
-                $9.99/month &bull; Cancel anytime &bull; Powered by Stripe
+              <p className="text-sm text-charcoal-70 mt-3">
+                {cancelNote}
+              </p>
+              <p className="text-xs text-charcoal-70 mt-2">
+                $9.99/month &bull; Powered by Stripe
               </p>
             </>
           ) : (
@@ -136,7 +145,7 @@ export default function AccessGate() {
                   </span>
                   <span className="block text-sm text-charcoal-70 mt-1">{plan.description}</span>
                   {plan.trial_days > 0 && !returning && (
-                    <span className="block text-sm text-growth-green-dark mt-1">
+                    <span className="block text-sm text-growth-green-ink mt-1">
                       {plan.trial_days}-day free trial. Card saved now, charged when the trial ends.
                     </span>
                   )}
@@ -145,8 +154,11 @@ export default function AccessGate() {
                   )}
                 </button>
               ))}
+              <p className="text-sm text-charcoal-70 text-center">
+                {cancelNote}
+              </p>
               <p className="text-xs text-charcoal-70 text-center">
-                Cancel anytime &bull; Powered by Stripe
+                Powered by Stripe
               </p>
             </div>
           )}

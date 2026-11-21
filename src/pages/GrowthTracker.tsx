@@ -20,6 +20,11 @@ interface GrowthMoment {
 
 const categories = ['Regulation', 'Social Skills', 'Emotional Growth', 'Attachment', 'Self-Care', 'Academic', 'Communication', 'Other']
 
+function countTextColor(background: string): string {
+  const darkBars = new Set(['#2A4B84', '#2a4b84', '#3a5f9e', '#3A5F9E'])
+  return darkBars.has(background) ? '#ffffff' : '#0A0A0A'
+}
+
 const categoryColors: Record<string, string> = {
   'Regulation': '#6ED043',
   'Social Skills': '#90B1F9',
@@ -216,7 +221,7 @@ export default function GrowthTracker() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-3xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-3xl">
         <DataNoticeGate featureKey="growth_tracker" title="Growth Tracker">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold font-heading text-charcoal mb-2">
@@ -241,7 +246,7 @@ export default function GrowthTracker() {
                   value={newMoment.title}
                   onChange={(e) => setNewMoment({ ...newMoment, title: e.target.value })}
                   placeholder="e.g., Used words to express frustration"
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-growth-green focus:border-transparent outline-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg"
                 />
               </div>
               <div>
@@ -251,7 +256,7 @@ export default function GrowthTracker() {
                   onChange={(e) => setNewMoment({ ...newMoment, description: e.target.value })}
                   placeholder="Describe the moment..."
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-growth-green focus:border-transparent outline-none resize-none"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg resize-none"
                 />
               </div>
               <div className="grid sm:grid-cols-2 gap-4">
@@ -262,7 +267,7 @@ export default function GrowthTracker() {
                     value={newMoment.moment_date}
                     max={todayStr()}
                     onChange={(e) => setNewMoment({ ...newMoment, moment_date: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-growth-green focus:border-transparent outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg"
                   />
                 </div>
               </div>
@@ -331,7 +336,7 @@ export default function GrowthTracker() {
             <>
               <div className="mb-6">
                 <div className="flex items-baseline gap-2 mb-4">
-                  <span className="text-3xl font-bold text-growth-green">{totalInRange}</span>
+                  <span className="text-3xl font-bold text-growth-green-ink">{totalInRange}</span>
                   <span className="text-sm text-charcoal-70">growth {totalInRange === 1 ? 'moment' : 'moments'} in this period</span>
                 </div>
 
@@ -371,7 +376,7 @@ export default function GrowthTracker() {
                           className="h-full rounded-full flex items-center justify-end pr-2"
                           style={{ width: `${(c.count / maxCat) * 100}%`, backgroundColor: categoryColors[c.category] || '#9ca3af', minWidth: '24px' }}
                         >
-                          <span className="text-[10px] font-bold text-white">{c.count}</span>
+                          <span className="text-[10px] font-bold" style={{ color: countTextColor(categoryColors[c.category] || '#9ca3af') }}>{c.count}</span>
                         </div>
                       </div>
                     </div>
@@ -401,7 +406,7 @@ export default function GrowthTracker() {
                     {m.description && <p className="text-sm text-charcoal-80 mb-2">{m.description}</p>}
                     <div className="flex items-center gap-3 text-xs text-charcoal-70">
                       <span className="flex items-center gap-1"><Calendar className="w-3 h-3" /> {m.moment_date}</span>
-                      <span className="bg-growth-green/10 text-growth-green-dark px-2 py-0.5 rounded-full">{m.category}</span>
+                      <span className="bg-growth-green/10 text-growth-green-ink px-2 py-0.5 rounded-full">{m.category}</span>
                     </div>
                   </div>
                   <button

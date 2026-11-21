@@ -99,7 +99,7 @@ export default function DisclaimerGate() {
   if (!(isRegister && registerStep === 'terms')) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/5 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+        <main id="main-content" tabIndex={-1} className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <div className="text-center mb-6">
             <img src="/logo.png" alt="The Healing Home Approach" className="h-16 w-auto mx-auto mb-4" />
             <h2 className="text-2xl font-bold font-heading text-slate-blue">
@@ -120,46 +120,52 @@ export default function DisclaimerGate() {
             {isRegister && (
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">First name</label>
+                  <label htmlFor="register-first-name" className="block text-sm font-medium text-charcoal mb-1">First name</label>
                   <input
+                    id="register-first-name"
                     type="text"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     autoComplete="given-name"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">Last name</label>
+                  <label htmlFor="register-last-name" className="block text-sm font-medium text-charcoal mb-1">Last name</label>
                   <input
+                    id="register-last-name"
                     type="text"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     autoComplete="family-name"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                     required
                   />
                 </div>
               </div>
             )}
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">Email</label>
+              <label htmlFor="signin-email" className="block text-sm font-medium text-charcoal mb-1">Email</label>
               <input
+                id="signin-email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                autoComplete="email"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-charcoal mb-1">Password</label>
+              <label htmlFor="signin-password" className="block text-sm font-medium text-charcoal mb-1">Password</label>
               <input
+                id="signin-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                autoComplete={isRegister ? 'new-password' : 'current-password'}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                 required
                 minLength={8}
               />
@@ -205,14 +211,14 @@ export default function DisclaimerGate() {
               Access free crisis &amp; safety tools &rarr;
             </Link>
           </div>
-        </div>
+        </main>
       </div>
     )
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/5 flex items-center justify-center p-4">
-      <div className="max-w-3xl w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+      <main id="main-content" tabIndex={-1} className="max-w-3xl w-full bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         <div className="text-center p-8 pb-6">
           <img src="/logo.png" alt="The Healing Home Approach" className="h-20 w-auto mx-auto mb-4" />
           <p className="text-sm text-charcoal-70">Elhardt Family Wellness LLC</p>
@@ -322,7 +328,7 @@ export default function DisclaimerGate() {
             className="w-full bg-slate-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-5 h-5" />
-            {loading ? 'Creating your account...' : 'I Understand and Accept — Continue to Payment'}
+            {loading ? 'Creating your account...' : 'I Understand and Accept. Continue to Payment.'}
           </button>
 
           <button
@@ -336,7 +342,7 @@ export default function DisclaimerGate() {
             Your acceptance will be timestamped and recorded for safety and compliance purposes.
           </p>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

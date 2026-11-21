@@ -90,17 +90,23 @@ export default function AdminDashboard() {
   }, [isAuthenticated, navigate])
 
   if (isAdmin === null) {
-    return <div className="min-h-screen bg-gray-50 flex items-center justify-center"><p className="text-sm text-charcoal-70">Loading...</p></div>
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <main id="main-content" tabIndex={-1}>
+          <p className="text-sm text-charcoal-70">Loading...</p>
+        </main>
+      </div>
+    )
   }
 
   if (!isAdmin) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm text-center max-w-md">
+        <main id="main-content" tabIndex={-1} className="bg-white rounded-xl p-8 border border-gray-200 shadow-sm text-center max-w-md">
           <h2 className="text-xl font-bold font-heading text-charcoal mb-2">Access Denied</h2>
           <p className="text-sm text-charcoal-70 mb-4">This page is restricted to administrators only.</p>
           <Link to="/dashboard" className="text-slate-blue hover:underline text-sm font-medium">Back to Dashboard</Link>
-        </div>
+        </main>
       </div>
     )
   }
@@ -119,7 +125,7 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      <div className="flex-1 container mx-auto px-4 py-6 max-w-6xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-6 max-w-6xl">
         <div className="flex overflow-x-auto gap-1 mb-6 bg-white rounded-xl p-1 border border-gray-200 shadow-sm">
           {tabs.map((tab) => (
             <button
@@ -147,7 +153,7 @@ export default function AdminDashboard() {
           {activeTab === 'pre-auth' && <PreAuthTab />}
           {activeTab === 'notifications' && <NotificationsTab />}
         </div>
-      </div>
+      </main>
     </div>
   )
 }
@@ -242,7 +248,7 @@ function ContentPreview({ item, type }: { item: Record<string, unknown>; type: s
             <Heart className="w-4 h-4 text-healing-purple" />
             <h4 className="font-bold text-charcoal font-heading text-sm">{String(item.title || 'Card Title')}</h4>
           </div>
-          {!!item.category && <span className="text-xs bg-healing-purple/10 text-healing-purple px-2 py-0.5 rounded-full">{String(item.category)}</span>}
+          {!!item.category && <span className="text-xs bg-healing-purple/10 text-healing-purple-ink px-2 py-0.5 rounded-full">{String(item.category)}</span>}
           {!!item.age_group && <span className="text-xs bg-sky-blue-bg text-slate-blue px-2 py-0.5 rounded-full ml-1">{String(item.age_group)}</span>}
           <p className="text-xs text-charcoal-80 mt-2 whitespace-pre-wrap line-clamp-4">{String(item.content || 'Card content will appear here...')}</p>
           {videoUrl && <p className="text-xs text-slate-blue mt-2 flex items-center gap-1"><Video className="w-3 h-3" /> Video attached</p>}
@@ -398,7 +404,7 @@ function ContentTab({ table, label, fields, previewType }: { table: string; labe
         </button>
       </div>
 
-      {msg && <p className="text-sm text-growth-green mb-4">{msg}</p>}
+      {msg && <p className="text-sm text-growth-green-ink mb-4">{msg}</p>}
 
       {showForm && (
         <div ref={formRef} className="bg-gray-50 rounded-xl p-6 mb-6 border border-gray-200 scroll-mt-4">
@@ -431,7 +437,7 @@ function ContentTab({ table, label, fields, previewType }: { table: string; labe
                             className="text-sm"
                           />
                           {formData[field.name] ? (
-                            <span className="text-xs text-growth-green">Uploaded</span>
+                            <span className="text-xs text-growth-green-ink">Uploaded</span>
                           ) : null}
                         </div>
                       </div>
@@ -443,7 +449,7 @@ function ContentTab({ table, label, fields, previewType }: { table: string; labe
                           onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
                           rows={4}
                           placeholder={field.placeholder}
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none resize-none"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none"
                         />
                       </div>
                     ) : field.type === 'select' ? (
@@ -452,7 +458,7 @@ function ContentTab({ table, label, fields, previewType }: { table: string; labe
                         <select
                           value={String(formData[field.name] || '')}
                           onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: e.target.value }))}
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                         >
                           <option value="">Select...</option>
                           {field.options?.map(opt => <option key={opt} value={opt}>{opt}</option>)}
@@ -466,7 +472,7 @@ function ContentTab({ table, label, fields, previewType }: { table: string; labe
                           value={String(formData[field.name] || '')}
                           onChange={(e) => setFormData(prev => ({ ...prev, [field.name]: field.type === 'number' ? Number(e.target.value) : e.target.value }))}
                           placeholder={field.placeholder}
-                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                          className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                         />
                       </div>
                     )}
@@ -577,13 +583,13 @@ function UsersTab() {
 
       <div className="flex gap-2 mb-4">
         <input type="email" value={actionEmail} onChange={(e) => setActionEmail(e.target.value)} placeholder="user@email.com"
-          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none" />
+          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" />
         <button onClick={grantAccess} className="px-4 py-2 bg-growth-green text-white rounded-lg text-sm font-medium hover:bg-growth-green/90">Grant Access</button>
         <button onClick={revokeAccess} className="px-4 py-2 bg-red-500 text-white rounded-lg text-sm font-medium hover:bg-red-600">Revoke Access</button>
         <button onClick={resetPassword} className="px-4 py-2 bg-slate-blue text-white rounded-lg text-sm font-medium hover:bg-slate-blue-dark">Reset Password</button>
       </div>
 
-      {actionMsg && <p className="text-sm text-growth-green mb-4">{actionMsg}</p>}
+      {actionMsg && <p className="text-sm text-growth-green-ink mb-4">{actionMsg}</p>}
       {tempPassword && (
         <div className="mb-4 p-3 bg-sky-blue-bg border border-slate-blue/20 rounded-lg">
           <p className="text-sm text-charcoal mb-1">Temporary password (shown once):</p>
@@ -713,11 +719,11 @@ function PreAuthTab() {
 
       <div className="flex gap-2 mb-4">
         <input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} placeholder="email@example.com"
-          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none" />
+          className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm" />
         <button onClick={addEmail} className="px-4 py-2 bg-slate-blue text-white rounded-lg text-sm font-medium hover:bg-slate-blue-dark">Pre-Authorize</button>
       </div>
 
-      {msg && <p className="text-sm text-growth-green mb-4">{msg}</p>}
+      {msg && <p className="text-sm text-growth-green-ink mb-4">{msg}</p>}
 
       {loading ? <p className="text-sm text-charcoal-70">Loading...</p> : (
         <div className="overflow-x-auto">
@@ -951,7 +957,7 @@ function PagesTab() {
                     value={content[sec.section] || ''}
                     onChange={(e) => setContent(prev => ({ ...prev, [sec.section]: e.target.value }))}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none resize-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none"
                     placeholder={`Enter ${sec.label.toLowerCase()}...`}
                   />
                 ) : (
@@ -959,7 +965,7 @@ function PagesTab() {
                     type="text"
                     value={content[sec.section] || ''}
                     onChange={(e) => setContent(prev => ({ ...prev, [sec.section]: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                     placeholder={`Enter ${sec.label.toLowerCase()}...`}
                   />
                 )}
@@ -975,7 +981,7 @@ function PagesTab() {
             <button onClick={saveAll} disabled={saving} className="px-6 py-2.5 bg-growth-green text-white rounded-lg text-sm font-semibold hover:bg-growth-green/90 disabled:opacity-50">
               {saving ? 'Saving...' : 'Save All Sections'}
             </button>
-            {msg && <p className="text-sm text-growth-green">{msg}</p>}
+            {msg && <p className="text-sm text-growth-green-ink">{msg}</p>}
           </div>
 
           <div>
@@ -1035,18 +1041,18 @@ function NotificationsTab() {
         <div>
           <label className="block text-sm font-medium text-charcoal mb-1">Message</label>
           <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Type your notification message..."
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none resize-none" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm resize-none" />
         </div>
         <div>
           <label className="block text-sm font-medium text-charcoal mb-1">Link (optional)</label>
           <input type="text" value={link} onChange={(e) => setLink(e.target.value)} placeholder="Leave blank for the dashboard."
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none" />
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" />
         </div>
         <button onClick={sendNotification} disabled={sending || !message.trim()}
           className="px-6 py-2.5 bg-slate-blue text-white rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50">
           {sending ? 'Sending...' : 'Send Notification'}
         </button>
-        {result && <p className="text-sm text-growth-green">{result}</p>}
+        {result && <p className="text-sm text-growth-green-ink">{result}</p>}
       </div>
     </div>
   )

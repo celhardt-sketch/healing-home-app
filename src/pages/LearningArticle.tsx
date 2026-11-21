@@ -46,7 +46,7 @@ export default function LearningArticle() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
         <article>
           <h1 className="text-3xl font-bold font-heading text-charcoal leading-tight">{article.title}</h1>
           <div className="flex flex-wrap items-center gap-3 mt-3 text-sm text-charcoal-70">
@@ -58,7 +58,7 @@ export default function LearningArticle() {
           {/* Key Takeaways strip */}
           {takeaways.length > 0 && (
             <div className="bg-white rounded-xl border border-healing-purple/20 shadow-sm p-5 mt-6">
-              <h2 className="text-sm font-semibold text-healing-purple flex items-center gap-2 mb-3">
+              <h2 className="text-sm font-semibold text-healing-purple-ink flex items-center gap-2 mb-3">
                 <Sparkles className="w-4 h-4" /> Key Takeaways
               </h2>
               <ul className="space-y-2">

@@ -38,7 +38,7 @@ export default function MandatedReporterGuide() {
         </div>
       </div>
 
-      <main className="flex-1 w-full max-w-[760px] mx-auto px-[18px] pb-16">
+      <main id="main-content" tabIndex={-1} className="flex-1 w-full max-w-[760px] mx-auto px-[18px] pb-16">
         {/* Title block */}
         <header className="pt-7 pb-4 text-center">
           <h1 className="font-heading text-[30px] leading-tight font-bold mb-1.5">
@@ -129,7 +129,7 @@ export default function MandatedReporterGuide() {
           aria-label="Important notice before using this guide"
           className="bg-[#FBF2E2] border-[1.5px] border-[#EFD9AE] rounded-[14px] shadow-[0_2px_10px_rgba(46,58,51,0.06)] p-5 mb-4"
         >
-          <h2 className="font-heading text-[18px] font-bold text-[#B9791F] mb-2.5">Please read first</h2>
+          <h2 className="font-heading text-[18px] font-bold text-caution-ink mb-2.5">Please read first</h2>
           <ul className="list-disc pl-[22px] m-0 space-y-2">
             <li>
               This guide is <strong>general education, not legal advice</strong>. Mandated reporting
@@ -378,7 +378,7 @@ export default function MandatedReporterGuide() {
 
         {/* When to Seek Immediate Support */}
         <Card className="bg-[#FBF2E2] border-[#EFD9AE]">
-          <h3 className="font-heading text-[21px] font-bold leading-[1.25] mb-2.5 text-[#B9791F]">
+          <h3 className="font-heading text-[21px] font-bold leading-[1.25] mb-2.5 text-guide-ink">
             When to Seek Immediate Support
           </h3>
           <p className="mb-2">Stop relying on this guide and seek professional or emergency support if:</p>
@@ -391,7 +391,7 @@ export default function MandatedReporterGuide() {
             ].map((t) => (
               <li key={t} className="relative pl-7 my-2 font-medium">
                 <span
-                  className="absolute left-0 top-px w-5 h-5 rounded-full bg-[#B9791F] text-white font-extrabold text-[13px] flex items-center justify-center"
+                  className="absolute left-0 top-px w-5 h-5 rounded-full bg-guide-ink text-white font-extrabold text-[13px] flex items-center justify-center"
                   aria-hidden="true"
                 >
                   !

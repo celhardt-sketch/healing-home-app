@@ -4,7 +4,7 @@ import { Home, ArrowLeft } from 'lucide-react'
 export default function NotFound() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
-      <div className="text-center max-w-md">
+      <main id="main-content" tabIndex={-1} className="text-center max-w-md">
         <div className="w-20 h-20 bg-sky-blue-bg rounded-full flex items-center justify-center mx-auto mb-6">
           <Home className="w-10 h-10 text-slate-blue" />
         </div>
@@ -20,7 +20,7 @@ export default function NotFound() {
             <ArrowLeft className="w-4 h-4" /> Go Home
           </Link>
         </div>
-      </div>
+      </main>
     </div>
   )
 }

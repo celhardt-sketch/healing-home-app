@@ -383,7 +383,7 @@ export default function CaregiverSupport() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold font-heading text-charcoal mb-2">
             You matter too
@@ -580,7 +580,7 @@ export default function CaregiverSupport() {
                         <div className="space-y-3">
                           {(item.content.prompts as Array<{label: string; question: string}>).map((p) => (
                             <div key={p.label} className="bg-healing-purple/5 rounded-lg p-4 flex items-start gap-3">
-                              <span className="font-bold text-healing-purple text-sm min-w-[80px]">{p.label}:</span>
+                              <span className="font-bold text-healing-purple-ink text-sm min-w-[80px]">{p.label}:</span>
                               <span className="text-sm text-charcoal-80">{p.question}</span>
                             </div>
                           ))}
@@ -592,7 +592,7 @@ export default function CaregiverSupport() {
                         <ul className="space-y-2">
                           {(item.content.prompts as string[]).map((prompt, idx) => (
                             <li key={idx} className="flex items-start gap-2 text-sm text-charcoal-80">
-                              <span className="text-healing-purple mt-0.5">&#8226;</span>
+                              <span className="text-healing-purple-ink mt-0.5">&#8226;</span>
                               <span className="leading-relaxed">{prompt}</span>
                             </li>
                           ))}
@@ -612,7 +612,7 @@ export default function CaregiverSupport() {
                           <div className="space-y-2">
                             {((item.content as Record<string, unknown>).statements as string[]).map((s, idx) => (
                               <div key={idx} className="bg-gray-50 rounded-lg p-3 flex items-start gap-3">
-                                <span className="w-6 h-6 bg-healing-purple/10 text-healing-purple rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold">{idx + 1}</span>
+                                <span className="w-6 h-6 bg-healing-purple/10 text-healing-purple-ink rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold">{idx + 1}</span>
                                 <span className="text-sm text-charcoal-80">{s}</span>
                               </div>
                             ))}
@@ -722,7 +722,7 @@ export default function CaregiverSupport() {
                         <ul className="space-y-2">
                           {(item.content.prompts as string[]).map((prompt, idx) => (
                             <li key={idx} className="flex items-start gap-2 text-sm text-charcoal-80">
-                              <span className="text-sky-blue mt-0.5">&#8226;</span>
+                              <span className="text-slate-blue mt-0.5">&#8226;</span>
                               <span className="leading-relaxed">{prompt}</span>
                             </li>
                           ))}
@@ -751,7 +751,7 @@ export default function CaregiverSupport() {
                         <ol className="space-y-2">
                           {((item.content as Record<string, unknown>).steps as string[]).map((step, idx) => (
                             <li key={idx} className="flex items-start gap-3 text-sm text-charcoal-80">
-                              <span className="w-6 h-6 bg-sky-blue/10 text-sky-blue rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold">{idx + 1}</span>
+                              <span className="w-6 h-6 bg-sky-blue/10 text-slate-blue rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 text-xs font-bold">{idx + 1}</span>
                               <span className="leading-relaxed">{step}</span>
                             </li>
                           ))}
@@ -798,7 +798,7 @@ export default function CaregiverSupport() {
                     type="date"
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
-                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none"
+                    className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm"
                   />
                 </div>
 
@@ -833,7 +833,7 @@ export default function CaregiverSupport() {
                             value={morning[`grateful${n}` as keyof MorningEntries]}
                             onChange={(e) => setMorning({ ...morning, [`grateful${n}`]: e.target.value })}
                             placeholder={`I'm grateful for...`}
-                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none"
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
                           />
                         </div>
                       ))}
@@ -849,14 +849,14 @@ export default function CaregiverSupport() {
                             value={morning[`obstacle${n}` as keyof MorningEntries]}
                             onChange={(e) => setMorning({ ...morning, [`obstacle${n}`]: e.target.value })}
                             placeholder={`Obstacle ${n}...`}
-                            className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm mb-2 focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-white"
+                            className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm mb-2 bg-white"
                           />
                           <input
                             type="text"
                             value={morning[`learning${n}` as keyof MorningEntries]}
                             onChange={(e) => setMorning({ ...morning, [`learning${n}`]: e.target.value })}
                             placeholder="What I'm learning..."
-                            className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none bg-white"
+                            className="w-full border border-amber-200 rounded-lg px-3 py-2 text-sm bg-white"
                           />
                         </div>
                       ))}
@@ -886,7 +886,7 @@ export default function CaregiverSupport() {
                             value={evening[`beautiful${n}` as keyof EveningEntries]}
                             onChange={(e) => setEvening({ ...evening, [`beautiful${n}`]: e.target.value })}
                             placeholder={`Beautiful thing ${n}...`}
-                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none"
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
                           />
                         </div>
                       ))}
@@ -903,7 +903,7 @@ export default function CaregiverSupport() {
                             value={evening[`person${n}` as keyof EveningEntries]}
                             onChange={(e) => setEvening({ ...evening, [`person${n}`]: e.target.value })}
                             placeholder={`Person ${n}...`}
-                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none"
+                            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm"
                           />
                         </div>
                       ))}
@@ -917,7 +917,7 @@ export default function CaregiverSupport() {
                         onChange={(e) => setEvening({ ...evening, bestPart: e.target.value })}
                         placeholder="The best part of my day was..."
                         rows={3}
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-amber-400 focus:border-transparent outline-none resize-none"
+                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm resize-none"
                       />
                     </div>
 

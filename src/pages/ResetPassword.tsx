@@ -38,7 +38,7 @@ export default function ResetPassword() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-blue-bg via-white to-healing-purple/5 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+      <main id="main-content" tabIndex={-1} className="max-w-md w-full bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
         <div className="text-center mb-6">
           <img src="/logo.png" alt="The Healing Home Approach" className="h-16 w-auto mx-auto mb-4" />
           <h2 className="text-2xl font-bold font-heading text-slate-blue">Choose a new password</h2>
@@ -75,24 +75,28 @@ export default function ResetPassword() {
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">New password</label>
+                <label htmlFor="new-password" className="block text-sm font-medium text-charcoal mb-1">New password</label>
                 <input
+                  id="new-password"
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                  autoComplete="new-password"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   required
                   minLength={8}
                 />
                 <p className="text-xs text-charcoal-70 mt-1">Minimum 8 characters</p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Confirm new password</label>
+                <label htmlFor="confirm-password" className="block text-sm font-medium text-charcoal mb-1">Confirm new password</label>
                 <input
+                  id="confirm-password"
                   type="password"
                   value={confirm}
                   onChange={(e) => setConfirm(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                  autoComplete="new-password"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
                   required
                   minLength={8}
                 />
@@ -112,7 +116,7 @@ export default function ResetPassword() {
             </p>
           </>
         )}
-      </div>
+      </main>
     </div>
   )
 }

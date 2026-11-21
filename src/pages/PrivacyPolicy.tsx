@@ -5,7 +5,7 @@ import SafetyFooter from '../components/SafetyFooter'
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      <div className="max-w-4xl mx-auto px-4 py-12 w-full">
+      <main id="main-content" tabIndex={-1} className="max-w-4xl mx-auto px-4 py-12 w-full">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-blue hover:text-slate-blue-dark mb-6 transition-colors">
           <ArrowLeft className="w-4 h-4" /> Back to Home
         </Link>
@@ -205,7 +205,7 @@ export default function PrivacyPolicy() {
             </section>
           </div>
         </div>
-      </div>
+      </main>
       <SafetyFooter />
     </div>
   )
