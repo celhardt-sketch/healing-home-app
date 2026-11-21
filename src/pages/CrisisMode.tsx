@@ -2,7 +2,6 @@ import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, AlertTriangle, Shield, Heart, Phone, Video, X, Save, Check, Users } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
-import CrisisBanner from '../components/CrisisBanner'
 
 const API_URL = import.meta.env.VITE_API_URL || ''
 
@@ -302,7 +301,6 @@ export default function CrisisMode() {
         </div>
 
         <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
-          <CrisisBanner className="mb-6" />
           <p className="text-sm text-charcoal-70 text-center mb-6 leading-relaxed">
             This is in-the-moment psychoeducational support, not treatment or a crisis service. If you
             need urgent help, use the numbers above.

@@ -27,6 +27,11 @@
   --font-body: "Inter", system-ui, sans-serif;
 }
 
+:root {
+  /* Height of the public crisis help strip, including the iPhone safe area. */
+  --public-help-strip-height: calc(2.75rem + env(safe-area-inset-top, 0px));
+}
+
 html {
   scroll-behavior: smooth;
 }

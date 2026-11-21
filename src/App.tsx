@@ -1,5 +1,6 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
+import CrisisBanner from './components/CrisisBanner'
 import LandingPage from './pages/LandingPage'
 import DisclaimerGate from './pages/DisclaimerGate'
 import Dashboard from './pages/Dashboard'
@@ -27,9 +28,36 @@ import AdminDashboard from './pages/AdminDashboard'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/ProtectedRoute'
 
+// These pages already show 911 and 988 in SafetyFooter. The public help strip
+// stays off them so subscribers do not get a second banner.
+const PAGES_WITHOUT_PUBLIC_STRIP = [
+  '/dashboard',
+  '/kids-regulation',
+  '/try-again',
+  '/regulate-me',
+  '/caregiver-support',
+  '/scripts',
+  '/learning',
+  '/growth-tracker',
+  '/family-plan',
+  '/printables',
+  '/account',
+  '/admin',
+]
+
+function isSignedInAppPage(pathname: string) {
+  return PAGES_WITHOUT_PUBLIC_STRIP.some(
+    (path) => pathname === path || pathname.startsWith(`${path}/`),
+  )
+}
+
 export default function App() {
+  const { pathname } = useLocation()
+  const showCrisisStrip = !isSignedInAppPage(pathname)
+
   return (
     <AuthProvider>
+      {showCrisisStrip && <CrisisBanner variant="strip" />}
       <Routes>
         {/* Public: landing, gates, legal, and safety-critical crisis pages */}
         <Route path="/" element={<LandingPage />} />
