@@ -29,6 +29,8 @@ from .stripe_billing import (
     cancel_subscription,
     resume_subscription,
     reconcile_subscription_from_stripe,
+    available_plans,
+    remember_plan_from_stripe,
 )
 from .content import (
     init_content_tables,
@@ -241,6 +243,16 @@ def require_admin(current_user: dict = Depends(get_current_user)) -> dict:
 
 
 # --- Public endpoints (no auth required) ---
+
+
+@app.get("/api/plans")
+def public_plans() -> dict:
+    """Plans checkout can sell right now.
+
+    The landing page and paywall advertise only this list. Stripe price IDs stay
+    on the server. With only STRIPE_PRICE_ID set, the list is the monthly plan.
+    """
+    return {"plans": available_plans()}
 
 
 @app.get("/api/health")
@@ -515,6 +527,7 @@ def get_backups(current_user: dict = Depends(require_admin)) -> list[dict]:
 class CheckoutRequest(BaseModel):
     success_url: str
     cancel_url: str
+    plan: Optional[str] = None
 
 
 class BillingPortalRequest(BaseModel):
@@ -534,6 +547,8 @@ def subscription_status(current_user: dict = Depends(get_current_user)) -> dict:
     they are never stranded on the paywall (and never tempted to pay again)."""
     user_id = int(current_user["sub"])
     status = get_user_subscription_status(user_id)
+    if not status.get("is_admin") and not status.get("plan"):
+        status = remember_plan_from_stripe(user_id)
     # Self-heal when our record is incomplete: no access at all, or a scheduled
     # cancellation whose end date is missing (e.g. stored before the date fix).
     needs_reconcile = not status.get("has_access") or (
@@ -578,8 +593,12 @@ def checkout(body: CheckoutRequest, current_user: dict = Depends(get_current_use
         if reconciled.get("has_access"):
             return {"checkout_url": None, "already_subscribed": True}
 
-        url = create_checkout_session(email, user_id, body.success_url, body.cancel_url)
+        url = create_checkout_session(
+            email, user_id, body.success_url, body.cancel_url, plan_id=body.plan
+        )
         return {"checkout_url": url, "already_subscribed": False}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except RuntimeError as e:
         raise HTTPException(status_code=503, detail=str(e))
     except Exception as e:

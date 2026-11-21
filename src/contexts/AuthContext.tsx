@@ -14,6 +14,10 @@ interface SubscriptionInfo {
   is_admin?: boolean
   cancel_at_period_end?: boolean
   ends_at?: string | null
+  plan?: string | null
+  plan_label?: string | null
+  trial_ends_at?: string | null
+  trial_used?: boolean
 }
 
 interface AuthContextType {
@@ -30,7 +34,7 @@ interface AuthContextType {
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>
   requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string }>
   resetPassword: (token: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>
-  createCheckoutSession: () => Promise<{ url: string | null; alreadySubscribed: boolean }>
+  createCheckoutSession: (planId?: string) => Promise<{ url: string | null; alreadySubscribed: boolean; error?: string }>
   openBillingPortal: () => Promise<{ url: string | null; error?: string }>
   cancelSubscription: () => Promise<{ ok: boolean; error?: string }>
   resumeSubscription: () => Promise<{ ok: boolean; error?: string }>
@@ -196,7 +200,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const createCheckoutSession = async (): Promise<{ url: string | null; alreadySubscribed: boolean }> => {
+  const createCheckoutSession = async (planId?: string): Promise<{ url: string | null; alreadySubscribed: boolean; error?: string }> => {
     const token = localStorage.getItem('auth_token')
     if (!token) return { url: null, alreadySubscribed: false }
 
@@ -210,6 +214,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({
           success_url: `${window.location.origin}/dashboard?subscription=success&session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${window.location.origin}/access-gate?subscription=canceled`,
+          ...(planId ? { plan: planId } : {}),
         }),
       })
       if (res.ok) {
@@ -222,7 +227,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         return { url: data.checkout_url, alreadySubscribed: false }
       }
-      return { url: null, alreadySubscribed: false }
+      const err = await res.json().catch(() => ({}))
+      return { url: null, alreadySubscribed: false, error: err.detail || undefined }
     } catch {
       return { url: null, alreadySubscribed: false }
     }

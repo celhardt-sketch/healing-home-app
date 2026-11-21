@@ -4,6 +4,7 @@ import {
   FileText, Phone, Printer, CheckCircle, Sparkles
 } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+import { usePublicPlans, isClassicMonthly, planIntervalLabel } from '../lib/plans'
 
 const PRICE = '$9.99'
 
@@ -97,6 +98,9 @@ const reasons = [
 
 export default function LandingPage() {
   const navigate = useNavigate()
+  const plans = usePublicPlans()
+  const classic = isClassicMonthly(plans)
+  const familyTrial = plans.some((plan) => plan.trial_days > 0)
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
@@ -163,8 +167,12 @@ export default function LandingPage() {
             </button>
           </div>
           <p className="inline-flex items-center gap-2 text-sm font-medium text-charcoal-80 bg-white/70 backdrop-blur border border-gray-100 rounded-full px-4 py-1.5 mb-6">
-            <span className="text-slate-blue font-bold">{PRICE}/month</span>
-            <span className="text-charcoal-70">&middot; cancel anytime</span>
+            <span className="text-slate-blue font-bold">
+              {classic || plans.some((plan) => plan.id === 'monthly') ? `${PRICE}/month` : `${plans[0].amount_display}/${planIntervalLabel(plans[0])}`}
+            </span>
+            <span className="text-charcoal-70">
+              {familyTrial ? <>&middot; 7-day free trial for new families</> : <>&middot; cancel anytime</>}
+            </span>
           </p>
           <p className="text-sm text-charcoal-70">
             Created by Courtney Snyder Elhardt, M.S., M.A. &mdash; Child Development Specialist, Therapist, and Foster/Adoptive Parent
@@ -271,6 +279,7 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing */}
+      {classic ? (
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 max-w-lg">
           <div className="text-center mb-8">
@@ -304,6 +313,59 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+      ) : (
+      <section className="py-16 md:py-24">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="text-center mb-8">
+            <h3 className="text-3xl md:text-4xl font-bold font-heading text-charcoal mb-3">Simple, honest pricing</h3>
+            <p className="text-charcoal-80 max-w-2xl mx-auto">
+              {familyTrial
+                ? 'New families get one 7-day free trial on a family plan. Your card is saved now and is not charged until the trial ends.'
+                : 'Every plan includes the full app. Cancel anytime.'}
+            </p>
+          </div>
+          <div className={`grid gap-6 max-w-5xl mx-auto ${plans.length >= 3 ? 'md:grid-cols-2 lg:grid-cols-3' : 'md:grid-cols-2'}`}>
+            {plans.map((plan) => (
+              <div key={plan.id} className="rounded-2xl bg-white border border-gray-100 shadow-lg overflow-hidden flex flex-col">
+                <div className={`p-8 text-center text-white ${plan.group === 'professional' ? 'bg-healing-purple' : 'bg-gradient-to-r from-slate-blue to-healing-purple'}`}>
+                  <p className="text-sm font-medium text-white/85 mb-2">
+                    {plan.group === 'professional' ? 'For professionals' : 'For families'}
+                  </p>
+                  <h4 className="text-2xl font-bold font-heading">{plan.name}</h4>
+                  <div className="flex items-end justify-center gap-1 mt-3">
+                    <span className="text-5xl font-bold font-heading">{plan.amount_display}</span>
+                    <span className="text-lg text-white/85 mb-1">/{planIntervalLabel(plan)}</span>
+                  </div>
+                  <p className="text-sm text-white/85 mt-2">
+                    {plan.trial_days > 0 ? `${plan.trial_days}-day free trial for new families` : plan.group === 'professional' ? 'Billed once a year' : 'Cancel anytime'}
+                  </p>
+                </div>
+                <div className="p-8 flex-1 flex flex-col">
+                  <p className="text-sm text-charcoal-80 mb-4">{plan.description}</p>
+                  {plan.id === 'annual' && (
+                    <p className="text-sm text-charcoal-70 mb-4">Saves about $21 compared with paying monthly.</p>
+                  )}
+                  <ul className="space-y-3 mb-8">
+                    {included.map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <CheckCircle className="w-5 h-5 text-growth-green shrink-0 mt-0.5" />
+                        <span className="text-sm text-charcoal-80">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <button
+                    onClick={() => navigate('/disclaimer', { state: { register: true } })}
+                    className="mt-auto w-full inline-flex items-center justify-center gap-2 bg-slate-blue text-white px-6 py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors"
+                  >
+                    Sign Up <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      )}
 
       {/* CTA */}
       <section className="py-16 md:py-24 text-center">
