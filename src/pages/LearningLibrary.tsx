@@ -43,7 +43,7 @@ export default function LearningLibrary() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-6">
           <p className="text-lg text-charcoal-80 leading-relaxed">
             {learningLandingIntro}
@@ -58,7 +58,7 @@ export default function LearningLibrary() {
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search articles…"
             aria-label="Search articles"
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-healing-purple focus:border-transparent outline-none"
+            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg"
           />
         </div>
 
@@ -81,7 +81,7 @@ export default function LearningLibrary() {
                   </h3>
                   {article.summary && <p className="text-sm text-charcoal-80 mt-1.5 leading-relaxed">{article.summary}</p>}
                   <div className="flex items-center gap-3 mt-3 text-xs text-charcoal-70">
-                    <span className="bg-healing-purple/10 text-healing-purple px-2 py-0.5 rounded-full">{categoryName}</span>
+                    <span className="bg-healing-purple/10 text-healing-purple-ink px-2 py-0.5 rounded-full">{categoryName}</span>
                     <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {readingMinutes(article.content)} min read</span>
                   </div>
                 </Link>

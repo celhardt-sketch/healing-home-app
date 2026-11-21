@@ -136,7 +136,7 @@ export default function AccessGate() {
                   </span>
                   <span className="block text-sm text-charcoal-70 mt-1">{plan.description}</span>
                   {plan.trial_days > 0 && !returning && (
-                    <span className="block text-sm text-growth-green-dark mt-1">
+                    <span className="block text-sm text-growth-green-ink mt-1">
                       {plan.trial_days}-day free trial. Card saved now, charged when the trial ends.
                     </span>
                   )}
