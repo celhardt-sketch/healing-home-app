@@ -39,7 +39,7 @@ export default function PrintablesVault() {
           </Link>
           <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
             <Printer className="w-5 h-5 text-orange-500" />
-            Printables Vault
+            Printables Library
           </h1>
         </div>
       </div>

@@ -105,7 +105,7 @@ const dashboardSections: DashboardSection[] = [
         gradient: 'from-healing-purple to-healing-purple-dark',
       },
       {
-        title: 'Printables Vault',
+        title: 'Printables Library',
         description: 'Downloadable visual schedules, charts, and tools',
         icon: Printer,
         href: '/printables',

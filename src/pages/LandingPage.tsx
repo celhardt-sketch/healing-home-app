@@ -54,7 +54,7 @@ const features = [
   },
   {
     icon: Printer,
-    title: 'Printables Vault',
+    title: 'Printables Library',
     description: 'Downloadable visual schedules, emotion charts, and regulation tools you can print and use at home.',
     color: 'bg-orange-50 text-orange-600',
   },
