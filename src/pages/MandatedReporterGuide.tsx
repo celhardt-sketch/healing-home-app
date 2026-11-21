@@ -51,7 +51,7 @@ export default function MandatedReporterGuide() {
         <div
           role="region"
           aria-label="Emergency contacts"
-          className="sticky top-0 z-50 bg-[#FBEDEB] border border-[#F0D6D2] rounded-[14px] shadow-[0_2px_10px_rgba(46,58,51,0.06)] p-3.5 mt-1.5 mb-[22px]"
+          className="sticky top-[var(--public-help-strip-height)] z-40 bg-[#FBEDEB] border border-[#F0D6D2] rounded-[14px] shadow-[0_2px_10px_rgba(46,58,51,0.06)] p-3.5 mt-1.5 mb-[22px]"
         >
           <h2 className="uppercase tracking-[0.06em] text-[12.5px] font-bold text-[#B23A32] mb-2.5">
             If the child is in immediate danger

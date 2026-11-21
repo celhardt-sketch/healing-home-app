@@ -34,6 +34,11 @@
   --font-body: "Inter", system-ui, sans-serif;
 }
 
+:root {
+  /* Height of the public crisis help strip, including the iPhone safe area. */
+  --public-help-strip-height: calc(2.75rem + env(safe-area-inset-top, 0px));
+}
+
 html {
   scroll-behavior: smooth;
 }
@@ -94,4 +99,9 @@ footer :focus-visible,
   box-shadow: 0 1px 3px rgba(10, 10, 10, 0.15);
   outline: 2px solid var(--color-slate-blue);
   outline-offset: 2px;
+}
+
+/* The public help strip occupies the top of logged-out pages. Drop the skip link below it so it does not cover Call 911. */
+body:has([aria-label="Crisis support contacts"]) .skip-link:focus {
+  top: calc(var(--public-help-strip-height) + 0.5rem);
 }

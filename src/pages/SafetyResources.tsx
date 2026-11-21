@@ -1,6 +1,5 @@
 import { Phone, ExternalLink, Shield, AlertTriangle, Heart } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
-import CrisisBanner from '../components/CrisisBanner'
 import PublicBackLink from '../components/PublicBackLink'
 
 const urgentContacts = [
@@ -68,7 +67,6 @@ export default function SafetyResources() {
       </div>
 
       <main id="main-content" tabIndex={-1} className="flex-1 max-w-4xl mx-auto px-4 py-6 w-full">
-        <CrisisBanner className="mb-6" />
 
         <h2 className="text-xl font-bold font-heading text-charcoal mb-4">Emergency &amp; Crisis Contacts</h2>
         <div className="grid sm:grid-cols-2 gap-4 mb-8">
