@@ -24,7 +24,7 @@ const techniques = [
     id: '5-4-3-2-1',
     title: '5-4-3-2-1 Grounding',
     icon: Eye,
-    color: 'bg-healing-purple/10 text-healing-purple',
+    color: 'bg-healing-purple/10 text-healing-purple-ink',
     duration: '3 min',
     description: 'Engage your senses to bring you back to the present moment when anxiety or overwhelm takes over.',
     steps: [
@@ -40,7 +40,7 @@ const techniques = [
     id: 'butterfly-hug',
     title: 'Butterfly Hug',
     icon: Heart,
-    color: 'bg-growth-green/10 text-growth-green-dark',
+    color: 'bg-growth-green/10 text-growth-green-ink',
     duration: '2 min',
     description: 'A bilateral stimulation technique that calms the nervous system through rhythmic self-touch.',
     steps: [
@@ -72,7 +72,7 @@ const techniques = [
     id: 'body-scan',
     title: 'Quick Body Scan',
     icon: Timer,
-    color: 'bg-healing-purple/10 text-healing-purple',
+    color: 'bg-healing-purple/10 text-healing-purple-ink',
     duration: '3 min',
     description: 'Notice where you are holding tension and consciously release it, one body part at a time.',
     steps: [
@@ -88,7 +88,7 @@ const techniques = [
     id: 'music',
     title: 'Music Reset',
     icon: Music,
-    color: 'bg-growth-green/10 text-growth-green-dark',
+    color: 'bg-growth-green/10 text-growth-green-ink',
     duration: '5 min',
     description: 'Music directly impacts the nervous system. Use it intentionally to shift your state.',
     steps: [
@@ -120,7 +120,7 @@ export default function RegulateMeNow() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         {!selected ? (
           <>
             <div className="text-center mb-8">

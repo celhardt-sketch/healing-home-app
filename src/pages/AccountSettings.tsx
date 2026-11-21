@@ -110,7 +110,7 @@ export default function AccountSettings() {
 
       <InstallAppModal open={showInstall} onClose={() => setShowInstall(false)} />
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
         <div className="space-y-6">
           {/* Install App */}
           <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
@@ -137,23 +137,27 @@ export default function AccountSettings() {
             </h3>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">Name</label>
+                <label htmlFor="profile-name" className="block text-sm font-medium text-charcoal mb-1">Name</label>
                 <input
+                  id="profile-name"
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                  autoComplete="name"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-charcoal mb-1">
+                <label htmlFor="profile-email" className="block text-sm font-medium text-charcoal mb-1">
                   <Mail className="w-3 h-3 inline mr-1" /> Email
                 </label>
                 <input
+                  id="profile-email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                  autoComplete="email"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg"
                 />
               </div>
             </div>
@@ -185,7 +189,7 @@ export default function AccountSettings() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-charcoal-80">Status</span>
-                <span className={`text-sm font-medium ${subscription.has_access ? 'text-growth-green' : 'text-red-500'}`}>
+                <span className={`text-sm font-medium ${subscription.has_access ? 'text-growth-green-ink' : 'text-red-500'}`}>
                   {subscription.status === 'active' ? 'Active' :
                    subscription.status === 'trialing' ? 'Free trial' :
                    subscription.status === 'past_due' ? 'Past Due' :
@@ -316,7 +320,7 @@ export default function AccountSettings() {
               Security
             </h3>
             {pwSuccess && !showPasswordForm && (
-              <p className="text-sm text-growth-green font-medium mb-2">Password updated.</p>
+              <p className="text-sm text-growth-green-ink font-medium mb-2">Password updated.</p>
             )}
             {!showPasswordForm ? (
               <button
@@ -333,34 +337,40 @@ export default function AccountSettings() {
                   </div>
                 )}
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">Current password</label>
+                  <label htmlFor="current-password" className="block text-sm font-medium text-charcoal mb-1">Current password</label>
                   <input
+                    id="current-password"
                     type="password"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    autoComplete="current-password"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">New password</label>
+                  <label htmlFor="new-password" className="block text-sm font-medium text-charcoal mb-1">New password</label>
                   <input
+                    id="new-password"
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    autoComplete="new-password"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg"
                     required
                     minLength={8}
                   />
                   <p className="text-xs text-charcoal-70 mt-1">Minimum 8 characters</p>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-charcoal mb-1">Confirm new password</label>
+                  <label htmlFor="confirm-password" className="block text-sm font-medium text-charcoal mb-1">Confirm new password</label>
                   <input
+                    id="confirm-password"
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+                    autoComplete="new-password"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg"
                     required
                     minLength={8}
                   />
@@ -398,7 +408,7 @@ export default function AccountSettings() {
               Disclaimer Status
             </h3>
             <p className="text-sm text-charcoal-80 mb-2">
-              Disclaimer accepted: <span className="text-growth-green font-medium">Yes</span>
+              Disclaimer accepted: <span className="text-growth-green-ink font-medium">Yes</span>
             </p>
             <p className="text-xs text-charcoal-70">
               Accepted on: {localStorage.getItem('disclaimerTimestamp') || 'N/A'}

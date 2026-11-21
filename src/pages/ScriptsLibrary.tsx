@@ -74,7 +74,7 @@ export default function ScriptsLibrary() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-6">
           <p className="text-charcoal-80 text-sm leading-relaxed">
             Trauma-informed response templates for everyday situations. Copy and adapt these scripts to your family&rsquo;s needs.
@@ -127,7 +127,7 @@ export default function ScriptsLibrary() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search scripts..."
-              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:ring-2 focus:ring-slate-blue focus:border-transparent outline-none"
+              className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg"
             />
           </div>
           <div className="mb-3">

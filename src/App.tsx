@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import CrisisBanner from './components/CrisisBanner'
@@ -28,6 +29,34 @@ import AdminDashboard from './pages/AdminDashboard'
 import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/ProtectedRoute'
 
+function SkipToContent() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    const main = document.getElementById('main-content') ?? document.querySelector('main')
+    if (!main) return
+    if (!main.id) main.id = 'main-content'
+    if (!main.hasAttribute('tabindex')) main.tabIndex = -1
+  }, [pathname])
+
+  return (
+    <a
+      href="#main-content"
+      className="skip-link"
+      onClick={(event) => {
+        const main = document.getElementById('main-content') ?? document.querySelector('main')
+        if (!main) return
+        if (!main.id) main.id = 'main-content'
+        main.tabIndex = -1
+        main.focus()
+        event.preventDefault()
+      }}
+    >
+      Skip to content
+    </a>
+  )
+}
+
 // These pages already show 911 and 988 in SafetyFooter. The public help strip
 // stays off them so subscribers do not get a second banner.
 const PAGES_WITHOUT_PUBLIC_STRIP = [
@@ -57,6 +86,7 @@ export default function App() {
 
   return (
     <AuthProvider>
+      <SkipToContent />
       {showCrisisStrip && <CrisisBanner variant="strip" />}
       <Routes>
         {/* Public: landing, gates, legal, and safety-critical crisis pages */}

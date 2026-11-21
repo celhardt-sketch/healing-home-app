@@ -13,9 +13,16 @@
   --color-growth-green: #6ED043;
   --color-growth-green-light: #8cdc6a;
   --color-growth-green-dark: #55a833;
+  /* Text on white. The brand green stays a fill only. */
+  --color-growth-green-ink: #3D6B2A;
   --color-healing-purple: #9C70C8;
   --color-healing-purple-light: #b48fd6;
   --color-healing-purple-dark: #7d52a8;
+  /* Small purple text on white. The brand purple stays a fill only. */
+  --color-healing-purple-ink: #5A3D8C;
+  --color-footer-legal: #BFC9DA;
+  --color-caution-ink: #7A4E0B;
+  --color-guide-ink: #7C2D12;
   --color-sky-blue: #90B1F9;
   --color-sky-blue-light: #b0c8fb;
   --color-sky-blue-bg: rgba(144, 177, 249, 0.2);
@@ -45,4 +52,56 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
+}
+
+/* One visible keyboard ring. Slate blue on light pages; white where the page behind the ring is navy. */
+:focus-visible {
+  outline: 2px solid var(--color-slate-blue);
+  outline-offset: 2px;
+  /* Show the ring immediately. transition-colors would otherwise fade outline-color in from the text color. */
+  transition: none;
+}
+
+footer :focus-visible,
+.bg-slate-blue :focus-visible {
+  outline-color: #ffffff;
+}
+
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link:focus {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  padding: 0.5rem 1rem;
+  background: #fff;
+  color: var(--color-slate-blue);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 0 1px 3px rgba(10, 10, 10, 0.15);
+  outline: 2px solid var(--color-slate-blue);
+  outline-offset: 2px;
+}
+
+/* The public help strip occupies the top of logged-out pages. Drop the skip link below it so it does not cover Call 911. */
+body:has([aria-label="Crisis support contacts"]) .skip-link:focus {
+  top: calc(var(--public-help-strip-height) + 0.5rem);
 }

@@ -81,7 +81,7 @@ export default function KidsRegulationTools() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-6">
           <h2 className="text-2xl font-bold font-heading text-charcoal mb-2">
             Regulation Tools for Kids
