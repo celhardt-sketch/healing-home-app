@@ -4,14 +4,34 @@ export default function SafetyFooter() {
   return (
     <footer className="bg-slate-blue text-white py-8 mt-auto">
       <div className="max-w-4xl mx-auto px-4 text-center text-sm space-y-4">
-        <div className="space-y-1">
+        <div className="space-y-3">
           <p className="text-white/80">
-            If someone is in immediate danger, call{' '}
-            <a href="tel:911" className="font-semibold text-white underline">911</a>.
-            For crisis support, call or text{' '}
-            <a href="tel:988" className="font-semibold text-white underline">988</a>{' '}
-            (Suicide &amp; Crisis Lifeline).
+            If someone is in immediate danger, call 911.
+            For crisis support, call or text 988 (Suicide &amp; Crisis Lifeline).
           </p>
+          <div className="flex flex-wrap items-center justify-center gap-2">
+            <a
+              href="tel:911"
+              aria-label="Call 9 1 1 for immediate danger"
+              className="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-white text-slate-blue text-sm font-semibold hover:brightness-95 transition"
+            >
+              Call 911
+            </a>
+            <a
+              href="tel:988"
+              aria-label="Call 9 8 8 Suicide and Crisis Lifeline"
+              className="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-white text-slate-blue text-sm font-semibold hover:brightness-95 transition"
+            >
+              Call 988
+            </a>
+            <a
+              href="sms:988"
+              aria-label="Text 9 8 8 Suicide and Crisis Lifeline"
+              className="inline-flex items-center justify-center min-h-[44px] px-4 rounded-lg bg-white text-slate-blue text-sm font-semibold hover:brightness-95 transition"
+            >
+              Text 988
+            </a>
+          </div>
         </div>
 
         <div className="border-t border-white/20 pt-4">

@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Shield, Printer } from 'lucide-react'
+import { Shield, Printer } from 'lucide-react'
 import SafetyFooter from '../components/SafetyFooter'
+import PublicBackLink from '../components/PublicBackLink'
+import { useAuth } from '../contexts/AuthContext'
 
 interface StateHotline {
   number: string
@@ -20,15 +22,15 @@ const STATE_HOTLINES: Record<string, StateHotline> = {
 export default function MandatedReporterGuide() {
   const [stateCode, setStateCode] = useState<string>('VA')
   const hotline = STATE_HOTLINES[stateCode]
+  const { isAuthenticated, initializing } = useAuth()
+  const signedIn = isAuthenticated || initializing || !!localStorage.getItem('auth_token')
 
   return (
     <div className="min-h-screen bg-[#F6F1E9] text-[#2E3A33] flex flex-col">
       {/* App nav bar (kept for in-app navigation) */}
       <div className="bg-white border-b shadow-sm print:hidden">
         <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-          <Link to="/dashboard" className="text-charcoal hover:text-slate-blue" aria-label="Back to dashboard">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
+          <PublicBackLink />
           <h1 className="text-xl font-bold font-heading text-charcoal flex items-center gap-2">
             <Shield className="w-5 h-5 text-[#B23A32]" />
             Mandated Reporter Quick Guide
@@ -434,10 +436,10 @@ export default function MandatedReporterGuide() {
             Family Wellness LLC.
           </p>
           <Link
-            to="/dashboard"
-            className="inline-block mt-1.5 font-semibold text-[15px] text-white bg-[#2E3A33] rounded-xl px-[22px] py-[11px] print:hidden"
+            to={signedIn ? '/dashboard' : '/'}
+            className="inline-flex items-center justify-center mt-1.5 min-h-[44px] font-semibold text-[15px] text-white bg-[#2E3A33] rounded-xl px-[22px] py-[11px] print:hidden"
           >
-            Return to Dashboard
+            {signedIn ? 'Return to Dashboard' : 'Back'}
           </Link>
         </footer>
       </main>
