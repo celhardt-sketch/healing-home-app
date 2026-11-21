@@ -257,17 +257,22 @@ export default function DisclaimerGate() {
 
           <div className="bg-amber-50 rounded-xl p-6">
             <h3 className="font-heading font-bold text-amber-800 flex items-center gap-2 mb-3">
-              <AlertTriangle className="w-5 h-5" /> Hierarchy of Authority
+              <AlertTriangle className="w-5 h-5" /> Who comes first
             </h3>
             <p className="text-sm text-charcoal-80 leading-relaxed mb-3">
-              This app explicitly defers to the following authorities in order:
+              This app is for education only. It never replaces the people and rules below. If anything in the app seems to conflict with them, follow them in this order:
             </p>
             <ol className="text-sm text-charcoal-80 space-y-1 ml-4 list-decimal">
-              <li>Your child's treatment team</li>
-              <li>Court or Department of Social Services directives</li>
-              <li>Your judgment as the caregiver</li>
-              <li>App guidance</li>
+              <li>Emergency help. If anyone is in danger, call 911. For a mental health crisis, call or text 988.</li>
+              <li>The law and court orders. This includes any court orders about your child and any legal duty you may have to report suspected abuse or neglect.</li>
+              <li>Whoever has legal authority to make decisions for your child. For a child in foster care, this is usually the local Department of Social Services or placing agency. For other families, it may be you, a guardian, or a birth parent, depending on your situation.</li>
+              <li>Your child's treatment team and other professionals who know your child, such as their therapist, doctor, or psychiatrist. Talk with them before changing a treatment plan or medication.</li>
+              <li>Your judgment as the caregiver who knows your child day to day.</li>
+              <li>This app's guidance, which is general education and not advice about your specific child.</li>
             </ol>
+            <p className="text-sm text-charcoal-80 leading-relaxed mt-3">
+              If you aren't sure who has legal authority for your child, ask your caseworker, agency, or attorney.
+            </p>
           </div>
 
           <div className="bg-red-50 rounded-xl p-6">
@@ -301,7 +306,7 @@ export default function DisclaimerGate() {
               { key: 'notReplacement', label: 'I understand that this app is not a replacement for therapy, crisis intervention, or emergency services' },
               { key: 'professionalApproval', label: 'I confirm that, if a child in my care is currently in treatment, their treatment team has approved the use of psychoeducational regulation tools, or that I am a professional using these tools within my role' },
               { key: 'ageConfirm', label: 'I confirm that I am 18 years of age or older' },
-              { key: 'hierarchy', label: 'I understand the hierarchy of authority' },
+              { key: 'hierarchy', label: 'I understand this app is for education only, and that emergency help, the law, the people with legal authority for my child, and my child\'s professionals come before anything the app says.' },
               { key: 'termsAgree', label: 'I have read and agree to the Terms of Service and Privacy Policy' },
             ].map((item) => (
               <label key={item.key} className="flex items-start gap-3 cursor-pointer">
