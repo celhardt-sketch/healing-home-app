@@ -3,28 +3,37 @@ import { Link, useNavigate } from 'react-router-dom'
 import { Lock, CreditCard, ArrowRight } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 import SafetyFooter from '../components/SafetyFooter'
+import { usePublicPlans, isClassicMonthly, planIntervalLabel } from '../lib/plans'
+
+function redirectTo(url: string) {
+  window.location.assign(url)
+}
 
 export default function AccessGate() {
-  const { user, createCheckoutSession } = useAuth()
+  const { user, subscription, createCheckoutSession } = useAuth()
   const navigate = useNavigate()
-  const [loading, setLoading] = useState(false)
+  const plans = usePublicPlans()
+  const classic = isClassicMonthly(plans)
+  const familyTrial = plans.some((plan) => plan.trial_days > 0)
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
   const [error, setError] = useState('')
+  const returning = Boolean(subscription.trial_used) || (subscription.status !== 'none' && subscription.status !== '')
 
-  const handleSubscribe = async () => {
-    setLoading(true)
+  const handleSubscribe = async (planId?: string) => {
+    setLoadingPlan(planId || 'monthly')
     setError('')
 
-    const { url, alreadySubscribed } = await createCheckoutSession()
-    if (alreadySubscribed) {
-      // Already paying — don't charge again; send them into the app.
+    const result = await createCheckoutSession(planId)
+    if (result.alreadySubscribed) {
+      // Already paying. Don't charge again; send them into the app.
       navigate('/dashboard')
       return
     }
-    if (url) {
-      window.location.href = url
+    if (result.url) {
+      redirectTo(result.url)
     } else {
-      setError('Unable to start checkout. Please try again or check your connection.')
-      setLoading(false)
+      setError(result.error || 'Unable to start checkout. Please try again or check your connection.')
+      setLoadingPlan(null)
     }
   }
 
@@ -63,7 +72,9 @@ export default function AccessGate() {
             <ol className="space-y-2 text-sm text-charcoal-80">
               <li className="flex items-start gap-2">
                 <span className="font-bold text-slate-blue">1.</span>
-                Subscribe to The Healing Home Approach using the button below
+                {classic
+                  ? 'Subscribe to The Healing Home Approach using the button below'
+                  : 'Choose a plan below'}
               </li>
               <li className="flex items-start gap-2">
                 <span className="font-bold text-slate-blue">2.</span>
@@ -88,18 +99,57 @@ export default function AccessGate() {
             </div>
           )}
 
-          <button
-            onClick={handleSubscribe}
-            disabled={loading}
-            className="w-full bg-slate-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            <CreditCard className="w-5 h-5" />
-            {loading ? 'Redirecting to checkout...' : 'Subscribe to The Healing Home Approach'}
-          </button>
+          {classic ? (
+            <>
+              <button
+                onClick={() => handleSubscribe()}
+                disabled={loadingPlan !== null}
+                className="w-full bg-slate-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                <CreditCard className="w-5 h-5" />
+                {loadingPlan ? 'Redirecting to checkout...' : 'Subscribe to The Healing Home Approach'}
+              </button>
 
-          <p className="text-xs text-charcoal-70 mt-3">
-            $9.99/month &bull; Cancel anytime &bull; Powered by Stripe
-          </p>
+              <p className="text-xs text-charcoal-70 mt-3">
+                $9.99/month &bull; Cancel anytime &bull; Powered by Stripe
+              </p>
+            </>
+          ) : (
+            <div className="space-y-3 text-left">
+              {familyTrial && (
+                <p className="text-sm text-charcoal-70">
+                  {returning
+                    ? 'Your free trial has already been used, so the plan you choose starts as a paid subscription.'
+                    : 'New families get one 7-day free trial on a family plan. We save your card now and do not charge it until the trial ends.'}
+                </p>
+              )}
+              {plans.map((plan) => (
+                <button
+                  key={plan.id}
+                  onClick={() => handleSubscribe(plan.id)}
+                  disabled={loadingPlan !== null}
+                  className="w-full border border-gray-200 rounded-xl p-4 hover:border-slate-blue disabled:opacity-50 text-left"
+                >
+                  <span className="flex items-baseline justify-between gap-3">
+                    <span className="font-bold text-charcoal">{plan.name}</span>
+                    <span className="font-bold text-slate-blue">{plan.amount_display}/{planIntervalLabel(plan)}</span>
+                  </span>
+                  <span className="block text-sm text-charcoal-70 mt-1">{plan.description}</span>
+                  {plan.trial_days > 0 && !returning && (
+                    <span className="block text-sm text-growth-green-dark mt-1">
+                      {plan.trial_days}-day free trial. Card saved now, charged when the trial ends.
+                    </span>
+                  )}
+                  {loadingPlan === plan.id && (
+                    <span className="block text-sm text-slate-blue mt-2">Redirecting to checkout...</span>
+                  )}
+                </button>
+              ))}
+              <p className="text-xs text-charcoal-70 text-center">
+                Cancel anytime &bull; Powered by Stripe
+              </p>
+            </div>
+          )}
 
           <p className="text-sm text-charcoal-70 mt-4">
             Already subscribed? Make sure you used the same email address.

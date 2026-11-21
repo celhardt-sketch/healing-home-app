@@ -12,7 +12,7 @@ export default function TermsOfService() {
 
         <div className="bg-white rounded-xl shadow-sm border p-8 md:p-12 max-w-none">
           <h1 className="text-3xl font-bold font-heading text-slate-blue mb-2">Terms of Service</h1>
-          <p className="text-sm text-charcoal-70 mb-2">Last Updated: June 22, 2026</p>
+          <p className="text-sm text-charcoal-70 mb-2">Last Updated: November 21, 2026</p>
           <p className="text-sm text-charcoal-70 mb-8">
             <strong>App:</strong> The Healing Home Approach&#8482;<br />
             <strong>Company:</strong> Elhardt Family Wellness LLC
@@ -48,7 +48,8 @@ export default function TermsOfService() {
 
             <section>
               <h2 className="text-xl font-bold font-heading text-charcoal mb-3">4. Subscription, Payment, and Cancellation</h2>
-              <p>Access to the Service requires a paid subscription at a rate of $9.99 per month, billed through Stripe. You can update your payment method or cancel at any time through the Stripe billing portal (Manage Billing). Cancelling stops future charges and ends access at the close of your current billing period. No Refunds. We reserve the right to change subscription pricing at any time.</p>
+              <p>Family subscriptions are billed through Stripe. The monthly plan is $9.99 per month. An annual family plan at $99 per year is available when it is offered at checkout. A person who has not already started a trial, and who has not already had a subscription, may receive one 7-day free trial on a family plan when that trial is offered at checkout. A card is collected when the trial starts.</p>
+              <p className="mt-2">If you do not cancel before the trial ends, the plan you chose becomes a paid subscription and your card is charged $9.99 for the monthly plan or $99 for the annual plan. You can cancel before the trial ends in Account Settings (Cancel Membership) or in the Stripe billing portal (Manage Billing), and you will not be charged. After a paid period has started, cancelling stops future charges. Access continues until the end of the current billing period. No Refunds. We reserve the right to change subscription pricing at any time.</p>
             </section>
 
             <section>

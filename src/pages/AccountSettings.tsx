@@ -4,10 +4,13 @@ import { ArrowLeft, Settings, User, Bell, Shield, LogOut, Save, Mail, Lock, Cred
 import { useAuth } from '../contexts/AuthContext'
 import SafetyFooter from '../components/SafetyFooter'
 import InstallAppModal from '../components/InstallAppModal'
+import { usePublicPlans, isClassicMonthly } from '../lib/plans'
 
 export default function AccountSettings() {
   const { user, signOut, subscription, openBillingPortal, changePassword, cancelSubscription, resumeSubscription } = useAuth()
   const navigate = useNavigate()
+  const plans = usePublicPlans()
+  const classic = isClassicMonthly(plans)
   const [showInstall, setShowInstall] = useState(false)
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
   const [subLoading, setSubLoading] = useState(false)
@@ -184,10 +187,33 @@ export default function AccountSettings() {
                 <span className="text-sm text-charcoal-80">Status</span>
                 <span className={`text-sm font-medium ${subscription.has_access ? 'text-growth-green' : 'text-red-500'}`}>
                   {subscription.status === 'active' ? 'Active' :
+                   subscription.status === 'trialing' ? 'Free trial' :
                    subscription.status === 'past_due' ? 'Past Due' :
                    subscription.status === 'canceled' ? 'Canceled' : 'None'}
                 </span>
               </div>
+
+              {subscription.plan_label && !subscription.is_admin && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-charcoal-80">Plan</span>
+                  <span className="text-sm font-medium text-charcoal">{subscription.plan_label}</span>
+                </div>
+              )}
+
+              {subscription.status === 'trialing' && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-charcoal-80">Trial ends</span>
+                  <span className="text-sm font-medium text-charcoal">
+                    {formatEndsAt(subscription.trial_ends_at) || 'At the end of the 7 days'}
+                  </span>
+                </div>
+              )}
+
+              {subscription.status === 'trialing' && !subscription.cancel_at_period_end && (
+                <p className="text-sm text-charcoal-70">
+                  Your card is charged when the trial ends, unless you cancel first.
+                </p>
+              )}
 
               {subError && (
                 <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
@@ -247,8 +273,9 @@ export default function AccountSettings() {
                   ) : (
                     <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg space-y-3">
                       <p className="text-sm text-charcoal-80">
-                        Cancel your membership? You'll keep full access until the end of your
-                        current billing period, then it won't renew.
+                        {subscription.status === 'trialing'
+                          ? 'Cancel during your free trial and you will not be charged. You keep access until the trial ends.'
+                          : "Cancel your membership? You'll keep full access until the end of your current billing period, then it won't renew."}
                       </p>
                       <div className="flex items-center gap-3">
                         <button
@@ -276,7 +303,7 @@ export default function AccountSettings() {
                   to="/access-gate"
                   className="block w-full bg-slate-blue text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-slate-blue-dark transition-colors text-center"
                 >
-                  Subscribe — $9.99/month
+                  {classic ? 'Subscribe — $9.99/month' : 'Choose a plan'}
                 </Link>
               )}
             </div>

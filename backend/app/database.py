@@ -22,6 +22,9 @@ def init_db() -> None:
             stripe_subscription_id TEXT,
             subscription_status TEXT DEFAULT 'none',
             subscription_updated_at TEXT,
+            subscription_plan TEXT,
+            subscription_trial_ends_at TEXT,
+            trial_used INTEGER DEFAULT 0,
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             updated_at TEXT NOT NULL DEFAULT (datetime('now'))
         )
@@ -76,6 +79,9 @@ def _migrate_add_columns(conn: sqlite3.Connection) -> None:
         ("is_admin", "INTEGER DEFAULT 0"),
         ("subscription_cancel_at_period_end", "INTEGER DEFAULT 0"),
         ("subscription_ends_at", "TEXT"),
+        ("subscription_plan", "TEXT"),
+        ("subscription_trial_ends_at", "TEXT"),
+        ("trial_used", "INTEGER DEFAULT 0"),
     ]
     for col_name, col_type in new_cols:
         if col_name not in existing_cols:
