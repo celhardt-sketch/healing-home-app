@@ -67,7 +67,7 @@ export default function SafetyResources() {
         </div>
       </div>
 
-      <main className="flex-1 max-w-4xl mx-auto px-4 py-6 w-full">
+      <main id="main-content" tabIndex={-1} className="flex-1 max-w-4xl mx-auto px-4 py-6 w-full">
         <CrisisBanner className="mb-6" />
 
         <h2 className="text-xl font-bold font-heading text-charcoal mb-4">Emergency &amp; Crisis Contacts</h2>

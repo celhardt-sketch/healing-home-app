@@ -300,7 +300,7 @@ export default function CrisisMode() {
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 pt-3 pb-4 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 pt-3 pb-4 max-w-2xl">
           <CrisisBanner className="mb-3" />
           <p className="text-sm text-charcoal-70 text-center mb-3 leading-snug">
             This is in-the-moment psychoeducational support, not treatment or a crisis service. If you
@@ -358,7 +358,7 @@ export default function CrisisMode() {
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="text-center mb-8">
               <div className="w-16 h-16 bg-[#FBEDEB] rounded-full flex items-center justify-center mx-auto mb-4">
@@ -439,7 +439,7 @@ export default function CrisisMode() {
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
             <div className="w-16 h-16 bg-healing-purple/10 rounded-full flex items-center justify-center mx-auto mb-6">
               <Heart className="w-8 h-8 text-healing-purple" />
@@ -515,7 +515,7 @@ export default function CrisisMode() {
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="text-center mb-6">
               <p className="text-charcoal-80 leading-relaxed">
@@ -595,7 +595,7 @@ export default function CrisisMode() {
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg p-8">
             <div className="space-y-6">
               <div className="bg-[#FBEDEB] rounded-xl p-5">
@@ -653,7 +653,7 @@ export default function CrisisMode() {
           </div>
         </div>
 
-        <main className="flex-1 container mx-auto px-4 py-6 max-w-2xl">
+        <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-6 max-w-2xl">
           <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
             {/* Card Header */}
             <div className="bg-gradient-to-r from-slate-blue to-healing-purple p-6 text-white">
@@ -845,7 +845,7 @@ export default function CrisisMode() {
         </div>
       </div>
 
-      <main className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
+      <main id="main-content" tabIndex={-1} className="flex-1 container mx-auto px-4 py-8 max-w-2xl">
         <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
           {/* Age Group Selection */}
           <div className="mb-8">
