@@ -322,7 +322,7 @@ export default function DisclaimerGate() {
             className="w-full bg-slate-blue text-white py-3 rounded-lg font-semibold hover:bg-slate-blue-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             <CheckCircle className="w-5 h-5" />
-            {loading ? 'Creating your account...' : 'I Understand and Accept — Continue to Payment'}
+            {loading ? 'Creating your account...' : 'I Understand and Accept. Continue to Payment.'}
           </button>
 
           <button
